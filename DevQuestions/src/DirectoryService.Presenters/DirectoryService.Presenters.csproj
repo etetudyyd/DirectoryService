@@ -4,11 +4,12 @@
         <TargetFramework>net9.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
+        <RootNamespace>DevQuestions.Presenters</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\DevQuestions.Contracts\DevQuestions.Contracts.csproj" />
-      <ProjectReference Include="..\DevQuestions.Domain\DevQuestions.Domain.csproj" />
+      <ProjectReference Include="..\DirectoryService.Contracts\DirectoryService.Contracts.csproj" />
+      <ProjectReference Include="..\DirectoryService.Domain\DirectoryService.Domain.csproj" />
     </ItemGroup>
 
     <ItemGroup>

@@ -4,6 +4,7 @@
         <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
+        <RootNamespace>DevQuestions.Web</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>
@@ -12,8 +13,8 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\DevQuestions.Domain\DevQuestions.Domain.csproj" />
-      <ProjectReference Include="..\DevQuestions.Presenters\DevQuestions.Presenters.csproj" />
+      <ProjectReference Include="..\DirectoryService.Domain\DirectoryService.Domain.csproj" />
+      <ProjectReference Include="..\DirectoryService.Presenters\DirectoryService.Presenters.csproj" />
     </ItemGroup>
 
 </Project>
