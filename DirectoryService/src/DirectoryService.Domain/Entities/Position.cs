@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using DevQuestions.Domain.Entities.AdjacentEntities;
 
 namespace DevQuestions.Domain.Entities;
 
@@ -9,13 +10,15 @@ public class Position
     {
     }
 
-    private Position(string name, string description, bool isActive, DateTime createdAt, DateTime updatedAt)
+    private Position(string name, string description, bool isActive, DateTime createdAt, DateTime updatedAt, List<DepartmentPosition> departmentPositions)
     {
         Id = Guid.NewGuid();
         Name = name;
         Description = description;
         IsActive = isActive;
         CreatedAt = createdAt;
+        _departmentPositions = departmentPositions;
+        UpdatedAt = updatedAt;
     }
 
     public Guid Id { get; private set; }
@@ -30,8 +33,25 @@ public class Position
 
     public DateTime UpdatedAt { get; private set; }
 
-    public static Result<Position> Create(string name, string description, bool isActive, DateTime createdAt, DateTime updatedAt)
+    private List<DepartmentPosition> _departmentPositions;
+
+    public IReadOnlyList<DepartmentPosition> DepartmentPositions => _departmentPositions;
+
+    public static Result<Position> Create(
+        string name,
+        string description,
+        bool isActive,
+        DateTime createdAt,
+        DateTime updatedAt,
+        List<DepartmentPosition> departmentPositions)
     {
-        return Result.Success(new Position(name, description, isActive, createdAt, updatedAt));
+        return Result.Success(
+            new Position(
+                name,
+                description,
+                isActive,
+                createdAt,
+                updatedAt,
+                departmentPositions));
     }
 }
