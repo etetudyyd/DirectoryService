@@ -14,7 +14,10 @@
 
     <ItemGroup>
       <ProjectReference Include="..\DirectoryService.Domain\DirectoryService.Domain.csproj" />
-      <ProjectReference Include="..\DirectoryService.Presenters\DirectoryService.Presenters.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Controllers\" />
     </ItemGroup>
 
 </Project>
