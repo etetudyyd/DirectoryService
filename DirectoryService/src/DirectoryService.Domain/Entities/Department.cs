@@ -1,5 +1,5 @@
-﻿using System.Collections;
-using CSharpFunctionalExtensions;
+﻿using CSharpFunctionalExtensions;
+using DevQuestions.Domain.Entities.AdjacentEntities;
 using DevQuestions.Domain.ValueObjects.DepartmentVO;
 
 namespace DevQuestions.Domain.Entities;
@@ -7,8 +7,8 @@ namespace DevQuestions.Domain.Entities;
 public class Department
 {
     private readonly List<Department> _children;
-    private readonly List<Location> _location;
-    private readonly List<Position> _position;
+    private readonly List<DepartmentLocation> _location;
+    private readonly List<DepartmentPosition> _position;
 
     public Guid Id { get; private set; }
 
@@ -20,9 +20,9 @@ public class Department
 
     public IReadOnlyList<Department> Children => _children;
 
-    public IReadOnlyList<Location> Locations => _location;
+    public IReadOnlyList<DepartmentLocation> Locations => _location;
 
-    public IReadOnlyList<Position> Positions => _position;
+    public IReadOnlyList<DepartmentPosition> Positions => _position;
 
     public DepartmentPath Path { get; private set; }
 
@@ -44,8 +44,8 @@ public class Department
         DateTime createdAt,
         DateTime updatedAt,
         Department? parentId,
-        List<Location> locations,
-        List<Position> positions,
+        List<DepartmentLocation> locations,
+        List<DepartmentPosition> positions,
         List<Department> children,
         bool isActive)
     {
@@ -83,8 +83,8 @@ public class Department
         DateTime createdAt,
         DateTime updatedAt,
         Department? parentId,
-        List<Location> locations,
-        List<Position> positions,
+        List<DepartmentLocation> locations,
+        List<DepartmentPosition> positions,
         List<Department> children,
         bool isActive = true)
     {

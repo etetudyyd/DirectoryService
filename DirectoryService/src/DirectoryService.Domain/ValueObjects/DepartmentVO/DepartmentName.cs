@@ -7,7 +7,7 @@ public record DepartmentName
     private const int MIN_LENGTH = 3;
     private const int MAX_LENGTH = 150;
 
-    public readonly string Value;
+    public string Value { get; }
     private DepartmentName(string value)
     {
         Value = value;

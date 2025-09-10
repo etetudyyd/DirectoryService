@@ -8,7 +8,7 @@ public record PositionName
     private const int MIN_LENGTH = 3;
     private const int MAX_LENGTH = 100;
 
-    public readonly string Value;
+    public string Value { get; }
     private PositionName(string value)
     {
         Value = value;

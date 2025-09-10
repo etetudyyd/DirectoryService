@@ -6,7 +6,7 @@ public record PositionDescription
 {
     private const int MAX_LENGTH = 1000;
 
-    public readonly string Value;
+    public string Value { get; }
     private PositionDescription(string value)
     {
         Value = value;

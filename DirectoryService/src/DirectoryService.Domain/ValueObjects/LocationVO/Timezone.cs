@@ -5,7 +5,7 @@ namespace DevQuestions.Domain.ValueObjects.LocationVO;
 
 public record Timezone
 {
-    public readonly string Value;
+    public string Value { get; }
 
     private Timezone(string value)
     {

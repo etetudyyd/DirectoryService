@@ -7,7 +7,7 @@ public record DepartmentPath
 {
     private const string TEXT_PATTERN = "^[a-z-.]+$";
 
-    public readonly string Value;
+    public string Value { get; }
     private DepartmentPath(string value)
     {
         Value = value;
