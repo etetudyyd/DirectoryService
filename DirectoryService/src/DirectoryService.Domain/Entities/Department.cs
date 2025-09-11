@@ -10,7 +10,7 @@ public class Department
     private readonly List<DepartmentLocation> _location;
     private readonly List<DepartmentPosition> _position;
 
-    public Guid Id { get; private set; }
+    public DepartmentId Id { get; private set; }
 
     public DepartmentName Name { get; private set; }
 
@@ -37,6 +37,7 @@ public class Department
     public int ChildrenCount => _children.Count;
 
     private Department(
+        DepartmentId departmentId,
         DepartmentName name,
         DepartmentPath path,
         Identifier identifier,
@@ -49,7 +50,7 @@ public class Department
         List<Department> children,
         bool isActive)
     {
-        Id = Guid.NewGuid();
+        Id = departmentId;
         Name = name;
         Path = path;
         Identifier = identifier;
@@ -86,7 +87,8 @@ public class Department
         List<DepartmentLocation> locations,
         List<DepartmentPosition> positions,
         List<Department> children,
-        bool isActive = true)
+        bool isActive = true
+        )
     {
         string updatedPath = path.Value + "." + identifier.Value;
 
@@ -95,6 +97,7 @@ public class Department
         short updatedDepth = GetDepth(departmentPath.Value);
 
         return new Department(
+            new DepartmentId(Guid.NewGuid()),
             name,
             departmentPath.Value,
             identifier,

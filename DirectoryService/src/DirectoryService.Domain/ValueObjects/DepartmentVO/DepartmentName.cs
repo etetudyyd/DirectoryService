@@ -2,16 +2,10 @@
 
 namespace DevQuestions.Domain.ValueObjects.DepartmentVO;
 
-public record DepartmentName
+public record DepartmentName(string Value)
 {
     private const int MIN_LENGTH = 3;
     private const int MAX_LENGTH = 150;
-
-    public string Value { get; }
-    private DepartmentName(string value)
-    {
-        Value = value;
-    }
 
     public static Result<DepartmentName> Create(string value)
     {
