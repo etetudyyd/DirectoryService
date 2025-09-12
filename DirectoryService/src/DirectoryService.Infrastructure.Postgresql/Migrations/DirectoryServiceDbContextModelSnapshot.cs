@@ -38,13 +38,14 @@ namespace DirectoryService.Infrastructure.Postgresql.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("location_id");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_department_location");
 
                     b.HasIndex("DepartmentId");
 
                     b.HasIndex("LocationId");
 
-                    b.ToTable("department_location", "DirectoryService");
+                    b.ToTable("department_locations", "DirectoryService");
                 });
 
             modelBuilder.Entity("DevQuestions.Domain.Entities.AdjacentEntities.DepartmentPosition", b =>
@@ -59,15 +60,16 @@ namespace DirectoryService.Infrastructure.Postgresql.Migrations
 
                     b.Property<Guid>("PositionId")
                         .HasColumnType("uuid")
-                        .HasColumnName("location_id");
+                        .HasColumnName("position_id");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_department_position");
 
                     b.HasIndex("DepartmentId");
 
                     b.HasIndex("PositionId");
 
-                    b.ToTable("department_position", "DirectoryService");
+                    b.ToTable("department_positions", "DirectoryService");
                 });
 
             modelBuilder.Entity("DevQuestions.Domain.Entities.Department", b =>
@@ -196,9 +198,10 @@ namespace DirectoryService.Infrastructure.Postgresql.Migrations
                                 .HasColumnName("street");
                         });
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_location");
 
-                    b.ToTable("location", "DirectoryService");
+                    b.ToTable("locations", "DirectoryService");
                 });
 
             modelBuilder.Entity("DevQuestions.Domain.Entities.Position", b =>
@@ -231,9 +234,10 @@ namespace DirectoryService.Infrastructure.Postgresql.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("update_at");
 
-                    b.HasKey("Id");
+                    b.HasKey("Id")
+                        .HasName("pk_position");
 
-                    b.ToTable("position", "DirectoryService");
+                    b.ToTable("positions", "DirectoryService");
                 });
 
             modelBuilder.Entity("DevQuestions.Domain.Entities.AdjacentEntities.DepartmentLocation", b =>

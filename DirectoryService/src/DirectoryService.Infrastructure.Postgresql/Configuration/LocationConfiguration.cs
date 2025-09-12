@@ -10,9 +10,10 @@ public class LocationConfiguration : IEntityTypeConfiguration<Location>
 {
     public void Configure(EntityTypeBuilder<Location> builder)
     {
-        builder.ToTable("location");
+        builder.ToTable("locations");
 
-        builder.HasKey(l => l.Id);
+        builder.HasKey(l => l.Id)
+            .HasName("pk_location");
 
         builder.Property(l => l.Id)
             .HasColumnName("id")

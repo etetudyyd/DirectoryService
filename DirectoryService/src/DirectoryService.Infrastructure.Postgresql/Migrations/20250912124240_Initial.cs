@@ -15,7 +15,7 @@ namespace DirectoryService.Infrastructure.Postgresql.Migrations
                 name: "DirectoryService");
 
             migrationBuilder.CreateTable(
-                name: "location",
+                name: "locations",
                 schema: "DirectoryService",
                 columns: table => new
                 {
@@ -34,11 +34,11 @@ namespace DirectoryService.Infrastructure.Postgresql.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_location", x => x.id);
+                    table.PrimaryKey("pk_location", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
-                name: "position",
+                name: "positions",
                 schema: "DirectoryService",
                 columns: table => new
                 {
@@ -51,7 +51,7 @@ namespace DirectoryService.Infrastructure.Postgresql.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_position", x => x.id);
+                    table.PrimaryKey("pk_position", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -81,15 +81,15 @@ namespace DirectoryService.Infrastructure.Postgresql.Migrations
                         principalColumn: "id",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_departments_location_LocationId",
+                        name: "FK_departments_locations_LocationId",
                         column: x => x.LocationId,
                         principalSchema: "DirectoryService",
-                        principalTable: "location",
+                        principalTable: "locations",
                         principalColumn: "id");
                 });
 
             migrationBuilder.CreateTable(
-                name: "department_location",
+                name: "department_locations",
                 schema: "DirectoryService",
                 columns: table => new
                 {
@@ -99,74 +99,74 @@ namespace DirectoryService.Infrastructure.Postgresql.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_department_location", x => x.id);
+                    table.PrimaryKey("pk_department_location", x => x.id);
                     table.ForeignKey(
-                        name: "FK_department_location_departments_department_id",
+                        name: "FK_department_locations_departments_department_id",
                         column: x => x.department_id,
                         principalSchema: "DirectoryService",
                         principalTable: "departments",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_department_location_location_location_id",
+                        name: "FK_department_locations_locations_location_id",
                         column: x => x.location_id,
                         principalSchema: "DirectoryService",
-                        principalTable: "location",
+                        principalTable: "locations",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "department_position",
+                name: "department_positions",
                 schema: "DirectoryService",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     department_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    location_id = table.Column<Guid>(type: "uuid", nullable: false)
+                    position_id = table.Column<Guid>(type: "uuid", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_department_position", x => x.id);
+                    table.PrimaryKey("pk_department_position", x => x.id);
                     table.ForeignKey(
-                        name: "FK_department_position_departments_department_id",
+                        name: "FK_department_positions_departments_department_id",
                         column: x => x.department_id,
                         principalSchema: "DirectoryService",
                         principalTable: "departments",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_department_position_position_location_id",
-                        column: x => x.location_id,
+                        name: "FK_department_positions_positions_position_id",
+                        column: x => x.position_id,
                         principalSchema: "DirectoryService",
-                        principalTable: "position",
+                        principalTable: "positions",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_department_location_department_id",
+                name: "IX_department_locations_department_id",
                 schema: "DirectoryService",
-                table: "department_location",
+                table: "department_locations",
                 column: "department_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_department_location_location_id",
+                name: "IX_department_locations_location_id",
                 schema: "DirectoryService",
-                table: "department_location",
+                table: "department_locations",
                 column: "location_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_department_position_department_id",
+                name: "IX_department_positions_department_id",
                 schema: "DirectoryService",
-                table: "department_position",
+                table: "department_positions",
                 column: "department_id");
 
             migrationBuilder.CreateIndex(
-                name: "IX_department_position_location_id",
+                name: "IX_department_positions_position_id",
                 schema: "DirectoryService",
-                table: "department_position",
-                column: "location_id");
+                table: "department_positions",
+                column: "position_id");
 
             migrationBuilder.CreateIndex(
                 name: "IX_departments_LocationId",
@@ -185,11 +185,11 @@ namespace DirectoryService.Infrastructure.Postgresql.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "department_location",
+                name: "department_locations",
                 schema: "DirectoryService");
 
             migrationBuilder.DropTable(
-                name: "department_position",
+                name: "department_positions",
                 schema: "DirectoryService");
 
             migrationBuilder.DropTable(
@@ -197,11 +197,11 @@ namespace DirectoryService.Infrastructure.Postgresql.Migrations
                 schema: "DirectoryService");
 
             migrationBuilder.DropTable(
-                name: "position",
+                name: "positions",
                 schema: "DirectoryService");
 
             migrationBuilder.DropTable(
-                name: "location",
+                name: "locations",
                 schema: "DirectoryService");
         }
     }

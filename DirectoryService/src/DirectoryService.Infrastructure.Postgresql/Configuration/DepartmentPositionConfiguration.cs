@@ -11,26 +11,26 @@ public class DepartmentPositionConfiguration : IEntityTypeConfiguration<Departme
 {
     public void Configure(EntityTypeBuilder<DepartmentPosition> builder)
     {
-        builder.ToTable("department_position");
+        builder.ToTable("department_positions");
 
-        builder.HasKey(d => d.Id);
+        builder.HasKey(dp => dp.Id).HasName("pk_department_position");
 
-        builder.Property(d => d.Id)
+        builder.Property(dp => dp.Id)
             .HasColumnName("id")
             .IsRequired()
             .HasConversion(
                 id => id.Value,
                 value => new DepartmentPositionId(value));
 
-        builder.Property(d => d.DepartmentId)
+        builder.Property(dp => dp.DepartmentId)
             .HasColumnName("department_id")
             .IsRequired()
             .HasConversion(
                 id => id.Value,
                 value => new DepartmentId(value));
 
-        builder.Property(d => d.PositionId)
-            .HasColumnName("location_id")
+        builder.Property(dp => dp.PositionId)
+            .HasColumnName("position_id")
             .IsRequired()
             .HasConversion(
                 id => id.Value,
