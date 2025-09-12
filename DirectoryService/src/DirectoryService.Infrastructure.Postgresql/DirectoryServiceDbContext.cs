@@ -6,8 +6,6 @@ namespace DirectoryService.Infrastructure.Postgresql;
 
 public class DirectoryServiceDbContext(string? connectionString) : DbContext
 {
-    private readonly string? _connectionString = connectionString;
-
     public DbSet<Department> Departments { get; set; }
 
     public DbSet<DepartmentLocation> DepartmentLocations { get; set; }
@@ -20,7 +18,7 @@ public class DirectoryServiceDbContext(string? connectionString) : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseNpgsql(_connectionString);
+        optionsBuilder.UseNpgsql(connectionString);
         optionsBuilder.EnableSensitiveDataLogging();
 
         base.OnConfiguring(optionsBuilder);

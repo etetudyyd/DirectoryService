@@ -6,6 +6,11 @@ namespace DevQuestions.Domain.Entities;
 
 public class Department
 {
+    // ef
+    private Department()
+    {
+    }
+
     private readonly List<Department> _children;
     private readonly List<DepartmentLocation> _location;
     private readonly List<DepartmentPosition> _position;
@@ -16,7 +21,7 @@ public class Department
 
     public Identifier Identifier { get; private set; }
 
-    public Department? ParentId { get; private set; }
+    public DepartmentId? ParentId { get; private set; }
 
     public IReadOnlyList<Department> Children => _children;
 
@@ -44,7 +49,7 @@ public class Department
         short depth,
         DateTime createdAt,
         DateTime updatedAt,
-        Department? parentId,
+        DepartmentId? parentId,
         List<DepartmentLocation> locations,
         List<DepartmentPosition> positions,
         List<Department> children,
@@ -83,7 +88,7 @@ public class Department
         short depth,
         DateTime createdAt,
         DateTime updatedAt,
-        Department? parentId,
+        DepartmentId? parentId,
         List<DepartmentLocation> locations,
         List<DepartmentPosition> positions,
         List<Department> children,

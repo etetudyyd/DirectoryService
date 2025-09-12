@@ -13,10 +13,13 @@ public readonly struct LengthConstants
 
     public static class Address
     {
-        public const int MAX_LENGTH_ADDRESS_STREET = 100;
+        public const int MAX_LENGTH_ADDRESS_POSTAL_CODE = 100;
+        public const int MAX_LENGTH_ADDRESS_REGION = 100;
         public const int MAX_LENGTH_ADDRESS_CITY = 100;
-        public const int MAX_LENGTH_ADDRESS_HOUSE_NUMBER = 100;
-        public const int MAX_LENGTH_ADDRESS_ZIP_CODE = 100;
+        public const int MAX_LENGTH_ADDRESS_STREET = 100;
+        public const int MAX_LENGTH_ADDRESS_HOUSE = 100;
+        public const int MAX_LENGTH_ADDRESS_APARTAMENT = 100;
+
     }
 
     public const int MAX_LENGTH_POSITION_NAME = 100;
