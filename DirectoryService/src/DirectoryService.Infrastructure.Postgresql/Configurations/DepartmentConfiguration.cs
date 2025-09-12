@@ -4,7 +4,7 @@ using DevQuestions.Domain.ValueObjects.DepartmentVO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace DirectoryService.Infrastructure.Postgresql.Configuration;
+namespace DirectoryService.Infrastructure.Postgresql.Configurations;
 
 public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
 {

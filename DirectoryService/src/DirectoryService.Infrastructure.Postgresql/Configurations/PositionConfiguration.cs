@@ -1,11 +1,10 @@
 ﻿using DevQuestions.Domain;
 using DevQuestions.Domain.Entities;
-using DevQuestions.Domain.Entities.AdjacentEntities;
 using DevQuestions.Domain.ValueObjects.PositionVO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace DirectoryService.Infrastructure.Postgresql.Configuration;
+namespace DirectoryService.Infrastructure.Postgresql.Configurations;
 
 public class PositionConfiguration : IEntityTypeConfiguration<Position>
 {

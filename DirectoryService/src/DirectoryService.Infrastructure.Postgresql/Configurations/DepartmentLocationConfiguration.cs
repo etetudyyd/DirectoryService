@@ -5,7 +5,7 @@ using DevQuestions.Domain.ValueObjects.LocationVO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace DirectoryService.Infrastructure.Postgresql.Configuration;
+namespace DirectoryService.Infrastructure.Postgresql.Configurations;
 
 public class DepartmentLocationConfiguration : IEntityTypeConfiguration<DepartmentLocation>
 {

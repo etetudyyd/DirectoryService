@@ -17,10 +17,10 @@ public class Location
         LocationName name,
         Address address,
         Timezone timezone,
-        bool isActive,
         DateTime createdAt,
         List<DepartmentLocation> departmentLocations,
-        List<Department> departments)
+        List<Department> departments,
+        bool isActive = true)
     {
         Id = id;
         Name = name;
@@ -54,7 +54,7 @@ public class Location
 
     public List<Department> Departments => _departments;
 
-    public static Result<Location> Create(LocationName name, Address address, Timezone timezone, bool isActive,
+    public static Result<Location> Create(LocationName name, Address address, Timezone timezone,
         DateTime createdAt, List<DepartmentLocation> departmentLocations, List<Department> departments)
     {
         if (string.IsNullOrWhiteSpace(name.Value) || name.Value.Length > 150)
@@ -62,6 +62,6 @@ public class Location
             return Result.Failure<Location>("Name is required and must be less than 150 characters");
         }
 
-        return new Location(new LocationId(Guid.NewGuid()), name, address, timezone, isActive, createdAt, departmentLocations, departments);
+        return new Location(new LocationId(Guid.NewGuid()), name, address, timezone, createdAt, departmentLocations, departments, true);
     }
 }
