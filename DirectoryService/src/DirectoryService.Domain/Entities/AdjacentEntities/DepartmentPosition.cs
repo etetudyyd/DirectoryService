@@ -1,10 +1,14 @@
-﻿namespace DevQuestions.Domain.Entities.AdjacentEntities;
+﻿using DevQuestions.Domain.ValueObjects.DepartmentPositionVO;
+using DevQuestions.Domain.ValueObjects.DepartmentVO;
+using DevQuestions.Domain.ValueObjects.PositionVO;
 
-public class DepartmentPosition(Department department, Position position)
+namespace DevQuestions.Domain.Entities.AdjacentEntities;
+
+public class DepartmentPosition
 {
-    public Guid Id { get; private set; } = Guid.NewGuid();
+    public DepartmentPositionId Id { get; private set; } = null!;
 
-    public Department Department { get; private set; } = department;
+    public DepartmentId DepartmentId { get; private set; } = null!;
 
-    public Position Position { get; private set; } = position;
+    public PositionId PositionId { get; private set; } = null!;
 }

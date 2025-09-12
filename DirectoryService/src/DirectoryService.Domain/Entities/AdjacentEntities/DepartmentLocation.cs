@@ -1,10 +1,15 @@
-﻿namespace DevQuestions.Domain.Entities.AdjacentEntities;
+﻿using DevQuestions.Domain.ValueObjects.DepartmentLocationVO;
+using DevQuestions.Domain.ValueObjects.DepartmentVO;
+using DevQuestions.Domain.ValueObjects.LocationVO;
 
-public class DepartmentLocation(Department department, Location location)
+namespace DevQuestions.Domain.Entities.AdjacentEntities;
+
+public class DepartmentLocation()
 {
-    public Guid Id { get; private set; } = Guid.NewGuid();
+    public DepartmentLocationId Id { get; private set; } = null!;
 
-    public Department Department { get; private set; } = department;
+    public DepartmentId DepartmentId { get; private set; } = null!;
 
-    public Location Location { get; private set; } = location;
+    public LocationId LocationId { get; private set; } = null!;
+
 }

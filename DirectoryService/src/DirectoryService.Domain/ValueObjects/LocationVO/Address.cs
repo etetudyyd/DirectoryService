@@ -6,17 +6,17 @@ namespace DevQuestions.Domain.ValueObjects.LocationVO;
 
 public record Address
 {
-    private string PostalCode { get; }
+    public string PostalCode { get; }
 
-    private string Region { get; }
+    public string Region { get; }
 
-    private string City { get; }
+    public string City { get; }
 
-    private string Street { get; }
+    public string Street { get; }
 
-    private string House { get; }
+    public string House { get; }
 
-    private string? Apartment { get; }
+    public string? Apartment { get; }
 
     private Address(string postalCode, string region, string city, string street, string house, string? apartment)
     {
