@@ -1,4 +1,4 @@
-﻿using DirectoryService.Contracts;
+﻿using DirectoryService.Application.Services;
 using DirectoryService.Contracts.Locations;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,9 +11,17 @@ public class LocationController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create(
         [FromBody] CreateLocationDto locationDto,
+        [FromServices] CreateLocationHandler createLocationHandler,
         CancellationToken cancellationToken)
     {
-       return Ok("Location created successfully");
+        var result = await createLocationHandler.Handle(locationDto, cancellationToken);
+        if (result.IsFailure)
+        {
+            return BadRequest(result.Error);
+        }
+
+        return Ok(result.Value);
+
     }
 
     [HttpGet]

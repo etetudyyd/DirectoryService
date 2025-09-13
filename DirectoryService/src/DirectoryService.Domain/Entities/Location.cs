@@ -6,11 +6,8 @@ namespace DevQuestions.Domain.Entities;
 
 public class Location
 {
-    
     // ef
-    private Location()
-    {
-    }
+    private Location() { }
 
     private Location(
         LocationId id,
@@ -18,18 +15,17 @@ public class Location
         Address address,
         Timezone timezone,
         DateTime createdAt,
-        List<DepartmentLocation> departmentLocations,
-        List<Department> departments,
-        bool isActive = true)
+        bool isActive,
+        List<DepartmentLocation> departmentLocations
+        )
     {
         Id = id;
         Name = name;
         Address = address;
         Timezone = timezone;
-        IsActive = isActive;
         CreatedAt = createdAt;
+        IsActive = isActive;
         _departmentLocations = departmentLocations;
-        _departments = departments;
     }
 
     public LocationId Id { get; private set; }
@@ -50,18 +46,14 @@ public class Location
 
     public IReadOnlyList<DepartmentLocation> DepartmentLocations => _departmentLocations;
 
-    private List<Department> _departments;
-
-    public List<Department> Departments => _departments;
-
     public static Result<Location> Create(LocationName name, Address address, Timezone timezone,
-        DateTime createdAt, List<DepartmentLocation> departmentLocations, List<Department> departments)
+        DateTime createdAt, bool isActive, List<DepartmentLocation> departmentLocations)
     {
         if (string.IsNullOrWhiteSpace(name.Value) || name.Value.Length > 150)
         {
             return Result.Failure<Location>("Name is required and must be less than 150 characters");
         }
 
-        return new Location(new LocationId(Guid.NewGuid()), name, address, timezone, createdAt, departmentLocations, departments, true);
+        return new Location(new LocationId(Guid.NewGuid()), name, address, timezone, createdAt, isActive, departmentLocations);
     }
 }

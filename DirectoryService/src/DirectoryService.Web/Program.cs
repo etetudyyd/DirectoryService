@@ -1,14 +1,12 @@
+using DevQuestions.Web;
+using DirectoryService.Application;
 using DirectoryService.Infrastructure.Postgresql;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddControllers();
-builder.Services.AddOpenApi();
-
-builder.Services.AddScoped<DirectoryServiceDbContext>(_ =>
-    new DirectoryServiceDbContext(
-        builder.Configuration
-                .GetConnectionString("DefaultConnection")));
+builder.Services.AddWeb();
+builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddApplication();
 
 var app = builder.Build();
 

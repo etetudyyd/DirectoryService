@@ -6,10 +6,10 @@ namespace DevQuestions.Domain.Entities.AdjacentEntities;
 
 public class DepartmentLocation()
 {
-    public DepartmentLocationId Id { get; private set; } = null!;
+    public Guid Id { get; private set; }
 
-    public DepartmentId DepartmentId { get; private set; } = null!;
+    public Guid DepartmentId { get; private set; }
 
-    public LocationId LocationId { get; private set; } = null!;
+    public Guid LocationId { get; private set; }
 
 }

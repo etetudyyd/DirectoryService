@@ -1,7 +1,6 @@
 ﻿using DevQuestions.Domain.Entities;
-using DirectoryService.Contracts;
 
-namespace DirectoryService.Application.Locations;
+namespace DirectoryService.Application.IRepositories;
 
 public interface ILocationsRepository
 {

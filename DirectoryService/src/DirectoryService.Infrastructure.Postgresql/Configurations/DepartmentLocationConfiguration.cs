@@ -18,23 +18,14 @@ public class DepartmentLocationConfiguration : IEntityTypeConfiguration<Departme
 
         builder.Property(x => x.Id)
             .HasColumnName("id")
-            .IsRequired()
-            .HasConversion(
-                id => id.Value,
-                value => new DepartmentLocationId(value));
+            .IsRequired();
 
         builder.Property(x => x.DepartmentId)
             .HasColumnName("department_id")
-            .IsRequired()
-            .HasConversion(
-                id => id.Value,
-                value => new DepartmentId(value));
+            .IsRequired();
 
         builder.Property(x => x.LocationId)
             .HasColumnName("location_id")
-            .IsRequired()
-            .HasConversion(
-                id => id.Value,
-                value => new LocationId(value));
+            .IsRequired();
     }
 }
