@@ -6,7 +6,5 @@ public record CreateLocationDto(
     NameDto Name,
     AddressDto Address,
     TimezoneDto Timezone,
-    bool IsActive);
-
-    // Guid DepartmentId,
-    //IEnumerable<DepartmentLocation> DepartmentLocations);
+    bool IsActive,
+    IEnumerable<DepartmentLocation> DepartmentLocations);

@@ -2,7 +2,9 @@
 using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.ValueObjects.LocationVO;
 using DirectoryService.Application.IRepositories;
+using DirectoryService.Application.Validators.Locations;
 using DirectoryService.Contracts.Locations;
+using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Guid = System.Guid;
 
@@ -14,19 +16,25 @@ public class CreateLocationHandler()
 
     private readonly ILogger<CreateLocationHandler> _logger = null!;
 
-    public CreateLocationHandler(ILocationsRepository locationsRepository, ILogger<CreateLocationHandler> logger)
+    private readonly IValidator<CreateLocationDto> _validator = null!;
+
+    public CreateLocationHandler(ILocationsRepository locationsRepository, ILogger<CreateLocationHandler> logger,
+        IValidator<CreateLocationDto> validator)
         : this()
     {
         _locationsRepository = locationsRepository;
         _logger = logger;
+        _validator = validator;
     }
 
     public async Task<Result<Guid>> Handle(CreateLocationDto locationDto, CancellationToken cancellationToken)
     {
         // validate
-        // TODO: inject validator
-        if(locationDto == null)
-            throw new ArgumentNullException(nameof(locationDto));
+        var validationResult = await _validator.ValidateAsync(locationDto, cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            return Result.Failure<Guid>(validationResult.Errors.First().ErrorMessage);
+        }
 
         // create entity
         var name = LocationName.Create(locationDto.Name.Value);
