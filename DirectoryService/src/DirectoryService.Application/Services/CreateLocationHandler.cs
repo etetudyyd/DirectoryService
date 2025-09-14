@@ -4,6 +4,7 @@ using DevQuestions.Domain.ValueObjects.LocationVO;
 using DirectoryService.Application.IRepositories;
 using DirectoryService.Contracts.Locations;
 using Microsoft.Extensions.Logging;
+using Guid = System.Guid;
 
 namespace DirectoryService.Application.Services;
 
@@ -45,18 +46,21 @@ public class CreateLocationHandler()
             name.Value,
             address.Value,
             timeZone.Value,
-            DateTime.Now,
-            locationDto.IsActive,
-            locationDto.DepartmentLocations.ToList());
+            DateTime.UtcNow,
+            locationDto.IsActive
+            //departmentLocations
+            );
 
         // save to db
+        var locationId = await _locationsRepository.AddAsync(location.Value, cancellationToken);
 
         // log result
         _logger.LogInformation($"Location created successfully with id {location.Value.Id}", location.Value.Id);
 
         // return result
-        return await _locationsRepository.AddAsync(location.Value, cancellationToken);
+        return Result.Success(locationId);
     }
+
 /*
     public async Task Update(Guid id, UpdateLocationDto locationDto, CancellationToken cancellationToken)
     {

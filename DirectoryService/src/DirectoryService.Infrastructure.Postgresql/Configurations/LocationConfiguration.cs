@@ -17,10 +17,7 @@ public class LocationConfiguration : IEntityTypeConfiguration<Location>
 
         builder.Property(l => l.Id)
             .HasColumnName("id")
-            .IsRequired()
-            .HasConversion(
-                id => id.Value,
-                value => new LocationId(value));
+            .IsRequired();
 
         builder.Property(p => p.Name)
             .HasColumnName("name")

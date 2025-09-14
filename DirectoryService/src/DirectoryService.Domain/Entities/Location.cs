@@ -1,6 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
-using DevQuestions.Domain.Entities.AdjacentEntities;
 using DevQuestions.Domain.ValueObjects.LocationVO;
+using Guid = System.Guid;
 
 namespace DevQuestions.Domain.Entities;
 
@@ -10,14 +10,13 @@ public class Location
     private Location() { }
 
     private Location(
-        LocationId id,
+        Guid id,
         LocationName name,
         Address address,
         Timezone timezone,
         DateTime createdAt,
-        bool isActive,
-        List<DepartmentLocation> departmentLocations
-        )
+        bool isActive
+       /* List<DepartmentLocation> departmentLocations*/)
     {
         Id = id;
         Name = name;
@@ -25,10 +24,10 @@ public class Location
         Timezone = timezone;
         CreatedAt = createdAt;
         IsActive = isActive;
-        _departmentLocations = departmentLocations;
+        //_departmentLocations = departmentLocations;
     }
 
-    public LocationId Id { get; private set; }
+    public Guid Id { get; private set; }
 
     public LocationName Name { get; private set; }
 
@@ -47,13 +46,13 @@ public class Location
     public IReadOnlyList<DepartmentLocation> DepartmentLocations => _departmentLocations;
 
     public static Result<Location> Create(LocationName name, Address address, Timezone timezone,
-        DateTime createdAt, bool isActive, List<DepartmentLocation> departmentLocations)
+        DateTime createdAt, bool isActive)//, List<DepartmentLocation> departmentLocations)
     {
         if (string.IsNullOrWhiteSpace(name.Value) || name.Value.Length > 150)
         {
             return Result.Failure<Location>("Name is required and must be less than 150 characters");
         }
 
-        return new Location(new LocationId(Guid.NewGuid()), name, address, timezone, createdAt, isActive, departmentLocations);
+        return new Location(Guid.NewGuid(), name, address, timezone, createdAt, isActive/*, departmentLocations*/);
     }
 }

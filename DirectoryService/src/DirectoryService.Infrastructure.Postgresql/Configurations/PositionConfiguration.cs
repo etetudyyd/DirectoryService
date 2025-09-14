@@ -17,10 +17,7 @@ public class PositionConfiguration : IEntityTypeConfiguration<Position>
 
         builder.Property(l => l.Id)
             .HasColumnName("id")
-            .IsRequired()
-            .HasConversion(
-                id => id.Value,
-                value => new PositionId(value));
+            .IsRequired();
 
         builder.Property(p => p.Name)
             .HasColumnName("name")

@@ -1,7 +1,4 @@
-﻿using DevQuestions.Domain.Entities.AdjacentEntities;
-using DevQuestions.Domain.ValueObjects.DepartmentLocationVO;
-using DevQuestions.Domain.ValueObjects.DepartmentVO;
-using DevQuestions.Domain.ValueObjects.LocationVO;
+﻿using DevQuestions.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

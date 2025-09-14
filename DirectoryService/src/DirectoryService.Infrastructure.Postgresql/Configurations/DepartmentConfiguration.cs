@@ -15,11 +15,8 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
             builder.HasKey(d => d.Id);
 
             builder.Property(p => p.Id)
-            .HasColumnName("id")
-            .IsRequired()
-            .HasConversion(
-                id => id.Value,
-                value => new DepartmentId(value));
+                .HasColumnName("id")
+                .IsRequired();
 
             builder.Property(p => p.Name)
             .HasColumnName("name")
@@ -36,10 +33,7 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
                 value => Identifier.Create(value).Value);
 
             builder.Property(p => p.ParentId)
-            .HasColumnName("parent_id")
-            .HasConversion(
-                id => id != null ? id.Value : (Guid?)null,
-                value => value != null ? new DepartmentId(value.Value) : null);
+                .HasColumnName("parent_id");
 
             builder.Property(p => p.Path)
             .HasColumnName("path")
@@ -70,11 +64,11 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
             .HasForeignKey(x => x.ParentId)
             .OnDelete(DeleteBehavior.Restrict);
 
-            builder.HasMany(x => x.Locations)
+            builder.HasMany(x => x.DepartmentLocations)
             .WithOne()
             .HasForeignKey(x => x.DepartmentId);
 
-            builder.HasMany(x => x.Positions)
+            builder.HasMany(x => x.DepartmentPositions)
             .WithOne()
             .HasForeignKey(x => x.DepartmentId);
         }
