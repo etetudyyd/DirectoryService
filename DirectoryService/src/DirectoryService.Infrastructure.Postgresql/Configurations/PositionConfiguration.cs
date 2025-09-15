@@ -1,11 +1,10 @@
 ﻿using DevQuestions.Domain;
 using DevQuestions.Domain.Entities;
-using DevQuestions.Domain.Entities.AdjacentEntities;
 using DevQuestions.Domain.ValueObjects.PositionVO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace DirectoryService.Infrastructure.Postgresql.Configuration;
+namespace DirectoryService.Infrastructure.Postgresql.Configurations;
 
 public class PositionConfiguration : IEntityTypeConfiguration<Position>
 {
@@ -18,10 +17,7 @@ public class PositionConfiguration : IEntityTypeConfiguration<Position>
 
         builder.Property(l => l.Id)
             .HasColumnName("id")
-            .IsRequired()
-            .HasConversion(
-                id => id.Value,
-                value => new PositionId(value));
+            .IsRequired();
 
         builder.Property(p => p.Name)
             .HasColumnName("name")

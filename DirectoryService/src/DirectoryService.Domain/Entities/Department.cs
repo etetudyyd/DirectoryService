@@ -1,5 +1,4 @@
 ﻿using CSharpFunctionalExtensions;
-using DevQuestions.Domain.Entities.AdjacentEntities;
 using DevQuestions.Domain.ValueObjects.DepartmentVO;
 
 namespace DevQuestions.Domain.Entities;
@@ -15,19 +14,19 @@ public class Department
     private readonly List<DepartmentLocation> _location;
     private readonly List<DepartmentPosition> _position;
 
-    public DepartmentId Id { get; private set; }
+    public Guid Id { get; private set; }
 
     public DepartmentName Name { get; private set; }
 
     public Identifier Identifier { get; private set; }
 
-    public DepartmentId? ParentId { get; private set; }
+    public Guid? ParentId { get; private set; }
 
     public IReadOnlyList<Department> Children => _children;
 
-    public IReadOnlyList<DepartmentLocation> Locations => _location;
+    public IReadOnlyList<DepartmentLocation> DepartmentLocations => _location;
 
-    public IReadOnlyList<DepartmentPosition> Positions => _position;
+    public IReadOnlyList<DepartmentPosition> DepartmentPositions => _position;
 
     public DepartmentPath Path { get; private set; }
 
@@ -42,14 +41,14 @@ public class Department
     public int ChildrenCount => _children.Count;
 
     private Department(
-        DepartmentId departmentId,
+        Guid departmentId,
         DepartmentName name,
         DepartmentPath path,
         Identifier identifier,
         short depth,
         DateTime createdAt,
         DateTime updatedAt,
-        DepartmentId? parentId,
+        Guid? parentId,
         List<DepartmentLocation> locations,
         List<DepartmentPosition> positions,
         List<Department> children,
@@ -88,7 +87,7 @@ public class Department
         short depth,
         DateTime createdAt,
         DateTime updatedAt,
-        DepartmentId? parentId,
+        Guid? parentId,
         List<DepartmentLocation> locations,
         List<DepartmentPosition> positions,
         List<Department> children,
@@ -102,7 +101,7 @@ public class Department
         short updatedDepth = GetDepth(departmentPath.Value);
 
         return new Department(
-            new DepartmentId(Guid.NewGuid()),
+            Guid.NewGuid(),
             name,
             departmentPath.Value,
             identifier,

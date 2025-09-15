@@ -1,38 +1,33 @@
 ﻿using CSharpFunctionalExtensions;
-using DevQuestions.Domain.Entities.AdjacentEntities;
 using DevQuestions.Domain.ValueObjects.LocationVO;
+using Guid = System.Guid;
 
 namespace DevQuestions.Domain.Entities;
 
 public class Location
 {
-    
     // ef
-    private Location()
-    {
-    }
+    private Location() { }
 
     private Location(
-        LocationId id,
+        Guid id,
         LocationName name,
         Address address,
         Timezone timezone,
-        bool isActive,
         DateTime createdAt,
-        List<DepartmentLocation> departmentLocations,
-        List<Department> departments)
+        bool isActive
+       /* List<DepartmentLocation> departmentLocations*/)
     {
         Id = id;
         Name = name;
         Address = address;
         Timezone = timezone;
-        IsActive = isActive;
         CreatedAt = createdAt;
-        _departmentLocations = departmentLocations;
-        _departments = departments;
+        IsActive = isActive;
+        //_departmentLocations = departmentLocations;
     }
 
-    public LocationId Id { get; private set; }
+    public Guid Id { get; private set; }
 
     public LocationName Name { get; private set; }
 
@@ -50,18 +45,14 @@ public class Location
 
     public IReadOnlyList<DepartmentLocation> DepartmentLocations => _departmentLocations;
 
-    private List<Department> _departments;
-
-    public List<Department> Departments => _departments;
-
-    public static Result<Location> Create(LocationName name, Address address, Timezone timezone, bool isActive,
-        DateTime createdAt, List<DepartmentLocation> departmentLocations, List<Department> departments)
+    public static Result<Location> Create(LocationName name, Address address, Timezone timezone,
+        DateTime createdAt, bool isActive)//, List<DepartmentLocation> departmentLocations)
     {
         if (string.IsNullOrWhiteSpace(name.Value) || name.Value.Length > 150)
         {
             return Result.Failure<Location>("Name is required and must be less than 150 characters");
         }
 
-        return new Location(new LocationId(Guid.NewGuid()), name, address, timezone, isActive, createdAt, departmentLocations, departments);
+        return new Location(Guid.NewGuid(), name, address, timezone, createdAt, isActive/*, departmentLocations*/);
     }
 }

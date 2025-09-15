@@ -4,7 +4,7 @@ using DevQuestions.Domain.ValueObjects.LocationVO;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace DirectoryService.Infrastructure.Postgresql.Configuration;
+namespace DirectoryService.Infrastructure.Postgresql.Configurations;
 
 public class LocationConfiguration : IEntityTypeConfiguration<Location>
 {
@@ -17,10 +17,7 @@ public class LocationConfiguration : IEntityTypeConfiguration<Location>
 
         builder.Property(l => l.Id)
             .HasColumnName("id")
-            .IsRequired()
-            .HasConversion(
-                id => id.Value,
-                value => new LocationId(value));
+            .IsRequired();
 
         builder.Property(p => p.Name)
             .HasColumnName("name")

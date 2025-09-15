@@ -1,6 +1,6 @@
 ﻿using DevQuestions.Domain.Entities;
-using DevQuestions.Domain.Entities.AdjacentEntities;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DirectoryService.Infrastructure.Postgresql;
 
@@ -26,12 +26,26 @@ public class DirectoryServiceDbContext(string? connectionString) : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        base.OnModelCreating(modelBuilder);
         modelBuilder.HasDefaultSchema("DirectoryService");
 
         modelBuilder.ApplyConfigurationsFromAssembly(
             typeof(DirectoryServiceDbContext).Assembly,
-            type => type.FullName?.ToLower().Contains("configuration") ?? false);
+            type => type.FullName != null &&
+                    type.FullName.Contains("Configuration", StringComparison.OrdinalIgnoreCase));
+
+        foreach (var entityType in modelBuilder.Model.GetEntityTypes())
+        {
+            foreach (var property in entityType.GetProperties()
+                         .Where(p => p.ClrType == typeof(DateTime) || p.ClrType == typeof(DateTime?)))
+            {
+                property.SetValueConverter(new ValueConverter<DateTime, DateTime>(
+                    v => v.Kind == DateTimeKind.Utc ? v : v.ToUniversalTime(),
+                    v => DateTime.SpecifyKind(v, DateTimeKind.Utc)
+                ));
+            }
+        }
+
+        base.OnModelCreating(modelBuilder);
     }
 
 }
