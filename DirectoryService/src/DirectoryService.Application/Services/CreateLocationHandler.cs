@@ -10,17 +10,18 @@ using Guid = System.Guid;
 
 namespace DirectoryService.Application.Services;
 
-public class CreateLocationHandler()
+public class CreateLocationHandler
 {
-    private readonly ILocationsRepository _locationsRepository = null!;
+    private readonly ILocationsRepository _locationsRepository;
 
-    private readonly ILogger<CreateLocationHandler> _logger = null!;
+    private readonly ILogger<CreateLocationHandler> _logger;
 
-    private readonly IValidator<CreateLocationDto> _validator = null!;
+    private readonly IValidator<CreateLocationDto> _validator;
 
-    public CreateLocationHandler(ILocationsRepository locationsRepository, ILogger<CreateLocationHandler> logger,
+    public CreateLocationHandler(
+        ILocationsRepository locationsRepository,
+        ILogger<CreateLocationHandler> logger,
         IValidator<CreateLocationDto> validator)
-        : this()
     {
         _locationsRepository = locationsRepository;
         _logger = logger;
@@ -68,18 +69,4 @@ public class CreateLocationHandler()
         // return result
         return Result.Success(locationId);
     }
-
-/*
-    public async Task Update(Guid id, UpdateLocationDto locationDto, CancellationToken cancellationToken)
-    {
-    }
-
-    public async Task Delete(Guid id, CancellationToken cancellationToken)
-    {
-    }
-
-    public async Task Get(Guid id, CancellationToken cancellationToken)
-    {
-    }
-    */
 }
