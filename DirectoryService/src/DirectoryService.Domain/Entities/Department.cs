@@ -94,15 +94,15 @@ public class Department
         List<Department> children,
         bool isActive = true)
     {
-        if (locations == null)
+        if (locations is null)
             return Error.Validation(null, "Locations is required");
 
-        if (positions == null)
+        if (positions is null)
             return Error.Validation(null, "Positions is required");
 
         string updatedPath = path.Value + "." + identifier.Value;
 
-        if (updatedPath == null)
+        if (updatedPath is null)
         {
             return Error.Validation(
                 null,
