@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using CSharpFunctionalExtensions;
+using DevQuestions.Domain.Shared;
 
 namespace DevQuestions.Domain.ValueObjects.DepartmentVO;
 
@@ -13,17 +14,19 @@ public record DepartmentPath
         Value = value;
     }
 
-    public static Result<DepartmentPath> Create(string value)
+    public static Result<DepartmentPath, Error> Create(string value)
     {
         if (string.IsNullOrWhiteSpace(value))
         {
-            return Result.Failure<DepartmentPath>(
+            return Error.Validation(
+                null,
                 "Path is required");
         }
 
         if (!Regex.IsMatch(value, TEXT_PATTERN))
         {
-            return Result.Failure<DepartmentPath>(
+            return Error.Validation(
+                null,
                 "Path is invalid");
         }
 

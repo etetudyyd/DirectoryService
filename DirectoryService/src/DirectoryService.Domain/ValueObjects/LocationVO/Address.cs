@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using CSharpFunctionalExtensions;
+using DevQuestions.Domain.Shared;
 using DevQuestions.Domain.ValueObjects.PositionVO;
 
 namespace DevQuestions.Domain.ValueObjects.LocationVO;
@@ -28,33 +29,33 @@ public record Address
         Apartment = apartment;
     }
 
-    public static Result<Address> Create(string postalCode, string region,
+    public static Result<Address, Error> Create(string postalCode, string region,
         string city, string street, string house, string? apartment = null)
     {
         if (string.IsNullOrWhiteSpace(postalCode))
-            return Result.Failure<Address>("Index is required.");
+            return Error.Validation(null, "Index is required.");
         if (!Regex.IsMatch(postalCode, @"^\d{6}"))
-            return Result.Failure<Address>("Postal code must be 6 digits.");
+            return Error.Validation(null, "Postal code must be 6 digits.");
 
         if (string.IsNullOrWhiteSpace(region))
-            return Result.Failure<Address>("Region is required.");
+            return Error.Validation(null, "Region is required.");
 
         if (string.IsNullOrWhiteSpace(city))
-            return Result.Failure<Address>("City is required.");
+            return Error.Validation(null, "City is required.");
 
         if (string.IsNullOrWhiteSpace(street))
-            return Result.Failure<Address>("Street is required.");
+            return Error.Validation(null, "Street is required.");
 
         if (string.IsNullOrWhiteSpace(house))
-            return Result.Failure<Address>("House is required.");
+            return Error.Validation(null, "House is required.");
 
-        return Result.Success(new Address(
+        return new Address(
             postalCode.Trim(),
             region.Trim(),
             city.Trim(),
             street.Trim(),
             house.Trim(),
-            apartment?.Trim()));
+            apartment?.Trim());
     }
 
     public override string ToString()

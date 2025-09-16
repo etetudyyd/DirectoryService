@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using DevQuestions.Domain.Shared;
 
 namespace DevQuestions.Domain.ValueObjects.PositionVO;
 
@@ -12,12 +13,13 @@ public record PositionDescription
         Value = value;
     }
 
-    public static Result<PositionDescription> Create(string value)
+    public static Result<PositionDescription, Error> Create(string value)
     {
         if (string.IsNullOrWhiteSpace(value)
             || value.Length > MAX_LENGTH)
         {
-            return Result.Failure<PositionDescription>(
+            return Error.Validation(
+                null,
                 $"Name is required and must be less than {MAX_LENGTH} characters");
         }
 

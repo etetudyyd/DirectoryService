@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using DevQuestions.Domain.Shared;
 using DevQuestions.Domain.ValueObjects.PositionVO;
 
 namespace DevQuestions.Domain.Entities;
@@ -37,7 +38,7 @@ public class Position
 
     public IReadOnlyList<DepartmentPosition> DepartmentPositions => _departmentPositions;
 
-    public static Result<Position> Create(
+    public static Result<Position, Error> Create(
         PositionName name,
         PositionDescription description,
         bool isActive,
@@ -45,14 +46,13 @@ public class Position
         DateTime updatedAt,
         List<DepartmentPosition> departmentPositions)
     {
-        return Result.Success(
-            new Position(
-                Guid.NewGuid(),
-                name,
-                description,
-                isActive,
-                createdAt,
-                updatedAt,
-                departmentPositions));
+        return new Position(
+            Guid.NewGuid(),
+            name,
+            description,
+            isActive,
+            createdAt,
+            updatedAt,
+            departmentPositions);
     }
 }

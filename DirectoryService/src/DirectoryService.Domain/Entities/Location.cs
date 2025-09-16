@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using DevQuestions.Domain.Shared;
 using DevQuestions.Domain.ValueObjects.LocationVO;
 using Guid = System.Guid;
 
@@ -45,12 +46,12 @@ public class Location
 
     public IReadOnlyList<DepartmentLocation> DepartmentLocations => _departmentLocations;
 
-    public static Result<Location> Create(LocationName name, Address address, Timezone timezone,
+    public static Result<Location, Error> Create(LocationName name, Address address, Timezone timezone,
         DateTime createdAt, bool isActive)//, List<DepartmentLocation> departmentLocations)
     {
         if (string.IsNullOrWhiteSpace(name.Value) || name.Value.Length > 150)
         {
-            return Result.Failure<Location>("Name is required and must be less than 150 characters");
+            return Error.Validation(null, "Name is required and must be less than 150 characters");
         }
 
         return new Location(Guid.NewGuid(), name, address, timezone, createdAt, isActive/*, departmentLocations*/);

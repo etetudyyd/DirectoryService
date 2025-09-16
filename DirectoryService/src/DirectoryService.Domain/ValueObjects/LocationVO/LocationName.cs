@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using DevQuestions.Domain.Shared;
 
 namespace DevQuestions.Domain.ValueObjects.LocationVO;
 
@@ -14,13 +15,14 @@ public record LocationName
         Value = value;
     }
 
-    public static Result<LocationName> Create(string value)
+    public static Result<LocationName, Error> Create(string value)
     {
         if (string.IsNullOrWhiteSpace(value)
             || value.Length < MIN_LENGTH
             || value.Length > MAX_LENGTH)
         {
-            return Result.Failure<LocationName>(
+            return Error.Validation(
+                null,
                 $"Name is required and must be more than {MIN_LENGTH} characters and less than {MAX_LENGTH} characters");
         }
 
