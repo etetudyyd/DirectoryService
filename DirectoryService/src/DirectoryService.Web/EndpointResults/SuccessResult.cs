@@ -1,8 +1,7 @@
 ﻿using System.Net;
-using CSharpFunctionalExtensions;
-using Microsoft.AspNetCore.Http;
+using IResult = Microsoft.AspNetCore.Http.IResult;
 
-namespace DirectoryService.Presentation.EndpointResults;
+namespace DevQuestions.Web.EndpointResults;
 
 public sealed class SuccessResult<TValue> : IResult
 {
@@ -23,3 +22,4 @@ public sealed class SuccessResult<TValue> : IResult
 
         return httpContext.Response.WriteAsJsonAsync(envelope);
     }
+}

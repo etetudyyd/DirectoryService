@@ -1,9 +1,10 @@
 ﻿using System.Reflection;
 using CSharpFunctionalExtensions;
 using DevQuestions.Domain.Shared;
-using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Metadata;
+using IResult = Microsoft.AspNetCore.Http.IResult;
 
-namespace DirectoryService.Presentation.EndpointResults;
+namespace DevQuestions.Web.EndpointResults;
 
 public sealed class EndpointResult<TValue> : IResult, IEndpointMetadataProvider
 {

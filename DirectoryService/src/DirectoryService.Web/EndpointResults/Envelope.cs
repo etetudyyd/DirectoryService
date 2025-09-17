@@ -1,7 +1,7 @@
 ﻿using System.Text.Json.Serialization;
 using DevQuestions.Domain.Shared;
 
-namespace DirectoryService.Presentation.EndpointResults;
+namespace DevQuestions.Web.EndpointResults;
 
 public record Envelope
 {

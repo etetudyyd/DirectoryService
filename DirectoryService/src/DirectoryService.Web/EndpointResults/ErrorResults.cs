@@ -1,8 +1,7 @@
-﻿using CSharpFunctionalExtensions;
-using DevQuestions.Domain.Shared;
-using Microsoft.AspNetCore.Http;
+﻿using DevQuestions.Domain.Shared;
+using IResult = Microsoft.AspNetCore.Http.IResult;
 
-namespace DirectoryService.Presentation.EndpointResults;
+namespace DevQuestions.Web.EndpointResults;
 
 public sealed class ErrorsResult : IResult
 {
