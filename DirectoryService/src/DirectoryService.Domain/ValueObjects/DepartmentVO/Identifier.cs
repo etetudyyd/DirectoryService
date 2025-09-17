@@ -1,5 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 using CSharpFunctionalExtensions;
+using DevQuestions.Domain.Shared;
 
 namespace DevQuestions.Domain.ValueObjects.DepartmentVO;
 
@@ -16,19 +17,21 @@ public record Identifier
         Value = value;
     }
 
-    public static Result<Identifier> Create(string value)
+    public static Result<Identifier, Error> Create(string value)
     {
         if (string.IsNullOrWhiteSpace(value)
             || value.Length > MAX_LENGTH
             || value.Length > MAX_LENGTH)
         {
-            return Result.Failure<Identifier>(
+            return Error.Validation(
+                null,
                 $"Identifier is required and must be more than {MIN_LENGTH} characters and less than {MAX_LENGTH} characters");
         }
 
         if (!Regex.IsMatch(value, TEXT_PATTERN))
         {
-            return Result.Failure<Identifier>(
+            return Error.Validation(
+                null,
                 $"Identifier is required and must match pattern {TEXT_PATTERN}");
         }
 

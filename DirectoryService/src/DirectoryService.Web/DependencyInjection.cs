@@ -1,4 +1,4 @@
-﻿using DirectoryService.Presentation.Controllers.Locations;
+﻿using DevQuestions.Web.Controllers.Locations;
 
 namespace DevQuestions.Web;
 

@@ -1,6 +1,6 @@
 ﻿namespace DevQuestions.Domain.Entities;
 
-public class DepartmentLocation()
+public class DepartmentLocation
 {
     public Guid Id { get; private set; }
 

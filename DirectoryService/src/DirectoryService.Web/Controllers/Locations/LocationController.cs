@@ -1,27 +1,21 @@
-﻿using DirectoryService.Application.Services;
+﻿using DevQuestions.Web.EndpointResults;
+using DirectoryService.Application.Services;
 using DirectoryService.Contracts.Locations;
 using Microsoft.AspNetCore.Mvc;
 
-namespace DirectoryService.Presentation.Controllers.Locations;
+namespace DevQuestions.Web.Controllers.Locations;
 
 [ApiController]
 [Route("api/[controller]")]
 public class LocationController : ControllerBase
 {
     [HttpPost]
-    public async Task<IActionResult> Create(
+    public async Task<EndpointResult<Guid>> Create(
         [FromBody] CreateLocationDto locationDto,
         [FromServices] CreateLocationHandler createLocationHandler,
         CancellationToken cancellationToken)
     {
-        var result = await createLocationHandler.Handle(locationDto, cancellationToken);
-        if (result.IsFailure)
-        {
-            return BadRequest(result.Error);
-        }
-
-        return Ok(result.Value);
-
+        return await createLocationHandler.Handle(locationDto, cancellationToken);
     }
 
     [HttpGet]

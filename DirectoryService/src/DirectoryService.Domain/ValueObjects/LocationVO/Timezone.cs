@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using DevQuestions.Domain.Shared;
 using TimeZoneConverter;
 
 namespace DevQuestions.Domain.ValueObjects.LocationVO;
@@ -12,13 +13,13 @@ public record Timezone
         Value = value;
     }
 
-    public static Result<Timezone> Create(string value)
+    public static Result<Timezone, Error> Create(string value)
     {
         //Timezone logic
 
         if (string.IsNullOrWhiteSpace(value))
-            return Result.Failure<Timezone>("TimeZone invalid");
+            return Error.Validation(null,"TimeZone invalid");
 
-        return Result.Success(new Timezone(value));
+        return new Timezone(value);
     }
 }

@@ -1,7 +1,6 @@
-﻿using DirectoryService.Contracts.Locations;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 
-namespace DirectoryService.Presentation.Controllers.Locations;
+namespace DevQuestions.Web.Controllers.Locations;
 
 [ApiController]
 [Route("api/[controller]")]

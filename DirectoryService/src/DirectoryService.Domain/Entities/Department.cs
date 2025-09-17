@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using DevQuestions.Domain.Shared;
 using DevQuestions.Domain.ValueObjects.DepartmentVO;
 
 namespace DevQuestions.Domain.Entities;
@@ -80,7 +81,7 @@ public class Department
         return Result.Success(this);
     }
 
-    public static Result<Department> Create(
+    public static Result<Department, Error> Create(
         DepartmentName name,
         DepartmentPath path,
         Identifier identifier,
@@ -91,12 +92,24 @@ public class Department
         List<DepartmentLocation> locations,
         List<DepartmentPosition> positions,
         List<Department> children,
-        bool isActive = true
-        )
+        bool isActive = true)
     {
+        if (locations is null)
+            return Error.Validation(null, "Locations is required");
+
+        if (positions is null)
+            return Error.Validation(null, "Positions is required");
+
         string updatedPath = path.Value + "." + identifier.Value;
 
-        Result<DepartmentPath> departmentPath = DepartmentPath.Create(updatedPath);
+        if (updatedPath is null)
+        {
+            return Error.Validation(
+                null,
+                "Path is required");
+        }
+
+        var departmentPath = DepartmentPath.Create(updatedPath);
 
         short updatedDepth = GetDepth(departmentPath.Value);
 
