@@ -59,10 +59,8 @@ public class CreateLocationHandler
             name.Value,
             address.Value,
             timeZone.Value,
-            DateTime.UtcNow,
-            locationDto.IsActive
-            //departmentLocations
-            );
+            locationDto.DepartmentLocations);
+
         if (location.IsFailure)
             return location.Error.ToErrors();
 
