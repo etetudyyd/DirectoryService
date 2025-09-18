@@ -2,8 +2,8 @@
 using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.Shared;
 using DevQuestions.Domain.ValueObjects.LocationVO;
+using DirectoryService.Application.Extentions;
 using DirectoryService.Application.IRepositories;
-using DirectoryService.Application.Validators.Locations;
 using DirectoryService.Contracts.Locations;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
@@ -32,6 +32,9 @@ public class CreateLocationHandler
     public async Task<Result<Guid, Errors>> Handle(CreateLocationDto locationDto, CancellationToken cancellationToken)
     {
         // validate
+        var validationResult = await _validator.ValidateAsync(locationDto, cancellationToken);
+        if (!validationResult.IsValid)
+            return validationResult.ToErrors();
 
         // create entity
         var name = LocationName.Create(locationDto.Name.Value);

@@ -1,4 +1,5 @@
 using DevQuestions.Web;
+using DevQuestions.Web.Middlewares;
 using DirectoryService.Application;
 using DirectoryService.Infrastructure.Postgresql;
 
@@ -9,6 +10,8 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
 
 var app = builder.Build();
+
+app.UseExceptionMiddleware();
 
 if (app.Environment.IsDevelopment())
 {
