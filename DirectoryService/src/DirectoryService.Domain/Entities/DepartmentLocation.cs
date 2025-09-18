@@ -1,11 +1,15 @@
-﻿namespace DevQuestions.Domain.Entities;
+﻿using DevQuestions.Domain.ValueObjects.ConectionEntitiesVO;
+using DevQuestions.Domain.ValueObjects.DepartmentVO;
+using DevQuestions.Domain.ValueObjects.LocationVO;
 
-public class DepartmentLocation
+namespace DevQuestions.Domain.Entities;
+
+public sealed class DepartmentLocation
 {
-    public Guid Id { get; private set; }
+    public DepartmentLocationId Id { get; init; }
 
-    public Guid DepartmentId { get; private set; }
+    public DepartmentId DepartmentId { get; init; }
 
-    public Guid LocationId { get; private set; }
+    public LocationId LocationId { get; init; }
 
 }

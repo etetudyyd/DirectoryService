@@ -27,16 +27,19 @@ namespace DirectoryService.Infrastructure.Postgresql.Migrations
             modelBuilder.Entity("DevQuestions.Domain.Entities.Department", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
+
+                    b.Property<int>("ChildrenCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("children_count");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<short>("Depth")
-                        .HasColumnType("smallint")
+                    b.Property<int>("Depth")
+                        .HasColumnType("integer")
                         .HasColumnName("depth");
 
                     b.Property<string>("Identifier")
@@ -59,15 +62,20 @@ namespace DirectoryService.Infrastructure.Postgresql.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("parent_id");
 
-                    b.Property<string>("Path")
-                        .IsRequired()
-                        .HasMaxLength(9999)
-                        .HasColumnType("character varying(9999)")
-                        .HasColumnName("path");
-
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("update_at");
+
+                    b.ComplexProperty<Dictionary<string, object>>("Path", "DevQuestions.Domain.Entities.Department.Path#Path", b1 =>
+                        {
+                            b1.IsRequired();
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasMaxLength(9999)
+                                .HasColumnType("character varying(9999)")
+                                .HasColumnName("path");
+                        });
 
                     b.HasKey("Id");
 
@@ -79,7 +87,6 @@ namespace DirectoryService.Infrastructure.Postgresql.Migrations
             modelBuilder.Entity("DevQuestions.Domain.Entities.DepartmentLocation", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -104,7 +111,6 @@ namespace DirectoryService.Infrastructure.Postgresql.Migrations
             modelBuilder.Entity("DevQuestions.Domain.Entities.DepartmentPosition", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -129,7 +135,6 @@ namespace DirectoryService.Infrastructure.Postgresql.Migrations
             modelBuilder.Entity("DevQuestions.Domain.Entities.Location", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -206,7 +211,6 @@ namespace DirectoryService.Infrastructure.Postgresql.Migrations
             modelBuilder.Entity("DevQuestions.Domain.Entities.Position", b =>
                 {
                     b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
@@ -243,7 +247,7 @@ namespace DirectoryService.Infrastructure.Postgresql.Migrations
             modelBuilder.Entity("DevQuestions.Domain.Entities.Department", b =>
                 {
                     b.HasOne("DevQuestions.Domain.Entities.Department", null)
-                        .WithMany("Children")
+                        .WithMany("ChildrenDepartments")
                         .HasForeignKey("ParentId")
                         .OnDelete(DeleteBehavior.Restrict);
                 });
@@ -251,7 +255,7 @@ namespace DirectoryService.Infrastructure.Postgresql.Migrations
             modelBuilder.Entity("DevQuestions.Domain.Entities.DepartmentLocation", b =>
                 {
                     b.HasOne("DevQuestions.Domain.Entities.Department", null)
-                        .WithMany("Locations")
+                        .WithMany("DepartmentLocations")
                         .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -266,7 +270,7 @@ namespace DirectoryService.Infrastructure.Postgresql.Migrations
             modelBuilder.Entity("DevQuestions.Domain.Entities.DepartmentPosition", b =>
                 {
                     b.HasOne("DevQuestions.Domain.Entities.Department", null)
-                        .WithMany("Positions")
+                        .WithMany("DepartmentPositions")
                         .HasForeignKey("DepartmentId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -280,11 +284,11 @@ namespace DirectoryService.Infrastructure.Postgresql.Migrations
 
             modelBuilder.Entity("DevQuestions.Domain.Entities.Department", b =>
                 {
-                    b.Navigation("Children");
+                    b.Navigation("ChildrenDepartments");
 
-                    b.Navigation("Locations");
+                    b.Navigation("DepartmentLocations");
 
-                    b.Navigation("Positions");
+                    b.Navigation("DepartmentPositions");
                 });
 
             modelBuilder.Entity("DevQuestions.Domain.Entities.Location", b =>

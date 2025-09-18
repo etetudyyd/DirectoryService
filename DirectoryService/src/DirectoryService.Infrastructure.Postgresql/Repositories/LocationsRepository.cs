@@ -16,7 +16,7 @@ public class LocationsRepository : ILocationsRepository
     {
         await _dbContext.Locations.AddAsync(location, cancellationToken);
         await _dbContext.SaveChangesAsync(cancellationToken);
-        return location.Id;
+        return location.Id.Value;
     }
 
     public Task<Guid> SaveAsync(Location location, CancellationToken cancellationToken) => throw new NotImplementedException();

@@ -1,28 +1,18 @@
 ﻿using CSharpFunctionalExtensions;
 using DevQuestions.Domain.Shared;
+using DevQuestions.Domain.ValueObjects.LocationVO;
 using DevQuestions.Domain.ValueObjects.PositionVO;
 
 namespace DevQuestions.Domain.Entities;
 
-public class Position
+public sealed class Position
 {
     // ef
-    private Position()
-    {
-    }
+    private Position() { }
 
-    private Position(Guid id, PositionName name, PositionDescription description, bool isActive, DateTime createdAt, DateTime updatedAt, List<DepartmentPosition> departmentPositions)
-    {
-        Id = id;
-        Name = name;
-        Description = description;
-        IsActive = isActive;
-        CreatedAt = createdAt;
-        _departmentPositions = departmentPositions;
-        UpdatedAt = updatedAt;
-    }
+    private List<DepartmentPosition> _departmentPositions;
 
-    public Guid Id { get; private set; }
+    public PositionId Id { get; private set; }
 
     public PositionName Name { get; private set; }
 
@@ -34,25 +24,37 @@ public class Position
 
     public DateTime UpdatedAt { get; private set; }
 
-    private List<DepartmentPosition> _departmentPositions;
-
     public IReadOnlyList<DepartmentPosition> DepartmentPositions => _departmentPositions;
+
+    private Position(
+        PositionId id,
+        PositionName name,
+        PositionDescription description,
+        IEnumerable<DepartmentPosition> departmentPositions)
+    {
+        Id = id;
+        Name = name;
+        Description = description;
+        IsActive = true;
+        CreatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
+        _departmentPositions = departmentPositions.ToList();
+    }
 
     public static Result<Position, Error> Create(
         PositionName name,
         PositionDescription description,
-        bool isActive,
-        DateTime createdAt,
-        DateTime updatedAt,
         List<DepartmentPosition> departmentPositions)
     {
+        if (string.IsNullOrWhiteSpace(name.Value) || name.Value.Length > LengthConstants.MAX_LENGTH_POSITION_NAME)
+        {
+            return Error.Validation(null, "Name is required and must be less than 150 characters");
+        }
+
         return new Position(
-            Guid.NewGuid(),
+            new PositionId(Guid.NewGuid()),
             name,
             description,
-            isActive,
-            createdAt,
-            updatedAt,
             departmentPositions);
     }
 }
