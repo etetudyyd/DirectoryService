@@ -34,12 +34,19 @@ public class CreateLocationHandler
         // validate
         var validationResult = await _validator.ValidateAsync(locationDto, cancellationToken);
         if (!validationResult.IsValid)
-            return validationResult.ToErrors();
+        {
+            _logger.LogError("Invalid LocationDto");
+            return validationResult.ToErrors(); 
+        }
 
         // create entity
         var name = LocationName.Create(locationDto.Name.Value);
         if (name.IsFailure)
+        {
+            _logger.LogError("Invalid LocationDto.Name");
             return name.Error.ToErrors();
+        }
+
 
         var address = Address.Create(
             postalCode: locationDto.Address.PostalCode,
@@ -50,13 +57,19 @@ public class CreateLocationHandler
             apartment: locationDto.Address.Apartment);
 
         if (address.IsFailure)
+        {
+            _logger.LogError("Invalid LocationDto.Address");
             return address.Error.ToErrors();
+        }
 
         var timeZone = Timezone.Create(
             locationDto.Timezone.Value);
 
         if (timeZone.IsFailure)
+        {
+            _logger.LogError("Invalid LocationDto.TimeZone");
             return timeZone.Error.ToErrors();
+        }
 
         var location = Location.Create(
             name.Value,
@@ -65,7 +78,10 @@ public class CreateLocationHandler
             locationDto.DepartmentLocations);
 
         if (location.IsFailure)
+        {
+            _logger.LogError("Invalid LocationDto.Location");
             return location.Error.ToErrors();
+        }
 
         // save to db
         var locationId = await _locationsRepository.AddAsync(location.Value, cancellationToken);

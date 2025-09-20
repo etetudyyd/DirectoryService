@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using DevQuestions.Domain.Shared;
+using DevQuestions.Web.EndpointResults;
 using DirectoryService.Application.Exceptions;
 using Microsoft.AspNetCore.Http.HttpResults;
 
@@ -24,36 +25,15 @@ public class ExceptionMiddleware
         }
         catch (Exception ex)
         {
-            await HandleExceptionAsync(context, ex);
+            var apiError = new Error("server.internal", ex.Message, ErrorType.FAILURE);
+            var envelope = Envelope.Error(new Errors([apiError]));
+
+            context.Response.ContentType = "application/json";
+            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+
+            _logger.LogError(ex.Message);
+            await context.Response.WriteAsJsonAsync(envelope);
         }
-    }
-
-    private async Task HandleExceptionAsync(HttpContext context, Exception exception)
-    {
-        _logger.LogError(exception, exception.Message);
-        var (code, errors) = exception switch
-        {
-            BadRequestException => (
-                StatusCodes.Status500InternalServerError,
-                JsonSerializer.Deserialize<Error[]>(exception.Message)),
-
-            NotFoundException => (
-                StatusCodes.Status404NotFound,
-                JsonSerializer.Deserialize<Error[]>(exception.Message)),
-
-            ConflictException => (
-                StatusCodes.Status409Conflict,
-                JsonSerializer.Deserialize<Error[]>(exception.Message)),
-
-            _ => (
-                StatusCodes.Status500InternalServerError,
-                [Error.Failure(null, "Something went wrong")])
-        };
-
-        context.Response.ContentType = "application/json";
-        context.Response.StatusCode = code;
-
-        await context.Response.WriteAsJsonAsync(errors);
     }
 }
 

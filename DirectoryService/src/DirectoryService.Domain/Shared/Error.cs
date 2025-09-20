@@ -7,7 +7,7 @@ public record Error
     private const string SEPARATOR = "||";
 
     [JsonConstructor]
-    private Error(string code, string message, ErrorType type, string? invalidField = null)
+    public Error(string code, string message, ErrorType type, string? invalidField = null)
     {
         Code = code;
         Message = message;
