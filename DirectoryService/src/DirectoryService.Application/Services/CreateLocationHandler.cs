@@ -2,8 +2,8 @@
 using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.Shared;
 using DevQuestions.Domain.ValueObjects.LocationVO;
+using DirectoryService.Application.Extentions;
 using DirectoryService.Application.IRepositories;
-using DirectoryService.Application.Validators.Locations;
 using DirectoryService.Contracts.Locations;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
@@ -32,11 +32,21 @@ public class CreateLocationHandler
     public async Task<Result<Guid, Errors>> Handle(CreateLocationDto locationDto, CancellationToken cancellationToken)
     {
         // validate
+        var validationResult = await _validator.ValidateAsync(locationDto, cancellationToken);
+        if (!validationResult.IsValid)
+        {
+            _logger.LogError("Invalid LocationDto");
+            return validationResult.ToErrors(); 
+        }
 
         // create entity
         var name = LocationName.Create(locationDto.Name.Value);
         if (name.IsFailure)
+        {
+            _logger.LogError("Invalid LocationDto.Name");
             return name.Error.ToErrors();
+        }
+
 
         var address = Address.Create(
             postalCode: locationDto.Address.PostalCode,
@@ -47,13 +57,19 @@ public class CreateLocationHandler
             apartment: locationDto.Address.Apartment);
 
         if (address.IsFailure)
+        {
+            _logger.LogError("Invalid LocationDto.Address");
             return address.Error.ToErrors();
+        }
 
         var timeZone = Timezone.Create(
             locationDto.Timezone.Value);
 
         if (timeZone.IsFailure)
+        {
+            _logger.LogError("Invalid LocationDto.TimeZone");
             return timeZone.Error.ToErrors();
+        }
 
         var location = Location.Create(
             name.Value,
@@ -62,7 +78,10 @@ public class CreateLocationHandler
             locationDto.DepartmentLocations);
 
         if (location.IsFailure)
+        {
+            _logger.LogError("Invalid LocationDto.Location");
             return location.Error.ToErrors();
+        }
 
         // save to db
         var locationId = await _locationsRepository.AddAsync(location.Value, cancellationToken);

@@ -1,11 +1,13 @@
-﻿namespace DevQuestions.Domain.Shared;
+﻿using System.Text.Json.Serialization;
+
+namespace DevQuestions.Domain.Shared;
 
 public record Error
 {
-
     private const string SEPARATOR = "||";
 
-    private Error(string code, string message, ErrorType type, string? invalidField = null)
+    [JsonConstructor]
+    public Error(string code, string message, ErrorType type, string? invalidField = null)
     {
         Code = code;
         Message = message;
@@ -17,6 +19,7 @@ public record Error
 
     public string Message { get; }
 
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public ErrorType Type { get; }
 
     public string? InvalidField { get; }
@@ -29,10 +32,6 @@ public record Error
     public static Error Failure(string? code, string message) => new(code ?? "failure", message, ErrorType.FAILURE);
 
     public static Error Conflict(string? code, string message) => new(code ?? "value.is.conflict", message, ErrorType.CONFLICT);
-
-    //public static Error Authentication(string? code, string message) => new(code ?? "authentification.fail", message, ErrorType.AUTHENTICATION);
-
-    //public static Error Authorization(string? code, string message) => new(code ?? "authorization.fail", message, ErrorType.AUTHORIZATION);
 
     public string Serialize()
     {
