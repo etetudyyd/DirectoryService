@@ -21,5 +21,11 @@ public static class GeneralErrors
             string label = name ?? "value";
             return Error.Validation("lenght is invalid", $"{label} lenght is invalid!");
         }
+
+        public static Error ValueAlreadyExists(string? name = null)
+        {
+            string label = name ?? "value";
+            return Error.Validation("value is already exists", $"{label} is already exists!");
+        }
     }
 }

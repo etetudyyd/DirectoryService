@@ -1,5 +1,7 @@
 ﻿using DevQuestions.Domain.Entities;
+using DevQuestions.Domain.ValueObjects.LocationVO;
 using DirectoryService.Application.IRepositories;
+using Microsoft.EntityFrameworkCore;
 
 namespace DirectoryService.Infrastructure.Postgresql.Repositories;
 
@@ -19,11 +21,11 @@ public class LocationsRepository : ILocationsRepository
         return location.Id.Value;
     }
 
-    public Task<Guid> SaveAsync(Location location, CancellationToken cancellationToken) => throw new NotImplementedException();
+    public async Task<bool> IsAddressExistsAsync(Address address, CancellationToken cancellationToken)
+    {
+        bool location = await _dbContext.Locations
+            .AnyAsync(l => l.Address == address, cancellationToken);
 
-    public Task UpdateAsync(Guid id, Location location, CancellationToken cancellationToken) => throw new NotImplementedException();
-
-    public Task<Guid> DeleteAsync(Guid id, CancellationToken cancellationToken) => throw new NotImplementedException();
-
-    public Task<Location> GetByIdAsync(Guid id, CancellationToken cancellationToken) => throw new NotImplementedException();
+        return location;
+    }
 }
