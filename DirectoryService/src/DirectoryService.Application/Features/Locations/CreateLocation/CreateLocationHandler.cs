@@ -5,7 +5,6 @@ using DevQuestions.Domain.ValueObjects.LocationVO;
 using DirectoryService.Application.Abstractions;
 using DirectoryService.Application.Extentions;
 using DirectoryService.Application.IRepositories;
-using DirectoryService.Contracts.Locations;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Guid = System.Guid;
@@ -97,7 +96,7 @@ public class CreateLocationHandler : ICommandHandler<Guid, CreateLocationCommand
         var locationId = await _locationsRepository.AddAsync(location.Value, cancellationToken);
 
         // log result
-        _logger.LogInformation($"Location created successfully with id {location.Value.Id}", location.Value.Id);
+        _logger.LogInformation($"Location created successfully with id {locationId}", locationId);
 
         // return result
         return locationId;

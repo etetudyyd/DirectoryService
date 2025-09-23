@@ -11,5 +11,4 @@ public sealed class DepartmentLocation
     public DepartmentId DepartmentId { get; init; }
 
     public LocationId LocationId { get; init; }
-
 }

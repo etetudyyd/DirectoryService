@@ -6,5 +6,4 @@ public record CreateLocationDto(
     NameDto Name,
     AddressDto Address,
     TimezoneDto Timezone,
-    bool IsActive,
     IEnumerable<DepartmentLocation> DepartmentLocations);

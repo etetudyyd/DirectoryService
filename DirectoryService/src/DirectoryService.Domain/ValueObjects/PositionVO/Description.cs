@@ -3,17 +3,17 @@ using DevQuestions.Domain.Shared;
 
 namespace DevQuestions.Domain.ValueObjects.PositionVO;
 
-public record PositionDescription
+public record Description
 {
     private const int MAX_LENGTH = 1000;
 
     public string Value { get; }
-    private PositionDescription(string value)
+    private Description(string value)
     {
         Value = value;
     }
 
-    public static Result<PositionDescription, Error> Create(string value)
+    public static Result<Description, Error> Create(string value)
     {
         if (string.IsNullOrWhiteSpace(value)
             || value.Length > MAX_LENGTH)
@@ -23,6 +23,6 @@ public record PositionDescription
                 $"Name is required and must be less than {MAX_LENGTH} characters");
         }
 
-        return new PositionDescription(value);
+        return new Description(value);
     }
 }

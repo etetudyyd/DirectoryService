@@ -53,11 +53,20 @@ public sealed class Location
     {
         var departmentLocationsList = departmentLocations.ToList();
 
-        if (string.IsNullOrWhiteSpace(name.Value) || name.Value.Length > LengthConstants.MAX_LENGTH_LOCATION_NAME)
+        if (string.IsNullOrWhiteSpace(name.Value)
+            || name.Value.Length > LengthConstants.MAX_LENGTH_LOCATION_NAME)
         {
-            return Error.Validation(null, "Name is required and must be less than 150 characters");
+            return Error
+                .Validation(
+                    null,
+                    "Name is required and must be less than 150 characters");
         }
 
-        return new Location(new LocationId(Guid.NewGuid()), name, address, timezone, departmentLocationsList);
+        return new Location(
+            new LocationId(Guid.NewGuid()),
+            name,
+            address,
+            timezone,
+            departmentLocationsList);
     }
 }
