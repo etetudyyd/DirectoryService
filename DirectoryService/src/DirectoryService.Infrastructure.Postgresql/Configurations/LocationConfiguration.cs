@@ -30,6 +30,8 @@ public class LocationConfiguration : IEntityTypeConfiguration<Location>
                 name => name.Value,
                 value => LocationName.Create(value).Value);
 
+        builder.HasIndex(l => l.Name).IsUnique();
+
         builder.ComplexProperty(p => p.Address, a => {
             a.Property(address => address.PostalCode)
                 .HasMaxLength(LengthConstants.Address.MAX_LENGTH_ADDRESS_POSTAL_CODE)

@@ -1,4 +1,4 @@
-﻿using DirectoryService.Application.Services;
+﻿using DirectoryService.Application.Abstractions;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -8,8 +8,16 @@ public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection serviceCollection)
     {
-        serviceCollection.AddScoped<CreateLocationHandler>();
         serviceCollection.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
+
+        var assembly = typeof(DependencyInjection).Assembly;
+
+        serviceCollection.Scan(scan => scan.FromAssemblies(assembly)
+            .AddClasses(classes => classes
+                .AssignableToAny(typeof(ICommandHandler<,>), typeof(ICommandHandler<>)))
+            .AsSelfWithInterfaces()
+            .WithScopedLifetime());
+
         return serviceCollection;
     }
 }

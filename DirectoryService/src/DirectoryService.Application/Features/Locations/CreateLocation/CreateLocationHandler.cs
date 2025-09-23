@@ -2,6 +2,7 @@
 using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.Shared;
 using DevQuestions.Domain.ValueObjects.LocationVO;
+using DirectoryService.Application.Abstractions;
 using DirectoryService.Application.Extentions;
 using DirectoryService.Application.IRepositories;
 using DirectoryService.Contracts.Locations;
@@ -9,52 +10,61 @@ using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Guid = System.Guid;
 
-namespace DirectoryService.Application.Services;
+namespace DirectoryService.Application.Features.Locations.CreateLocation;
 
-public class CreateLocationHandler
+public class CreateLocationHandler : ICommandHandler<Guid, CreateLocationCommand>
 {
     private readonly ILocationsRepository _locationsRepository;
 
     private readonly ILogger<CreateLocationHandler> _logger;
 
-    private readonly IValidator<CreateLocationDto> _validator;
+    private readonly IValidator<CreateLocationCommand> _validator;
 
     public CreateLocationHandler(
         ILocationsRepository locationsRepository,
         ILogger<CreateLocationHandler> logger,
-        IValidator<CreateLocationDto> validator)
+        IValidator<CreateLocationCommand> validator)
     {
         _locationsRepository = locationsRepository;
         _logger = logger;
         _validator = validator;
     }
 
-    public async Task<Result<Guid, Errors>> Handle(CreateLocationDto locationDto, CancellationToken cancellationToken)
+    public async Task<Result<Guid, Errors>> Handle(
+        CreateLocationCommand command,
+        CancellationToken cancellationToken)
     {
         // validate
-        var validationResult = await _validator.ValidateAsync(locationDto, cancellationToken);
+        var validationResult = await _validator.ValidateAsync(command, cancellationToken);
         if (!validationResult.IsValid)
         {
             _logger.LogError("Invalid LocationDto");
-            return validationResult.ToErrors(); 
+            return validationResult.ToErrors();
         }
 
         // create entity
-        var name = LocationName.Create(locationDto.Name.Value);
+        var name = LocationName.Create(command.LocationDto.Name.Value);
         if (name.IsFailure)
         {
             _logger.LogError("Invalid LocationDto.Name");
             return name.Error.ToErrors();
         }
 
-
         var address = Address.Create(
-            postalCode: locationDto.Address.PostalCode,
-            region: locationDto.Address.Region,
-            city: locationDto.Address.City,
-            street: locationDto.Address.Street,
-            house: locationDto.Address.House,
-            apartment: locationDto.Address.Apartment);
+            postalCode: command.LocationDto.Address.PostalCode,
+            region: command.LocationDto.Address.Region,
+            city: command.LocationDto.Address.City,
+            street: command.LocationDto.Address.Street,
+            house: command.LocationDto.Address.House,
+            apartment: command.LocationDto.Address.Apartment);
+
+        bool isAddressExists = await _locationsRepository.IsAddressExistsAsync(address.Value, cancellationToken);
+
+        if (isAddressExists)
+        {
+            _logger.LogError("Address already exists");
+            return GeneralErrors.General.ValueAlreadyExists("Address").ToErrors();
+        }
 
         if (address.IsFailure)
         {
@@ -63,7 +73,7 @@ public class CreateLocationHandler
         }
 
         var timeZone = Timezone.Create(
-            locationDto.Timezone.Value);
+            command.LocationDto.Timezone.Value);
 
         if (timeZone.IsFailure)
         {
@@ -75,7 +85,7 @@ public class CreateLocationHandler
             name.Value,
             address.Value,
             timeZone.Value,
-            locationDto.DepartmentLocations);
+            command.LocationDto.DepartmentLocations);
 
         if (location.IsFailure)
         {
