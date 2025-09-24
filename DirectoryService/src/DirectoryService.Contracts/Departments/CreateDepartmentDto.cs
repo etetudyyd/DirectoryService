@@ -1,3 +1,10 @@
-﻿namespace DirectoryService.Contracts.Departments;
+﻿using DevQuestions.Domain.Entities;
+using DevQuestions.Domain.ValueObjects.DepartmentVO;
 
-public record CreateDepartmentDto();
+namespace DirectoryService.Contracts.Departments;
+
+public record CreateDepartmentDto(
+    NameDto Name,
+    IdentifierDto Identifier,
+    DepartmentId? ParentId,
+    IEnumerable<DepartmentLocation> DepartmentLocations);

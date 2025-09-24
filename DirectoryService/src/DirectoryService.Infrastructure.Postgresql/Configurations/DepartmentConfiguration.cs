@@ -30,6 +30,8 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
                 name => name.Value,
                 value => DepartmentName.Create(value).Value);
 
+            builder.HasIndex(l => l.Name).IsUnique();
+
             builder.Property(p => p.Identifier)
             .HasColumnName("identifier")
             .IsRequired()

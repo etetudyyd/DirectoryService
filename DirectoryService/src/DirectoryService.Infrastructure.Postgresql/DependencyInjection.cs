@@ -12,6 +12,9 @@ public static class DependencyInjection
         services.AddScoped<DirectoryServiceDbContext>(_ =>
             new DirectoryServiceDbContext(configuration.GetConnectionString("DefaultConnection")!));
         services.AddScoped<ILocationsRepository, LocationsRepository>();
+        services.AddScoped<IPositionsRepository, PositionsRepository>();
+        services.AddScoped<IDepartmentsRepository, DepartmentsRepository>();
+
         return services;
     }
 }

@@ -16,7 +16,7 @@ public sealed class Position
 
     public PositionName Name { get; private set; }
 
-    public PositionDescription Description { get; private set; }
+    public Description Description { get; private set; }
 
     public bool IsActive { get; private set; }
 
@@ -29,7 +29,7 @@ public sealed class Position
     private Position(
         PositionId id,
         PositionName name,
-        PositionDescription description,
+        Description description,
         IEnumerable<DepartmentPosition> departmentPositions)
     {
         Id = id;
@@ -43,12 +43,14 @@ public sealed class Position
 
     public static Result<Position, Error> Create(
         PositionName name,
-        PositionDescription description,
-        List<DepartmentPosition> departmentPositions)
+        Description description,
+        IEnumerable<DepartmentPosition> departmentPositions)
     {
         if (string.IsNullOrWhiteSpace(name.Value) || name.Value.Length > LengthConstants.MAX_LENGTH_POSITION_NAME)
         {
-            return Error.Validation(null, "Name is required and must be less than 150 characters");
+            return Error.Validation(
+                null,
+                "Name is required and must be less than 150 characters");
         }
 
         return new Position(
