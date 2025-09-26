@@ -1,8 +1,7 @@
-﻿using DevQuestions.Domain;
-using DevQuestions.Domain.Entities;
+﻿using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.ValueObjects.LocationVO;
 
-namespace DirectoryService.Application.IRepositories;
+namespace DirectoryService.Application.Database.IRepositories;
 
 public interface ILocationsRepository
 {

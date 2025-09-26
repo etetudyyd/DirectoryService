@@ -1,6 +1,6 @@
 ﻿using DevQuestions.Domain.Entities;
 
-namespace DirectoryService.Application.IRepositories;
+namespace DirectoryService.Application.Database.IRepositories;
 
 public interface IPositionsRepository
 {

@@ -1,8 +1,9 @@
 ﻿using CSharpFunctionalExtensions;
 using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.Shared;
+using DirectoryService.Application.Database.IRepositories;
 using DirectoryService.Application.Features.Departments.CreateDepartment;
-using DirectoryService.Application.IRepositories;
+using DirectoryService.Infrastructure.Postgresql.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 

@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace DirectoryService.Infrastructure.Postgresql;
+namespace DirectoryService.Infrastructure.Postgresql.Database;
 
 public class DirectoryServiceDbContext(string? connectionString) : DbContext
 {

@@ -22,4 +22,15 @@ public class DepartmentController : ControllerBase
         return await handler.Handle(command, cancellationToken);
     }
 
+    [HttpPatch]
+    public async Task<EndpointResult<Guid>> Update(
+        [FromServices] ICommandHandler<Guid, CreateDepartmentCommand> handler,
+        [FromBody] CreateDepartmentDto request,
+        CancellationToken cancellationToken)
+    {
+        var command = new CreateDepartmentCommand(request);
+
+        return await handler.Handle(command, cancellationToken);
+    }
+
 }

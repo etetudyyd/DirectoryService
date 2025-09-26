@@ -1,4 +1,5 @@
-﻿using DirectoryService.Application.IRepositories;
+﻿using DirectoryService.Application.Database.IRepositories;
+using DirectoryService.Infrastructure.Postgresql.Database;
 using DirectoryService.Infrastructure.Postgresql.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;

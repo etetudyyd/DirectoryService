@@ -1,5 +1,6 @@
 ﻿using DevQuestions.Domain.Entities;
-using DirectoryService.Application.IRepositories;
+using DirectoryService.Application.Database.IRepositories;
+using DirectoryService.Infrastructure.Postgresql.Database;
 
 namespace DirectoryService.Infrastructure.Postgresql.Repositories;
 

@@ -4,8 +4,8 @@ using DevQuestions.Domain.Shared;
 using DevQuestions.Domain.ValueObjects.ConectionEntitiesVO;
 using DevQuestions.Domain.ValueObjects.DepartmentVO;
 using DirectoryService.Application.Abstractions;
+using DirectoryService.Application.Database.IRepositories;
 using DirectoryService.Application.Extentions;
-using DirectoryService.Application.IRepositories;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 

@@ -1,0 +1,9 @@
+﻿using CSharpFunctionalExtensions;
+using DevQuestions.Domain.Shared;
+
+namespace DirectoryService.Application.Database.Transactions;
+
+public interface ITransactionManager
+{
+    Task<Result<ITransactionScope, Error>> BeginTransactionAsync(CancellationToken cancellationToken);
+}

@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using DirectoryService.Infrastructure.Postgresql;
+using DirectoryService.Infrastructure.Postgresql.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;

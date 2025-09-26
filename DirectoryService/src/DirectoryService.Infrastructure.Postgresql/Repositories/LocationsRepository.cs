@@ -1,6 +1,7 @@
 ﻿using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.ValueObjects.LocationVO;
-using DirectoryService.Application.IRepositories;
+using DirectoryService.Application.Database.IRepositories;
+using DirectoryService.Infrastructure.Postgresql.Database;
 using Microsoft.EntityFrameworkCore;
 
 namespace DirectoryService.Infrastructure.Postgresql.Repositories;

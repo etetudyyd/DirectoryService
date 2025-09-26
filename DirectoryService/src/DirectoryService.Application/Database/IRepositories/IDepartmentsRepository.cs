@@ -2,7 +2,7 @@
 using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.Shared;
 
-namespace DirectoryService.Application.IRepositories;
+namespace DirectoryService.Application.Database.IRepositories;
 
 public interface IDepartmentsRepository
 {
