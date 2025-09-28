@@ -24,7 +24,6 @@ public class TransactionManager : ITransactionManager
 
     public async Task<Result<ITransactionScope, Error>> BeginTransactionAsync(CancellationToken cancellationToken)
     {
-
         try
         {
             var transaction = await _dbContext.Database.BeginTransactionAsync(cancellationToken);
@@ -40,6 +39,19 @@ public class TransactionManager : ITransactionManager
             _logger.LogError(ex, "Error occurred during transaction");
             return Error.Failure("database", "Error occurred during transaction");
         }
+    }
 
+    public async Task<UnitResult<Error>> SaveChangesAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _dbContext.SaveChangesAsync(cancellationToken);
+            return UnitResult.Success<Error>();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to save changes");
+            return Error.Failure("database", "Failed to save changes");
+        }
     }
 }

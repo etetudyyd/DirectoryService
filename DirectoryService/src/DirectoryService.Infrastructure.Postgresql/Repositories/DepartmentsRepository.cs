@@ -34,23 +34,24 @@ public class DepartmentsRepository : IDepartmentsRepository
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error while adding department");
-            return Error.Failure(nameof(ErrorType.FAILURE), ex.Message);
+            return Error.Failure("nameof(ErrorType.FAILURE)", "Department not found");
         }
     }
 
-    public async Task<Result<Department, Error>> GetAsync(Guid id, CancellationToken cancellationToken)
+
+    public async Task<Result<Department, Error>> GetByIdAsync(Guid id, CancellationToken cancellationToken)
     {
         var department = await _dbContext.Departments
+            .Include(d => d.DepartmentLocations)
             .FirstOrDefaultAsync(d => d.Id.Value == id, cancellationToken);
 
         if (department is null)
         {
-            return Error.Failure(nameof(ErrorType.NOT_FOUND), "Department not found");
+            return Error.Failure("department.not.found", "Department not found");
         }
 
         return Result.Success<Department, Error>(department);
     }
-
 
     public async Task<bool> IsIdentifierExistAsync(string identifier, CancellationToken cancellationToken)
     {
@@ -60,7 +61,7 @@ public class DepartmentsRepository : IDepartmentsRepository
                 cancellationToken: cancellationToken);
     }
 
-    public async Task<bool> AllExistsAsync(List<Guid> ids, CancellationToken cancellationToken)
+    public async Task<bool> AllDepartmentLocationsExistsAndActiveAsync(List<Guid> ids, CancellationToken cancellationToken)
     {
         int count = await _dbContext.Departments
             .Where(d => ids.Contains(d.Id.Value))

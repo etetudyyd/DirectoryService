@@ -2,5 +2,4 @@
 
 namespace DirectoryService.Contracts.Locations;
 
-public record UpdateDepartmentLocationsDto(
-    DepartmentId DepartmentId);
+public record UpdateDepartmentLocationsDto(Guid[] LocationsIds);
