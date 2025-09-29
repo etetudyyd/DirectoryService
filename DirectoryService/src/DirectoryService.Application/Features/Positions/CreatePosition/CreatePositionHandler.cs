@@ -3,8 +3,8 @@ using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.Shared;
 using DevQuestions.Domain.ValueObjects.PositionVO;
 using DirectoryService.Application.Abstractions;
+using DirectoryService.Application.Database.IRepositories;
 using DirectoryService.Application.Extentions;
-using DirectoryService.Application.IRepositories;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 

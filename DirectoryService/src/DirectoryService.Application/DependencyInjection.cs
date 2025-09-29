@@ -1,4 +1,5 @@
 ﻿using DirectoryService.Application.Abstractions;
+using DirectoryService.Application.Database.Transactions;
 using FluentValidation;
 using Microsoft.Extensions.DependencyInjection;
 

@@ -10,9 +10,9 @@ public sealed class Department
     // ef
     private Department() { }
 
-    private readonly List<Department> _childrenDepartments = [];
-    private readonly List<DepartmentLocation> _departmentLocations = [];
-    private readonly List<DepartmentPosition> _departmentPositions = [];
+    private List<Department> _childrenDepartments = [];
+    private List<DepartmentLocation> _departmentLocations = [];
+    private List<DepartmentPosition> _departmentPositions = [];
 
     public DepartmentId Id { get; private set; } = null!;
 
@@ -62,16 +62,17 @@ public sealed class Department
         _departmentLocations = departmentLocations.ToList();
     }
 
-    public Result Rename(DepartmentName name, Identifier identifier)
+    public void AddLocations(IEnumerable<DepartmentLocation> departmentLocation)
     {
-        if(string.IsNullOrWhiteSpace(name.Value) || name.Value.Length > 150)
-            return Result.Failure<Department>("Name is required");
+        var departmentLocations = departmentLocation
+            .Select(l => DepartmentLocation.Create(l.LocationId, l.DepartmentId).Value);
+        _departmentLocations.AddRange(departmentLocations);
+    }
 
-        Name = name;
-        Identifier = identifier;
-        UpdatedAt = DateTime.UtcNow;
-
-        return Result.Success(this);
+    public void UpdateLocations(IEnumerable<DepartmentLocation> departmentLocations)
+    {
+        _departmentLocations.Clear();
+        AddLocations(departmentLocations);
     }
 
     public static Result<Department, Error> CreateParent(

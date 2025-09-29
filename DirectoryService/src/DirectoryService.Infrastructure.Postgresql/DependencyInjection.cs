@@ -1,4 +1,6 @@
-﻿using DirectoryService.Application.IRepositories;
+﻿using DirectoryService.Application.Database.IRepositories;
+using DirectoryService.Application.Database.Transactions;
+using DirectoryService.Infrastructure.Postgresql.Database;
 using DirectoryService.Infrastructure.Postgresql.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,6 +16,8 @@ public static class DependencyInjection
         services.AddScoped<ILocationsRepository, LocationsRepository>();
         services.AddScoped<IPositionsRepository, PositionsRepository>();
         services.AddScoped<IDepartmentsRepository, DepartmentsRepository>();
+
+        services.AddScoped<ITransactionManager, TransactionManager>();
 
         return services;
     }

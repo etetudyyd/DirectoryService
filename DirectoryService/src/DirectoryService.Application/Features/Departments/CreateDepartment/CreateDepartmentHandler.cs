@@ -4,8 +4,8 @@ using DevQuestions.Domain.Shared;
 using DevQuestions.Domain.ValueObjects.ConectionEntitiesVO;
 using DevQuestions.Domain.ValueObjects.DepartmentVO;
 using DirectoryService.Application.Abstractions;
+using DirectoryService.Application.Database.IRepositories;
 using DirectoryService.Application.Extentions;
-using DirectoryService.Application.IRepositories;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 
@@ -57,13 +57,13 @@ public class CreateDepartmentHandler : ICommandHandler<Guid, CreateDepartmentCom
     var departmentId = new DepartmentId(Guid.NewGuid());
 
     var departmentLocations = command.DepartmentDto.DepartmentLocations
-        .Select(dl => new DepartmentLocation
-        {
-            Id = new DepartmentLocationId(Guid.NewGuid()),
-            DepartmentId = departmentId,
-            LocationId = dl.LocationId,
-        })
+        .Select(dl => new DepartmentLocation(
+            new DepartmentLocationId(Guid.NewGuid()),
+            departmentId,
+            dl.LocationId
+        ))
         .ToList();
+
 
     Result<Department, Error> departmentResult;
     if (command.DepartmentDto.ParentId is null)
@@ -75,7 +75,7 @@ public class CreateDepartmentHandler : ICommandHandler<Guid, CreateDepartmentCom
     }
     else
     {
-        var parentResult = await _departmentsRepository.GetAsync(command.DepartmentDto.ParentId.Value, cancellationToken);
+        var parentResult = await _departmentsRepository.GetByIdAsync(command.DepartmentDto.ParentId.Value, cancellationToken);
         if (parentResult.IsFailure)
         {
             _logger.LogError("Parent department not found");
