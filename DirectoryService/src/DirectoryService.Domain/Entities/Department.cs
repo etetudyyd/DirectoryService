@@ -75,6 +75,29 @@ public sealed class Department
         AddLocations(departmentLocations);
     }
 
+    public UnitResult<Error> SetParent(Department? parent)
+    {
+        if (parent == this)
+            return Error.Failure("department.error.add", "CannotAddSelfAsAParent");
+
+        // пересчитываем path + depth
+        var newPathResult = Path.CalculatePath(parent?.Path, Identifier);
+        if (!newPathResult.IsSuccess)
+        {
+            return newPathResult.Error;
+        }
+
+        int newDepth = 1;
+        if (parent != null)
+            newDepth = parent.Depth + 1;
+
+        ParentId = parent?.Id;
+        Depth = newDepth;
+        Path = newPathResult.Value;
+        return UnitResult.Success<Error>();
+    }
+
+
     public static Result<Department, Error> CreateParent(
         DepartmentName name,
         Identifier identifier,

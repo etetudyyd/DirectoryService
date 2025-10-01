@@ -1,6 +1,7 @@
 ﻿using DevQuestions.Web.EndpointResults;
 using DirectoryService.Application.Abstractions;
 using DirectoryService.Application.Features.Departments.CreateDepartment;
+using DirectoryService.Application.Features.Departments.RelocateDepartmentParent;
 using DirectoryService.Application.Features.Departments.UpdateDepartmentLocations;
 using DirectoryService.Contracts.Departments;
 using DirectoryService.Contracts.Locations;
@@ -31,6 +32,18 @@ public class DepartmentController : ControllerBase
         CancellationToken cancellationToken)
     {
         var command = new UpdateDepartmentLocationsCommand(departmentId, request);
+        return await handler.Handle(command, cancellationToken);
+    }
+
+    [Route("{departmentId:Guid}/parent")]
+    [HttpPut]
+    public async Task<EndpointResult<Guid>> RelocateDepartmentParent(
+        [FromServices] RelocateDepartmentParentHandler handler,
+        [FromRoute] Guid departmentId,
+        [FromBody] RelocateDepartmentParentDto request,
+        CancellationToken cancellationToken)
+    {
+        var command = new RelocateDepartmentParentCommand(departmentId, request);
         return await handler.Handle(command, cancellationToken);
     }
 

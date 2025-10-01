@@ -62,7 +62,7 @@ public class UpdateDepartmentLocationsHandler : ICommandHandler<Guid, UpdateDepa
         // isExists validation
         if (department.IsFailure)
         {
-            transactionScope.Rollback();
+            transactionScope.Rollback(cancellationToken);
             return department.Error.ToErrors();
         }
 
@@ -76,7 +76,7 @@ public class UpdateDepartmentLocationsHandler : ICommandHandler<Guid, UpdateDepa
         // Locations isExists, isActive, isUnique validation
         if (departmentLocationsResult.IsFailure)
         {
-            transactionScope.Rollback();
+            transactionScope.Rollback(cancellationToken);
             return departmentLocationsResult.Error.ToErrors();
         }
 
@@ -90,7 +90,7 @@ public class UpdateDepartmentLocationsHandler : ICommandHandler<Guid, UpdateDepa
 
             if (departmentLocation.IsFailure)
             {
-                transactionScope.Rollback();
+                transactionScope.Rollback(cancellationToken);
                 return departmentLocation.Error.ToErrors();
             }
 
@@ -101,7 +101,7 @@ public class UpdateDepartmentLocationsHandler : ICommandHandler<Guid, UpdateDepa
 
         await _transactionManager.SaveChangesAsync(cancellationToken);
 
-        var commitedResult = transactionScope.Commit();
+        var commitedResult = transactionScope.Commit(cancellationToken);
         if (commitedResult.IsFailure)
         {
             return commitedResult.Error.ToErrors();
