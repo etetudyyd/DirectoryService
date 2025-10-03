@@ -5,7 +5,7 @@ namespace DirectoryService.Application.Database.Transactions;
 
 public interface ITransactionScope : IDisposable
 {
-    UnitResult<Error> Commit();
+    UnitResult<Error> Commit(CancellationToken cancellationToken);
 
-    UnitResult<Error> Rollback();
+    UnitResult<Error> Rollback(CancellationToken cancellationToken);
 }

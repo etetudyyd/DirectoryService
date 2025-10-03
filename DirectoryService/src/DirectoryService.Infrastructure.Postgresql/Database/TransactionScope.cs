@@ -19,7 +19,7 @@ public class TransactionScope : ITransactionScope
         _logger = logger;
     }
 
-    public UnitResult<Error> Commit()
+    public UnitResult<Error> Commit(CancellationToken cancellationToken)
     {
         try
         {
@@ -33,7 +33,7 @@ public class TransactionScope : ITransactionScope
         }
     }
 
-    public UnitResult<Error> Rollback()
+    public UnitResult<Error> Rollback(CancellationToken cancellationToken)
     {
         try
         {

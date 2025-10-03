@@ -27,6 +27,7 @@ public class DirectoryServiceDbContext(string? connectionString) : DbContext
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         modelBuilder.HasDefaultSchema("DirectoryService");
+        modelBuilder.HasPostgresExtension("ltree");
 
         modelBuilder.ApplyConfigurationsFromAssembly(
             typeof(DirectoryServiceDbContext).Assembly,

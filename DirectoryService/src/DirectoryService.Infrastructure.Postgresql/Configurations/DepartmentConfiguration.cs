@@ -37,22 +37,24 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
             .IsRequired()
             .HasMaxLength(LengthConstants.MAX_LENGTH_DEPARTMENT_IDENTIFIER)
             .HasConversion(
-                name => name.Value, 
+                name => name.Value,
                 value => Identifier.Create(value).Value);
 
             builder.Property(p => p.ParentId)
                 .HasColumnName("parent_id");
 
-            builder.ComplexProperty(
-                p => p.Path,
-                nb =>
-            {
-                nb.Property(path => path.Value)
-                    .HasColumnName("path")
-                    .IsRequired()
-                    .HasMaxLength(LengthConstants.MAX_LENGTH_DEPARTMENT_PATH);
-            });
+            builder.Property(x => x.Path)
+                .HasColumnName("path")
+                .HasColumnType("ltree")
+                .IsRequired()
+                .HasMaxLength(LengthConstants.MAX_LENGTH_DEPARTMENT_PATH)
+                .HasConversion(
+                    value => value.Value,
+                    value => Path.CreateForDb(value));
 
+            builder.HasIndex(x => x.Path)
+                .HasMethod("gist")
+                .HasDatabaseName("idx_departments_path");
 
             builder.Property(p => p.Depth)
             .HasColumnName("depth")
