@@ -13,9 +13,9 @@ public class DirectoryBaseTests : IClassFixture<DirectoryTestWebFactory>, IAsync
 {
     private readonly Func<Task> _resetDatabase;
 
-    protected IServiceProvider Services { get; }
+    private IServiceProvider Services { get; }
 
-    public DirectoryBaseTests(DirectoryTestWebFactory factory)
+    protected DirectoryBaseTests(DirectoryTestWebFactory factory)
     {
         Services = factory.Services;
         _resetDatabase = factory.ResetDatabaseAsync;
@@ -49,28 +49,51 @@ public class DirectoryBaseTests : IClassFixture<DirectoryTestWebFactory>, IAsync
         return await action(sut);
     }
 
-    protected async Task<LocationId> CreateOneLocation()
+    protected async Task<Guid[]> CreateNLocationsValid(int count)
     {
-        var timezone = Timezone.Create("Europe/Berlin");
-        var name = LocationName.Create("test-name");
-        var address = Address.Create(
-            "123456",
-            "test-region",
-            "test-city",
-            "test-street",
-            "test-house",
-            "test-apartment");
-        var location = Location.Create(
-            name.Value,
-            address.Value,
-            timezone.Value,
-            []);
+        var locations = new List<Location>();
 
-        return await ExecuteInDb(async dbContext =>
+        for (int i = 0; i < count; i++)
         {
-            await dbContext.Locations.AddAsync(location.Value, CancellationToken.None);
+            var location = Location.Create(
+                LocationName.Create($"test-name-{i}").Value,
+                Address.Create(
+                    $"12345{i}",
+                    $"test-region-{i}",
+                    $"test-city-{i}",
+                    $"test-street-{i}",
+                    $"test-house-{i}",
+                    $"test-apartment-{i}").Value,
+                Timezone.Create("Europe/Berlin").Value,
+                []);
+
+            locations.Add(location.Value);
+        }
+
+        return await ExecuteInDb<Guid[]>(async dbContext =>
+        {
+            await dbContext.Locations.AddRangeAsync(locations, CancellationToken.None);
             await dbContext.SaveChangesAsync(CancellationToken.None);
-            return location.Value.Id;
+            return locations.Select(l => l.Id.Value).ToArray();
+        });
+    }
+
+    protected async Task<Guid[]> CreateNLocationsInvalid(int count)
+    {
+        var locations = new List<Location>();
+
+        for (int i = 0; i < count; i++)
+        {
+            Result<Location, Error> location = default;
+
+            locations.Add(location.Value);
+        }
+
+        return await ExecuteInDb<Guid[]>(async dbContext =>
+        {
+            await dbContext.Locations.AddRangeAsync(locations, CancellationToken.None);
+            await dbContext.SaveChangesAsync(CancellationToken.None);
+            return locations.Select(l => l.Id.Value).ToArray();
         });
     }
 }

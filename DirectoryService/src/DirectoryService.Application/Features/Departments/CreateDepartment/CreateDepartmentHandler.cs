@@ -77,7 +77,8 @@ public class CreateDepartmentHandler : ICommandHandler<Guid, CreateDepartmentCom
     }
     else
     {
-        var parentResult = await _departmentsRepository.GetByIdAsync(command.DepartmentDto.ParentId.Value, cancellationToken);
+        var parentResult = await _departmentsRepository
+            .GetByIdAsync(command.DepartmentDto.ParentId.Value, cancellationToken);
         if (parentResult.IsFailure)
         {
             _logger.LogError("Parent department not found");
