@@ -39,7 +39,7 @@ public class DepartmentsRepository : IDepartmentsRepository
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error while adding department");
-            return Error.Failure("nameof(ErrorType.FAILURE)", "Department not found");
+            return Error.Failure("ErrorType.FAILURE", "Department not found");
         }
     }
 
