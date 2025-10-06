@@ -39,5 +39,4 @@ app.Run();
 namespace DevQuestions.Web
 {
 public partial class Program { }
-
 }

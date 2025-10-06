@@ -72,7 +72,8 @@ public class CreateDepartmentHandler : ICommandHandler<Guid, CreateDepartmentCom
         departmentResult = Department.CreateParent(
             nameResult.Value,
             identifierResult.Value,
-            departmentLocations);
+            departmentLocations,
+            departmentId);
     }
     else
     {
@@ -87,7 +88,8 @@ public class CreateDepartmentHandler : ICommandHandler<Guid, CreateDepartmentCom
             nameResult.Value,
             identifierResult.Value,
             parentResult.Value,
-            departmentLocations);
+            departmentLocations,
+            departmentId);
     }
 
     if (departmentResult.IsFailure)
