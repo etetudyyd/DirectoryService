@@ -15,7 +15,6 @@ namespace DirectoryService.IntegrationTests.Departments;
 public class CreateDepartmentTests(DirectoryTestWebFactory factory)
     : DirectoryBaseTests(factory)
 {
-
     [Fact]
     public async Task CreateDepartment_With_One_Location_Valid_Data_Should_Succeed()
     {
