@@ -163,7 +163,7 @@ public class DepartmentsRepository : IDepartmentsRepository
         await conn.ExecuteAsync(dapperSql, new
         {
             id = departmentUpdated.Id.Value,
-            parentId = departmentUpdated.ParentId.Value,
+            parentId = departmentUpdated.ParentId?.Value,
             newPath = departmentUpdated.Path.Value,
             oldPath = oldPath.Value,
             newDepth = departmentUpdated.Depth,
