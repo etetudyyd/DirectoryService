@@ -16,7 +16,7 @@ public class UpdateDepartmentLocationsTests(DirectoryTestWebFactory factory) : D
         var locationIds = await CreateNLocationsValid(1);
         var departmentId = await CreateDepartmentParentValid(locationIds);
 
-        var locationUpdateIds = await CreateNLocationsValid(1);
+        var locationUpdateIds = await CreateNLocationsToUpdateValid(1);
 
         var cancellationToken = CancellationToken.None;
 
@@ -49,24 +49,92 @@ public class UpdateDepartmentLocationsTests(DirectoryTestWebFactory factory) : D
     [Fact]
     public async Task UpdateDepartmentLocations_With_Invalid_Data_Should_Failed()
     {
-        
+        var cancellationToken = CancellationToken.None;
+        var locationIds = await CreateNLocationsValid(1);
+        var departmentId = await CreateDepartmentParentValid(locationIds);
+
+        var locationUpdateIds = await CreateNLocationsInvalid(1);
+
+        if (locationUpdateIds.IsSuccess)
+        {
+            var result = await ExecuteHandler<UpdateDepartmentLocationsHandler, Result<Guid, Error>>(async sut =>
+            {
+                var command = new UpdateDepartmentLocationsCommand(
+                    departmentId,
+                    new UpdateDepartmentLocationsDto(
+                        locationUpdateIds.Value));
+
+                var result = await sut.Handle(command, cancellationToken);
+                return result.Value;
+            });
+
+            Assert.True(result.IsFailure);
+            Assert.Equal(ErrorType.FAILURE, result.Error.Type);
+
+            Assert.NotEqual(locationIds, locationUpdateIds);
+        }
+
+        // assert
+        Assert.True(locationUpdateIds.IsFailure);
+        Assert.Equal(ErrorType.FAILURE, locationUpdateIds.Error.Type);
     }
-    
+
     [Fact]
     public async Task UpdateDepartmentLocations_With_Department_Doesnt_Exist_Should_Failed()
     {
-        
+        var cancellationToken = CancellationToken.None;
+
+        var locationUpdateIds = await CreateNLocationsToUpdateValid(1);
+
+        var result = await ExecuteHandler<UpdateDepartmentLocationsHandler, Result<Guid, Error>>(async sut =>
+            {
+                var command = new UpdateDepartmentLocationsCommand(
+                    Guid.NewGuid(),
+                    new UpdateDepartmentLocationsDto(
+                        locationUpdateIds));
+
+                var result = await sut.Handle(command, cancellationToken);
+                if (result.IsFailure)
+                {
+                    return Error.Failure("ErrorType.FAILURE", "Could not update department");
+                }
+
+                return result.Value;
+            });
+
+        // assert
+        Assert.True(result.IsFailure);
+        Assert.Equal(ErrorType.FAILURE, result.Error.Type);
     }
-    
+
     [Fact]
     public async Task UpdateDepartmentLocations_With_Location_Doesnt_Exist_Should_Failed()
     {
-        
-    }
-    
-    [Fact]
-    public async Task UpdateDepartmentLocations_With_Location_Already_Exists_Should_Failed()
-    {
-        
+        var cancellationToken = CancellationToken.None;
+        var locationIds = await CreateNLocationsValid(1);
+        var departmentId = await CreateDepartmentParentValid(locationIds);
+
+        var locationUpdateIds = new[] { Guid.NewGuid() };
+
+        var result = await ExecuteHandler<UpdateDepartmentLocationsHandler, Result<Guid, Error>>(async sut =>
+            {
+                var command = new UpdateDepartmentLocationsCommand(
+                    departmentId,
+                    new UpdateDepartmentLocationsDto(
+                        locationUpdateIds));
+
+                var result = await sut.Handle(command, cancellationToken);
+                if (result.IsFailure)
+                {
+                    return Error.Failure("ErrorType.FAILURE", "Could not update department");
+                }
+
+                return result.Value;
+            });
+
+        Assert.True(result.IsFailure);
+        Assert.Equal(ErrorType.FAILURE, result.Error.Type);
+
+        Assert.NotEqual(locationIds, locationUpdateIds);
     }
 }

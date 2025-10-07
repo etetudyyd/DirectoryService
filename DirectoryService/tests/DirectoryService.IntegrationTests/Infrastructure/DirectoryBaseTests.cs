@@ -80,13 +80,74 @@ public class DirectoryBaseTests : IClassFixture<DirectoryTestWebFactory>, IAsync
         });
     }
 
-    protected async Task<Guid[]> CreateNLocationsInvalid(int count)
+    protected async Task<Guid[]> CreateNLocationsToUpdateValid(int count)
     {
         var locations = new List<Location>();
 
         for (int i = 0; i < count; i++)
         {
-            Result<Location, Error> location = default;
+            var location = Location.Create(
+                LocationName.Create($"test-update-name-{i}").Value,
+                Address.Create(
+                    $"12345{i}",
+                    $"test-update-region-{i}",
+                    $"test-update-city-{i}",
+                    $"test-update-street-{i}",
+                    $"test-update-house-{i}",
+                    $"test-update-apartment-{i}").Value,
+                Timezone.Create("Europe/Berlin").Value,
+                []);
+
+            locations.Add(location.Value);
+        }
+
+        return await ExecuteInDb<Guid[]>(async dbContext =>
+        {
+            await dbContext.Locations.AddRangeAsync(locations, CancellationToken.None);
+            await dbContext.SaveChangesAsync(CancellationToken.None);
+            return locations.Select(l => l.Id.Value).ToArray();
+        });
+    }
+
+    protected async Task<Result<Guid[], Error>> CreateNLocationsInvalid(int count)
+    {
+        var locations = new List<Location>();
+
+        for (int i = 0; i < count; i++)
+        {
+            var name = LocationName.Create($"");
+            if (name.IsFailure)
+            {
+                return Error.Failure("ErrorType.FAILURE", "Name is invalid");
+            }
+
+            var address = Address.Create(
+                $"",
+                $"",
+                $"",
+                $"",
+                $"",
+                $"");
+            if (address.IsFailure)
+            {
+                return Error.Failure("ErrorType.FAILURE", "Address is invalid");
+            }
+
+            var timezone = Timezone.Create(string.Empty);
+            if (timezone.IsFailure)
+            {
+                return Error.Failure("ErrorType.FAILURE", "Timezone is invalid");
+            }
+
+            var location = Location.Create(
+                name.Value,
+                address.Value,
+                timezone.Value,
+                []);
+            if (location.IsFailure)
+            {
+                return Error.Failure("ErrorType.FAILURE", "Location is invalid");
+            }
 
             locations.Add(location.Value);
         }
