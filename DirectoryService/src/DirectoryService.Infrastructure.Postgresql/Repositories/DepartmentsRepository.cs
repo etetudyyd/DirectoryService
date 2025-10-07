@@ -2,6 +2,7 @@
 using Dapper;
 using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.Shared;
+using DevQuestions.Domain.ValueObjects.DepartmentVO;
 using DirectoryService.Application.Database.IRepositories;
 using DirectoryService.Application.Features.Departments.CreateDepartment;
 using DirectoryService.Infrastructure.Postgresql.Database;
@@ -47,7 +48,7 @@ public class DepartmentsRepository : IDepartmentsRepository
     {
         var department = await _dbContext.Departments
             .Include(d => d.DepartmentLocations)
-            .FirstOrDefaultAsync(d => d.Id.Value == id, cancellationToken);
+            .FirstOrDefaultAsync(d => d.Id == new DepartmentId(id), cancellationToken);
 
         if (department is null)
         {

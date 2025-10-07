@@ -1,6 +1,8 @@
 ﻿using CSharpFunctionalExtensions;
 using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.Shared;
+using DevQuestions.Domain.ValueObjects.ConectionEntitiesVO;
+using DevQuestions.Domain.ValueObjects.DepartmentVO;
 using DevQuestions.Domain.ValueObjects.LocationVO;
 using DirectoryService.Application.Abstractions;
 using DirectoryService.Application.Features.Departments.CreateDepartment;
@@ -94,6 +96,31 @@ public class DirectoryBaseTests : IClassFixture<DirectoryTestWebFactory>, IAsync
             await dbContext.Locations.AddRangeAsync(locations, CancellationToken.None);
             await dbContext.SaveChangesAsync(CancellationToken.None);
             return locations.Select(l => l.Id.Value).ToArray();
+        });
+    }
+
+    protected async Task<Guid> CreateDepartmentParentValid(Guid[] locationsIds)
+    {
+        var departmentId = new DepartmentId(Guid.NewGuid());
+
+        var departmentLocations = locationsIds
+            .Select(locationId => new DepartmentLocation(
+                new DepartmentLocationId(Guid.NewGuid()),
+                departmentId,
+                new LocationId(locationId)))
+            .ToList();
+
+        var department = Department.CreateParent(
+                DepartmentName.Create($"parent-name").Value,
+                Identifier.Create($"parent-identifier").Value,
+                departmentLocations,
+                departmentId).Value;
+
+        return await ExecuteInDb(async dbContext =>
+        {
+            await dbContext.Departments.AddAsync(department, CancellationToken.None);
+            await dbContext.SaveChangesAsync(CancellationToken.None);
+            return department.Id.Value;
         });
     }
 }

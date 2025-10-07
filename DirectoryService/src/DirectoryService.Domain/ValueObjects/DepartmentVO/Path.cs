@@ -6,7 +6,8 @@ namespace DevQuestions.Domain.ValueObjects.DepartmentVO;
 
 public sealed record Path
 {
-    private const char SEPARATOR = '/';
+    // private const char SEPARATOR = '/';
+    private const char SEPARATOR = '.';
 
     public string Value { get; }
 
