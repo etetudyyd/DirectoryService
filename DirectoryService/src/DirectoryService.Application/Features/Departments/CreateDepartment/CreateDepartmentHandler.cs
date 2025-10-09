@@ -3,6 +3,7 @@ using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.Shared;
 using DevQuestions.Domain.ValueObjects.ConectionEntitiesVO;
 using DevQuestions.Domain.ValueObjects.DepartmentVO;
+using DevQuestions.Domain.ValueObjects.LocationVO;
 using DirectoryService.Application.Abstractions;
 using DirectoryService.Application.Database.IRepositories;
 using DirectoryService.Application.Extentions;
@@ -40,14 +41,14 @@ public class CreateDepartmentHandler : ICommandHandler<Guid, CreateDepartmentCom
         return validationResult.ToErrors();
     }
 
-    var nameResult = DepartmentName.Create(command.DepartmentDto.Name.Value);
+    var nameResult = DepartmentName.Create(command.DepartmentDto.Name);
     if (nameResult.IsFailure)
     {
         _logger.LogError("Invalid DepartmentDto.Name");
         return nameResult.Error.ToErrors();
     }
 
-    var identifierResult = Identifier.Create(command.DepartmentDto.Identifier.Value);
+    var identifierResult = Identifier.Create(command.DepartmentDto.Identifier);
     if (identifierResult.IsFailure)
     {
         _logger.LogError("Invalid DepartmentDto.Identifier");
@@ -56,13 +57,13 @@ public class CreateDepartmentHandler : ICommandHandler<Guid, CreateDepartmentCom
 
     var departmentId = new DepartmentId(Guid.NewGuid());
 
-    var departmentLocations = command.DepartmentDto.DepartmentLocations
-        .Select(dl => new DepartmentLocation(
+    var departmentLocations = command.DepartmentDto.LocationsIds
+        .Select(locationId => new DepartmentLocation(
             new DepartmentLocationId(Guid.NewGuid()),
             departmentId,
-            dl.LocationId
-        ))
+            new LocationId(locationId)))
         .ToList();
+
 
 
     Result<Department, Error> departmentResult;
@@ -71,11 +72,13 @@ public class CreateDepartmentHandler : ICommandHandler<Guid, CreateDepartmentCom
         departmentResult = Department.CreateParent(
             nameResult.Value,
             identifierResult.Value,
-            departmentLocations);
+            departmentLocations,
+            departmentId);
     }
     else
     {
-        var parentResult = await _departmentsRepository.GetByIdAsync(command.DepartmentDto.ParentId.Value, cancellationToken);
+        var parentResult = await _departmentsRepository
+            .GetByIdAsync(command.DepartmentDto.ParentId.Value, cancellationToken);
         if (parentResult.IsFailure)
         {
             _logger.LogError("Parent department not found");
@@ -86,7 +89,8 @@ public class CreateDepartmentHandler : ICommandHandler<Guid, CreateDepartmentCom
             nameResult.Value,
             identifierResult.Value,
             parentResult.Value,
-            departmentLocations);
+            departmentLocations,
+            departmentId);
     }
 
     if (departmentResult.IsFailure)

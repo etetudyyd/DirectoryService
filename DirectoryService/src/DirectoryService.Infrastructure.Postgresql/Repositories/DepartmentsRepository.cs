@@ -2,6 +2,7 @@
 using Dapper;
 using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.Shared;
+using DevQuestions.Domain.ValueObjects.DepartmentVO;
 using DirectoryService.Application.Database.IRepositories;
 using DirectoryService.Application.Features.Departments.CreateDepartment;
 using DirectoryService.Infrastructure.Postgresql.Database;
@@ -39,7 +40,7 @@ public class DepartmentsRepository : IDepartmentsRepository
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error while adding department");
-            return Error.Failure("nameof(ErrorType.FAILURE)", "Department not found");
+            return Error.Failure("ErrorType.FAILURE", "Department not found");
         }
     }
 
@@ -47,7 +48,7 @@ public class DepartmentsRepository : IDepartmentsRepository
     {
         var department = await _dbContext.Departments
             .Include(d => d.DepartmentLocations)
-            .FirstOrDefaultAsync(d => d.Id.Value == id, cancellationToken);
+            .FirstOrDefaultAsync(d => d.Id == new DepartmentId(id), cancellationToken);
 
         if (department is null)
         {
@@ -162,7 +163,7 @@ public class DepartmentsRepository : IDepartmentsRepository
         await conn.ExecuteAsync(dapperSql, new
         {
             id = departmentUpdated.Id.Value,
-            parentId = departmentUpdated.ParentId.Value,
+            parentId = departmentUpdated.ParentId?.Value,
             newPath = departmentUpdated.Path.Value,
             oldPath = oldPath.Value,
             newDepth = departmentUpdated.Depth,

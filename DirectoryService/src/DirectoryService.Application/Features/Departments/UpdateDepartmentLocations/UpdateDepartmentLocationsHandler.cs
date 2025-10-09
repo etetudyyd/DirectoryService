@@ -57,7 +57,8 @@ public class UpdateDepartmentLocationsHandler : ICommandHandler<Guid, UpdateDepa
 
         using var transactionScope = transactionScopeResult.Value;
 
-        var department = await _departmentsRepository.GetByIdAsync(departmentId.Value, cancellationToken);
+        var department = await _departmentsRepository
+            .GetByIdAsync(departmentId.Value, cancellationToken);
 
         // isExists validation
         if (department.IsFailure)
@@ -73,11 +74,25 @@ public class UpdateDepartmentLocationsHandler : ICommandHandler<Guid, UpdateDepa
         var departmentLocationsResult = await _locationsRepository
             .IsLocationActiveAsync(locationIds, cancellationToken);
 
+        var updatedLocations = command.DepartmentDto.LocationsIds
+            .Select(ul => new LocationId(ul))
+            .ToArray();
+
+        var departmentLocationsUpdateResult = await _locationsRepository
+            .IsLocationActiveAsync(updatedLocations, cancellationToken); 
+
+
         // Locations isExists, isActive, isUnique validation
         if (departmentLocationsResult.IsFailure)
         {
             transactionScope.Rollback(cancellationToken);
             return departmentLocationsResult.Error.ToErrors();
+        }
+
+        if (departmentLocationsUpdateResult.IsFailure)
+        {
+            transactionScope.Rollback(cancellationToken);
+            return departmentLocationsUpdateResult.Error.ToErrors();
         }
 
         List<DepartmentLocation> departmentLocations = [];
