@@ -3,7 +3,7 @@
 namespace DirectoryService.Contracts.Locations;
 
 public record CreateLocationDto(
-    NameDto Name,
-    AddressDto Address,
-    TimezoneDto Timezone,
+    string Name,
+    string Address,
+    string Timezone,
     IEnumerable<DepartmentLocation> DepartmentLocations);

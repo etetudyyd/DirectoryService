@@ -1,24 +1,42 @@
 ﻿using DevQuestions.Domain.Entities;
+using DirectoryService.Application.Database.IQueries;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DirectoryService.Infrastructure.Postgresql.Database;
 
-public class DirectoryServiceDbContext(string? connectionString) : DbContext
+public class DirectoryServiceDbContext : DbContext, IReadDbContext
 {
-    public DbSet<Department> Departments { get; set; }
+    private readonly string _connectionString;
 
-    public DbSet<DepartmentLocation> DepartmentLocations { get; set; }
+    public DirectoryServiceDbContext(string connectionString)
+    {
+        _connectionString = connectionString;
+    }
 
-    public DbSet<DepartmentPosition> DepartmentPositions { get; set; }
+    public DbSet<Department> Departments => Set<Department>();
 
-    public DbSet<Location> Locations { get; set; }
+    public DbSet<Location> Locations => Set<Location>();
 
-    public DbSet<Position> Positions { get; set; }
+    public DbSet<Position> Positions => Set<Position>();
+
+    public DbSet<DepartmentLocation> DepartmentLocations => Set<DepartmentLocation>();
+
+    public DbSet<DepartmentPosition> DepartmentPositions => Set<DepartmentPosition>();
+
+    public IQueryable<Department> DepartmentsRead => Set<Department>().AsQueryable().AsNoTracking();
+
+    public IQueryable<Location> LocationsRead => Set<Location>().AsQueryable().AsNoTracking();
+
+    public IQueryable<Position> PositionsRead => Set<Position>().AsQueryable().AsNoTracking();
+
+    public IQueryable<DepartmentLocation> DepartmentLocationsRead => Set<DepartmentLocation>().AsQueryable().AsNoTracking();
+
+    public IQueryable<DepartmentPosition> DepartmentPositionsRead => Set<DepartmentPosition>().AsQueryable().AsNoTracking();
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        optionsBuilder.UseNpgsql(connectionString);
+        optionsBuilder.UseNpgsql(_connectionString);
         optionsBuilder.EnableSensitiveDataLogging();
 
         base.OnConfiguring(optionsBuilder);
@@ -48,5 +66,4 @@ public class DirectoryServiceDbContext(string? connectionString) : DbContext
 
         base.OnModelCreating(modelBuilder);
     }
-
 }

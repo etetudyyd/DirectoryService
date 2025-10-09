@@ -22,4 +22,16 @@ public class LocationController : ControllerBase
 
         return await handler.Handle(command, cancellationToken);
     }
+
+    [HttpGet]
+
+    public async Task<EndpointResult<Guid>> GetById(
+        [FromServices] GetLocationByIdHandler handler,
+        [FromRoute] Guid locationId,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetLocationByIdHandler(request);
+
+        return await handler.Handle(query, cancellationToken);
+    }
 }
