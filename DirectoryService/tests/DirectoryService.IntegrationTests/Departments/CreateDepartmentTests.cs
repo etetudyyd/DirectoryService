@@ -3,8 +3,9 @@ using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.Shared;
 using DevQuestions.Domain.ValueObjects.DepartmentVO;
 using DevQuestions.Domain.ValueObjects.LocationVO;
-using DirectoryService.Application.Features.Departments.CreateDepartment;
+using DirectoryService.Application.CQRS.Departments.Commands.CreateDepartment;
 using DirectoryService.Contracts.Departments;
+using DirectoryService.Contracts.Departments.Requests;
 using DirectoryService.Infrastructure.Postgresql.Database;
 using DirectoryService.IntegrationTests.Infrastructure;
 using Microsoft.EntityFrameworkCore;
@@ -25,7 +26,7 @@ public class CreateDepartmentTests(DirectoryTestWebFactory factory)
         var result = await ExecuteHandler<CreateDepartmentHandler, Result<Guid, Error>>(async sut =>
         {
             var command = new CreateDepartmentCommand(
-                new CreateDepartmentDto(
+                new CreateDepartmentRequest(
                     "DepartmentName",
                     "department-test",
                     null,
@@ -63,7 +64,7 @@ public class CreateDepartmentTests(DirectoryTestWebFactory factory)
         var result = await ExecuteHandler<CreateDepartmentHandler, Result<Guid, Error>>(async sut =>
         {
             var command = new CreateDepartmentCommand(
-                new CreateDepartmentDto(
+                new CreateDepartmentRequest(
                     "DepartmentName",
                     "department-test",
                     null,
@@ -100,7 +101,7 @@ public class CreateDepartmentTests(DirectoryTestWebFactory factory)
         var result = await ExecuteHandler<CreateDepartmentHandler, Result<Guid, Error>>(async sut =>
         {
             var command = new CreateDepartmentCommand(
-                new CreateDepartmentDto(
+                new CreateDepartmentRequest(
                     string.Empty,
                     string.Empty,
                     null,
@@ -129,7 +130,7 @@ public class CreateDepartmentTests(DirectoryTestWebFactory factory)
         var result = await ExecuteHandler<CreateDepartmentHandler, Result<Guid, Error>>(async sut =>
         {
             var command = new CreateDepartmentCommand(
-                new CreateDepartmentDto(
+                new CreateDepartmentRequest(
                     "DepartmentName",
                     "department-test",
                     Guid.NewGuid(),
@@ -157,7 +158,7 @@ public class CreateDepartmentTests(DirectoryTestWebFactory factory)
         var result = await ExecuteHandler<CreateDepartmentHandler, Result<Guid, Error>>(async sut =>
         {
             var command = new CreateDepartmentCommand(
-                new CreateDepartmentDto(
+                new CreateDepartmentRequest(
                     "department-child",
                     "department-child",
                     parentDepartmentId,

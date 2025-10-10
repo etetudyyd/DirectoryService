@@ -1,5 +1,5 @@
 ﻿using DirectoryService.Application.Database.IRepositories;
-using DirectoryService.Application.Database.Transactions;
+using DirectoryService.Application.Database.ITransactions;
 using DirectoryService.Infrastructure.Postgresql.Database;
 using DirectoryService.Infrastructure.Postgresql.Repositories;
 using Microsoft.Extensions.Configuration;

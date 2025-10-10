@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace DirectoryService.Application.Features.Departments.CreateDepartment;
+namespace DirectoryService.Application.CQRS.Departments.Commands.CreateDepartment;
 
 public class CreateDepartmentCommandValidator : AbstractValidator<CreateDepartmentCommand>
 {

@@ -1,8 +1,9 @@
 ﻿using DevQuestions.Domain.Entities;
+using DirectoryService.Contracts.Positions.VODtos;
 
-namespace DirectoryService.Contracts.Positions;
+namespace DirectoryService.Contracts.Positions.Requests;
 
-public record CreatePositionDto(
+public record CreatePositionRequest(
     NameDto Name,
     DescriptionDto Description,
     IEnumerable<DepartmentPosition> DepartmentPositions);

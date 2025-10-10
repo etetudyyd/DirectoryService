@@ -1,6 +1,7 @@
-﻿using DirectoryService.Application.Abstractions;
+﻿using DirectoryService.Application.Abstractions.Commands;
 using DirectoryService.Contracts.Departments;
+using DirectoryService.Contracts.Departments.Requests;
 
-namespace DirectoryService.Application.Features.Departments.CreateDepartment;
+namespace DirectoryService.Application.CQRS.Departments.Commands.CreateDepartment;
 
-public record CreateDepartmentCommand(CreateDepartmentDto DepartmentDto) : ICommand;
+public record CreateDepartmentCommand(CreateDepartmentRequest DepartmentRequest) : ICommand;

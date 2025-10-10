@@ -2,14 +2,14 @@
 using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.Shared;
 using DevQuestions.Domain.ValueObjects.LocationVO;
-using DirectoryService.Application.Abstractions;
+using DirectoryService.Application.Abstractions.Commands;
 using DirectoryService.Application.Database.IRepositories;
 using DirectoryService.Application.Extentions;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Guid = System.Guid;
 
-namespace DirectoryService.Application.Features.Locations.CreateLocation;
+namespace DirectoryService.Application.CQRS.Locations.Commands.CreateLocation;
 
 public class CreateLocationHandler : ICommandHandler<Guid, CreateLocationCommand>
 {
@@ -42,7 +42,7 @@ public class CreateLocationHandler : ICommandHandler<Guid, CreateLocationCommand
         }
 
         // create entity
-        var name = LocationName.Create(command.LocationDto.Name.Value);
+        var name = LocationName.Create(command.LocationRequest.Name.Value);
         if (name.IsFailure)
         {
             _logger.LogError("Invalid LocationDto.Name");
@@ -50,12 +50,12 @@ public class CreateLocationHandler : ICommandHandler<Guid, CreateLocationCommand
         }
 
         var address = Address.Create(
-            postalCode: command.LocationDto.Address.PostalCode,
-            region: command.LocationDto.Address.Region,
-            city: command.LocationDto.Address.City,
-            street: command.LocationDto.Address.Street,
-            house: command.LocationDto.Address.House,
-            apartment: command.LocationDto.Address.Apartment);
+            postalCode: command.LocationRequest.Address.PostalCode,
+            region: command.LocationRequest.Address.Region,
+            city: command.LocationRequest.Address.City,
+            street: command.LocationRequest.Address.Street,
+            house: command.LocationRequest.Address.House,
+            apartment: command.LocationRequest.Address.Apartment);
 
         bool isAddressExists = await _locationsRepository.IsAddressExistsAsync(address.Value, cancellationToken);
 
@@ -72,7 +72,7 @@ public class CreateLocationHandler : ICommandHandler<Guid, CreateLocationCommand
         }
 
         var timeZone = Timezone.Create(
-            command.LocationDto.Timezone.Value);
+            command.LocationRequest.Timezone.Value);
 
         if (timeZone.IsFailure)
         {
@@ -84,7 +84,7 @@ public class CreateLocationHandler : ICommandHandler<Guid, CreateLocationCommand
             name.Value,
             address.Value,
             timeZone.Value,
-            command.LocationDto.DepartmentLocations);
+            command.LocationRequest.DepartmentLocations);
 
         if (location.IsFailure)
         {

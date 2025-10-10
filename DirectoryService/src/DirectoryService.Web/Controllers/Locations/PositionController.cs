@@ -1,9 +1,10 @@
 ﻿using DevQuestions.Web.EndpointResults;
 using DirectoryService.Application.Abstractions;
-using DirectoryService.Application.Features.Locations.CreateLocation;
-using DirectoryService.Application.Features.Positions.CreatePosition;
+using DirectoryService.Application.Abstractions.Commands;
+using DirectoryService.Application.CQRS.Positions.Commands.CreatePosition;
 using DirectoryService.Contracts.Locations;
 using DirectoryService.Contracts.Positions;
+using DirectoryService.Contracts.Positions.Requests;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DevQuestions.Web.Controllers.Locations;
@@ -15,7 +16,7 @@ public class PositionController : ControllerBase
     [HttpPost]
     public async Task<EndpointResult<Guid>> Create(
         [FromServices] ICommandHandler<Guid, CreatePositionCommand> handler,
-        [FromBody] CreatePositionDto request,
+        [FromBody] CreatePositionRequest request,
         CancellationToken cancellationToken)
     {
         var command = new CreatePositionCommand(request);

@@ -2,8 +2,9 @@
 using CSharpFunctionalExtensions;
 using DevQuestions.Domain.Shared;
 using DevQuestions.Domain.ValueObjects.DepartmentVO;
-using DirectoryService.Application.Features.Departments.RelocateDepartmentParent;
+using DirectoryService.Application.CQRS.Departments.Commands.RelocateDepartmentParent;
 using DirectoryService.Contracts.Departments;
+using DirectoryService.Contracts.Departments.Requests;
 using DirectoryService.IntegrationTests.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,7 +30,7 @@ public class RelocateDepartmentTests(DirectoryTestWebFactory factory)
         {
             var command = new RelocateDepartmentParentCommand(
                 child,
-                new RelocateDepartmentParentDto(newParentId));
+                new RelocateDepartmentParentRequest(newParentId));
 
             var result = await sut.Handle(command, cancellationToken);
             return result.Value;
@@ -66,7 +67,7 @@ public class RelocateDepartmentTests(DirectoryTestWebFactory factory)
         {
             var command = new RelocateDepartmentParentCommand(
                 child,
-                new RelocateDepartmentParentDto(newParentId));
+                new RelocateDepartmentParentRequest(newParentId));
 
             var result = await sut.Handle(command, cancellationToken);
             return result.Value;
@@ -103,7 +104,7 @@ public class RelocateDepartmentTests(DirectoryTestWebFactory factory)
         {
             var command = new RelocateDepartmentParentCommand(
                 child,
-                new RelocateDepartmentParentDto(newParentId));
+                new RelocateDepartmentParentRequest(newParentId));
 
             var result = await sut.Handle(command, cancellationToken);
             if (result.IsFailure)
@@ -136,7 +137,7 @@ public class RelocateDepartmentTests(DirectoryTestWebFactory factory)
         {
             var command = new RelocateDepartmentParentCommand(
                 child,
-                new RelocateDepartmentParentDto(newParentId));
+                new RelocateDepartmentParentRequest(newParentId));
 
             var result = await sut.Handle(command, cancellationToken);
             if (result.IsFailure)
@@ -169,7 +170,7 @@ public class RelocateDepartmentTests(DirectoryTestWebFactory factory)
         {
             var command = new RelocateDepartmentParentCommand(
                 child,
-                new RelocateDepartmentParentDto(newParentId));
+                new RelocateDepartmentParentRequest(newParentId));
 
             var result = await sut.Handle(command, cancellationToken);
             if (result.IsFailure)
@@ -202,7 +203,7 @@ public class RelocateDepartmentTests(DirectoryTestWebFactory factory)
         {
             var command = new RelocateDepartmentParentCommand(
                 child,
-                new RelocateDepartmentParentDto(newParentId));
+                new RelocateDepartmentParentRequest(newParentId));
 
             var result = await sut.Handle(command, cancellationToken);
             return result.Value;

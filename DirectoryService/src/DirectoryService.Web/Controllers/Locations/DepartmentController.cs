@@ -1,9 +1,11 @@
 ﻿using DevQuestions.Web.EndpointResults;
 using DirectoryService.Application.Abstractions;
-using DirectoryService.Application.Features.Departments.CreateDepartment;
-using DirectoryService.Application.Features.Departments.RelocateDepartmentParent;
-using DirectoryService.Application.Features.Departments.UpdateDepartmentLocations;
+using DirectoryService.Application.Abstractions.Commands;
+using DirectoryService.Application.CQRS.Departments.Commands.CreateDepartment;
+using DirectoryService.Application.CQRS.Departments.Commands.RelocateDepartmentParent;
+using DirectoryService.Application.CQRS.Departments.Commands.UpdateDepartmentLocations;
 using DirectoryService.Contracts.Departments;
+using DirectoryService.Contracts.Departments.Requests;
 using DirectoryService.Contracts.Locations;
 using Microsoft.AspNetCore.Mvc;
 
@@ -16,7 +18,7 @@ public class DepartmentController : ControllerBase
     [HttpPost]
     public async Task<EndpointResult<Guid>> Create(
         [FromServices] ICommandHandler<Guid, CreateDepartmentCommand> handler,
-        [FromBody] CreateDepartmentDto request,
+        [FromBody] CreateDepartmentRequest request,
         CancellationToken cancellationToken)
     {
         var command = new CreateDepartmentCommand(request);
@@ -28,7 +30,7 @@ public class DepartmentController : ControllerBase
     public async Task<EndpointResult<Guid>> UpdateDepartmentLocations(
         [FromServices] ICommandHandler<Guid, UpdateDepartmentLocationsCommand> handler,
         [FromRoute] Guid departmentId,
-        [FromBody] UpdateDepartmentLocationsDto request,
+        [FromBody] UpdateDepartmentLocationsRequest request,
         CancellationToken cancellationToken)
     {
         var command = new UpdateDepartmentLocationsCommand(departmentId, request);
@@ -40,7 +42,7 @@ public class DepartmentController : ControllerBase
     public async Task<EndpointResult<Guid>> RelocateDepartmentParent(
         [FromServices] RelocateDepartmentParentHandler handler,
         [FromRoute] Guid departmentId,
-        [FromBody] RelocateDepartmentParentDto request,
+        [FromBody] RelocateDepartmentParentRequest request,
         CancellationToken cancellationToken)
     {
         var command = new RelocateDepartmentParentCommand(departmentId, request);

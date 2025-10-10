@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace DirectoryService.Application.Features.Positions.CreatePosition;
+namespace DirectoryService.Application.CQRS.Positions.Commands.CreatePosition;
 
 public class CreatePositionCommandValidator : AbstractValidator<CreatePositionCommand>
 {

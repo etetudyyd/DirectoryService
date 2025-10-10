@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace DirectoryService.Application.Features.Departments.RelocateDepartmentParent;
+namespace DirectoryService.Application.CQRS.Departments.Commands.RelocateDepartmentParent;
 
 public class RelocateDepartmentParentCommandValidator : AbstractValidator<RelocateDepartmentParentCommand>
 {

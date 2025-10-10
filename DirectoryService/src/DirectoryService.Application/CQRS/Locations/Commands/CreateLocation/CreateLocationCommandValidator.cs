@@ -1,17 +1,17 @@
 ﻿using DevQuestions.Domain;
-using DirectoryService.Contracts.Locations;
+using DirectoryService.Contracts.Locations.VODto;
 using FluentValidation;
 
-namespace DirectoryService.Application.Features.Locations.CreateLocation;
+namespace DirectoryService.Application.CQRS.Locations.Commands.CreateLocation;
 
 public class CreateLocationCommandValidator : AbstractValidator<CreateLocationCommand>
 {
     public CreateLocationCommandValidator()
     {
-        RuleFor(x => x.LocationDto.Name).SetValidator(new NameValidator());
-        RuleFor(x => x.LocationDto.Address).SetValidator(new AddressValidator());
-        RuleFor(x => x.LocationDto.Timezone).SetValidator(new TimezoneValidator());
-        RuleForEach(x => x.LocationDto.DepartmentLocations).NotEmpty().WithMessage("Department locations should not be empty");
+        RuleFor(x => x.LocationRequest.Name).SetValidator(new NameValidator());
+        RuleFor(x => x.LocationRequest.Address).SetValidator(new AddressValidator());
+        RuleFor(x => x.LocationRequest.Timezone).SetValidator(new TimezoneValidator());
+        RuleForEach(x => x.LocationRequest.DepartmentLocations).NotEmpty().WithMessage("Department locations should not be empty");
     }
 }
 
