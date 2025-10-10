@@ -1,6 +1,7 @@
-﻿using DirectoryService.Application.Abstractions;
+﻿using DirectoryService.Application.Abstractions.Commands;
 using DirectoryService.Contracts.Positions;
+using DirectoryService.Contracts.Positions.Requests;
 
-namespace DirectoryService.Application.Features.Positions.CreatePosition;
+namespace DirectoryService.Application.CQRS.Positions.Commands.CreatePosition;
 
-public record CreatePositionCommand(CreatePositionDto PositionDto) : ICommand;
+public record CreatePositionCommand(CreatePositionRequest PositionRequest) : ICommand;

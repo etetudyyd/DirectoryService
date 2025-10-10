@@ -1,6 +1,7 @@
-﻿using DirectoryService.Application.Abstractions;
+﻿using DirectoryService.Application.Abstractions.Commands;
 using DirectoryService.Contracts.Departments;
+using DirectoryService.Contracts.Departments.Requests;
 
-namespace DirectoryService.Application.Features.Departments.RelocateDepartmentParent;
+namespace DirectoryService.Application.CQRS.Departments.Commands.RelocateDepartmentParent;
 
-public record RelocateDepartmentParentCommand(Guid DepartmentId, RelocateDepartmentParentDto DepartmentDto) : ICommand;
+public record RelocateDepartmentParentCommand(Guid DepartmentId, RelocateDepartmentParentRequest DepartmentRequest) : ICommand;

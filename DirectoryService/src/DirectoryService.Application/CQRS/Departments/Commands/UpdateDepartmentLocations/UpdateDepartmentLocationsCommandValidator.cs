@@ -1,6 +1,6 @@
 ﻿using FluentValidation;
 
-namespace DirectoryService.Application.Features.Departments.UpdateDepartmentLocations;
+namespace DirectoryService.Application.CQRS.Departments.Commands.UpdateDepartmentLocations;
 
 public class UpdateDepartmentLocationsCommandValidator : AbstractValidator<UpdateDepartmentLocationsCommand>
 {

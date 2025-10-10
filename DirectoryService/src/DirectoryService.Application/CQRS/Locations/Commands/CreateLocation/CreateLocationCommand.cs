@@ -1,6 +1,7 @@
-﻿using DirectoryService.Application.Abstractions;
+﻿using DirectoryService.Application.Abstractions.Commands;
 using DirectoryService.Contracts.Locations;
+using DirectoryService.Contracts.Locations.Requests;
 
-namespace DirectoryService.Application.Features.Locations.CreateLocation;
+namespace DirectoryService.Application.CQRS.Locations.Commands.CreateLocation;
 
-public record CreateLocationCommand(CreateLocationDto LocationDto) : ICommand;
+public record CreateLocationCommand(CreateLocationRequest LocationRequest) : ICommand;

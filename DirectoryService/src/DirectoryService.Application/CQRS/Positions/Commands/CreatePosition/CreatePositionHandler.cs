@@ -2,13 +2,13 @@
 using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.Shared;
 using DevQuestions.Domain.ValueObjects.PositionVO;
-using DirectoryService.Application.Abstractions;
+using DirectoryService.Application.Abstractions.Commands;
 using DirectoryService.Application.Database.IRepositories;
 using DirectoryService.Application.Extentions;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 
-namespace DirectoryService.Application.Features.Positions.CreatePosition;
+namespace DirectoryService.Application.CQRS.Positions.Commands.CreatePosition;
 
 public class CreatePositionHandler: ICommandHandler<Guid, CreatePositionCommand>
 {
@@ -39,19 +39,19 @@ public class CreatePositionHandler: ICommandHandler<Guid, CreatePositionCommand>
             return validationResult.ToErrors();
         }
 
-        var name = PositionName.Create(command.PositionDto.Name.Value);
+        var name = PositionName.Create(command.PositionRequest.Name.Value);
         if (name.IsFailure)
         {
             _logger.LogError("Invalid PositionDto.Name");
             return name.Error.ToErrors();
         }
 
-        var description = Description.Create(command.PositionDto.Description.Value);
+        var description = Description.Create(command.PositionRequest.Description.Value);
 
         var position = Position.Create(
             name.Value,
             description.Value,
-            command.PositionDto.DepartmentPositions);
+            command.PositionRequest.DepartmentPositions);
 
         if (position.IsFailure)
         {

@@ -1,14 +1,14 @@
 ﻿using CSharpFunctionalExtensions;
 using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.Shared;
-using DirectoryService.Application.Abstractions;
+using DirectoryService.Application.Abstractions.Commands;
 using DirectoryService.Application.Database.IRepositories;
-using DirectoryService.Application.Database.Transactions;
+using DirectoryService.Application.Database.ITransactions;
 using DirectoryService.Application.Extentions;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 
-namespace DirectoryService.Application.Features.Departments.RelocateDepartmentParent;
+namespace DirectoryService.Application.CQRS.Departments.Commands.RelocateDepartmentParent;
 
 public class RelocateDepartmentParentHandler : ICommandHandler<Guid, RelocateDepartmentParentCommand>
 {
@@ -58,10 +58,10 @@ public class RelocateDepartmentParentHandler : ICommandHandler<Guid, RelocateDep
         var department = getDepartmentResult.Value;
 
         Department? parentDepartment = null;
-        if (command.DepartmentDto.ParentId != null)
+        if (command.DepartmentRequest.ParentId != null)
         {
             var getParentResult = await _departmentsRepository
-                .GetByIdWithLockAsync(command.DepartmentDto.ParentId.Value, cancellationToken);
+                .GetByIdWithLockAsync(command.DepartmentRequest.ParentId.Value, cancellationToken);
             if (getParentResult.IsFailure)
             {
                 transaction.Rollback(cancellationToken);
@@ -71,11 +71,11 @@ public class RelocateDepartmentParentHandler : ICommandHandler<Guid, RelocateDep
             parentDepartment = getParentResult.Value;
         }
 
-        if (command.DepartmentDto.ParentId != null)
+        if (command.DepartmentRequest.ParentId != null)
         {
             var isDescendant = await _departmentsRepository.IsDescendantAsync(
                 department.Path,
-                command.DepartmentDto.ParentId.Value,
+                command.DepartmentRequest.ParentId.Value,
                 cancellationToken);
             if (isDescendant)
             {

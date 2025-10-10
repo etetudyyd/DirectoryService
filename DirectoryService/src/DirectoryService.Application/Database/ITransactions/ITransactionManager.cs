@@ -1,7 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using DevQuestions.Domain.Shared;
 
-namespace DirectoryService.Application.Database.Transactions;
+namespace DirectoryService.Application.Database.ITransactions;
 
 public interface ITransactionManager
 {

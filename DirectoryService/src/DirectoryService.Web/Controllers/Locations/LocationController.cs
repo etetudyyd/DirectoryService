@@ -2,8 +2,12 @@
 using DevQuestions.Domain.ValueObjects.LocationVO;
 using DevQuestions.Web.EndpointResults;
 using DirectoryService.Application.Abstractions;
-using DirectoryService.Application.Features.Locations.CreateLocation;
-using DirectoryService.Contracts.Locations;
+using DirectoryService.Application.Abstractions.Commands;
+using DirectoryService.Application.Abstractions.Queries;
+using DirectoryService.Application.CQRS.Locations.Commands.CreateLocation;
+using DirectoryService.Application.CQRS.Locations.Queries.GetLocations;
+using DirectoryService.Contracts.Locations.Requests;
+using DirectoryService.Contracts.Locations.Responses;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DevQuestions.Web.Controllers.Locations;
@@ -15,7 +19,7 @@ public class LocationController : ControllerBase
     [HttpPost]
     public async Task<EndpointResult<Guid>> Create(
         [FromServices] ICommandHandler<Guid, CreateLocationCommand> handler,
-        [FromBody] CreateLocationDto request,
+        [FromBody] CreateLocationRequest request,
         CancellationToken cancellationToken)
     {
         var command = new CreateLocationCommand(request);
@@ -24,14 +28,12 @@ public class LocationController : ControllerBase
     }
 
     [HttpGet]
-
-    public async Task<EndpointResult<Guid>> GetById(
-        [FromServices] GetLocationByIdHandler handler,
-        [FromRoute] Guid locationId,
+    public async Task<EndpointResult<GetLocationsResponse>> Get(
+        [FromServices] IQueryHandler<GetLocationsResponse, GetLocationsQuery> handler,
+        [FromQuery] GetLocationsRequest request,
         CancellationToken cancellationToken)
     {
-        var query = new GetLocationByIdHandler(request);
-
+        GetLocationsQuery query = new(request);
         return await handler.Handle(query, cancellationToken);
     }
 }

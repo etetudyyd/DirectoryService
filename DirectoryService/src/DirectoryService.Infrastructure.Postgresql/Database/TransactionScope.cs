@@ -1,7 +1,7 @@
 ﻿using System.Data;
 using CSharpFunctionalExtensions;
 using DevQuestions.Domain.Shared;
-using DirectoryService.Application.Database.Transactions;
+using DirectoryService.Application.Database.ITransactions;
 using Microsoft.Extensions.Logging;
 
 namespace DirectoryService.Infrastructure.Postgresql.Database;

@@ -3,13 +3,13 @@ using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.Shared;
 using DevQuestions.Domain.ValueObjects.DepartmentVO;
 using DevQuestions.Domain.ValueObjects.LocationVO;
-using DirectoryService.Application.Abstractions;
+using DirectoryService.Application.Abstractions.Commands;
 using DirectoryService.Application.Database.IRepositories;
-using DirectoryService.Application.Database.Transactions;
+using DirectoryService.Application.Database.ITransactions;
 using DirectoryService.Application.Extentions;
 using Microsoft.Extensions.Logging;
 
-namespace DirectoryService.Application.Features.Departments.UpdateDepartmentLocations;
+namespace DirectoryService.Application.CQRS.Departments.Commands.UpdateDepartmentLocations;
 
 public class UpdateDepartmentLocationsHandler : ICommandHandler<Guid, UpdateDepartmentLocationsCommand>
 {
@@ -74,7 +74,7 @@ public class UpdateDepartmentLocationsHandler : ICommandHandler<Guid, UpdateDepa
         var departmentLocationsResult = await _locationsRepository
             .IsLocationActiveAsync(locationIds, cancellationToken);
 
-        var updatedLocations = command.DepartmentDto.LocationsIds
+        var updatedLocations = command.DepartmentRequest.LocationsIds
             .Select(ul => new LocationId(ul))
             .ToArray();
 
@@ -97,7 +97,7 @@ public class UpdateDepartmentLocationsHandler : ICommandHandler<Guid, UpdateDepa
 
         List<DepartmentLocation> departmentLocations = [];
 
-        foreach (var departmentLocationsRequest in command.DepartmentDto.LocationsIds)
+        foreach (var departmentLocationsRequest in command.DepartmentRequest.LocationsIds)
         {
             var departmentLocation = DepartmentLocation.Create(
                 new LocationId(departmentLocationsRequest),
