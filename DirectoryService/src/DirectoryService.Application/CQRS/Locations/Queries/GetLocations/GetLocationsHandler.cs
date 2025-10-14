@@ -39,8 +39,8 @@ public class GetLocationsHandler : IQueryHandler<GetLocationsResponse, GetLocati
         using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
 
         var parameters = new DynamicParameters();
-
         var conditions = new List<string>();
+        var joins = new List<string>();
 
         if (!string.IsNullOrWhiteSpace(query.Search))
         {
@@ -48,108 +48,54 @@ public class GetLocationsHandler : IQueryHandler<GetLocationsResponse, GetLocati
             parameters.Add("search", $"%{query.Search}%");
         }
 
+        if (query.Ids is { Count: > 0 })
+        {
+            joins.Add("JOIN department_locations dl ON dl.location_id = l.id");
+            conditions.Add("dl.department_id = ANY(@departmentIds)");
+            parameters.Add("departmentIds", query.Ids);
+        }
+
         parameters.Add("offset", (query.Page - 1) * query.PageSize, DbType.Int32);
         parameters.Add("page_size", query.PageSize, DbType.Int32);
 
+        string joinClause = joins.Count > 0 ? string.Join(" ", joins) : string.Empty;
         string whereClause = conditions.Count > 0 ? "WHERE " + string.Join(" AND ", conditions) : string.Empty;
+
         long? totalCount = null;
 
         var locations = await connection
             .QueryAsync<LocationDto, long, LocationDto>(
                 $"""
-                 SELECT l.id,
-                    l.name,
-                    l.timezone,
-                    l.is_active,
-                    l.created_at,
-                    l.update_at,
-                    l.apartment,
-                    l.city,
-                    l.house,
-                    l.postal_code,
-                    l.region,
-                    l.street,
-                COUNT(*) OVER() as total_count
-                FROM locations l 
-                {whereClause}
-                ORDER BY l.created_at DESC
-                LIMIT @page_size OFFSET @offset;                           
-                """,
+                 SELECT 
+                     l.id,
+                     l.name,
+                     l.timezone,
+                     l.is_active,
+                     l.created_at,
+                     l.update_at,
+                     l.apartment,
+                     l.city,
+                     l.house,
+                     l.postal_code,
+                     l.region,
+                     l.street,
+                     COUNT(*) OVER() as total_count
+                 FROM locations l
+                 {joinClause}
+                 {whereClause}
+                 ORDER BY l.created_at DESC
+                 LIMIT @page_size OFFSET @offset;
+                 """,
                 splitOn: "total_count",
-                map: (locations, count) =>
+                map: (location, count) =>
                 {
                     totalCount ??= count;
-
-                    return locations;
+                    return location;
                 },
-                param:parameters);
+                param: parameters);
 
         _logger.LogInformation("Found {totalCount} locations", totalCount);
 
         return new GetLocationsResponse(locations.ToList(), totalCount ?? 0);
     }
 }
-
-/*public class GetLocationsHandler : IQueryHandler<GetLocationsResponse, GetLocationsQuery>
-{
-    private readonly IValidator<GetLocationsQuery> _validator;
-    private readonly ILogger<GetLocationsHandler> _logger;
-    private readonly IReadDbContext _readDbContext;
-
-    public GetLocationsHandler(
-        ILogger<GetLocationsHandler> logger,
-        IValidator<GetLocationsQuery> validator,
-        IReadDbContext readDbContext)
-    {
-        _logger = logger;
-        _validator = validator;
-        _readDbContext = readDbContext;
-    }
-
-    public async Task<Result<GetLocationsResponse, Errors>> Handle(GetLocationsQuery query, CancellationToken cancellationToken)
-    {
-        var validationResult = await _validator.ValidateAsync(query, cancellationToken);
-        if (!validationResult.IsValid)
-            return validationResult.ToErrors();
-
-        var locationsQuery = _readDbContext.LocationsRead;
-
-        if (query.Ids is not [])
-        {
-            // вывести локации департаментов
-        }
-
-        if (!string.IsNullOrWhiteSpace(query.Search))
-        {
-            locationsQuery = locationsQuery
-                .Where(l => EF.Functions.ILike(
-                    l.Name.Value, $"%{query.Search}%"));
-        }
-
-        // Pagination
-        long totalCount = await locationsQuery.LongCountAsync(cancellationToken);
-
-        locationsQuery = locationsQuery
-            .Skip((query.Page - 1) * query.PageSize)
-            .Take(query.PageSize);
-
-        var locations = await locationsQuery
-            .OrderBy(l => l.CreatedAt)
-            .Select(l => new LocationDto
-            {
-                Id = l.Id.Value,
-                Name = l.Name.Value,
-                Address = l.Address.ToString(),
-                TimeZone = l.Timezone.Value,
-            }).ToListAsync(cancellationToken);
-
-        _logger.LogInformation("Found {Count} locations", locations.Count);
-
-        return new GetLocationsResponse
-        {
-            Locations = locations,
-            TotalCount = totalCount,
-        };
-    }
-
-}*/
