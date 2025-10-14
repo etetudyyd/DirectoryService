@@ -1,11 +1,7 @@
-﻿using DevQuestions.Domain.Entities;
-using DevQuestions.Domain.ValueObjects.LocationVO;
-using DevQuestions.Web.EndpointResults;
-using DirectoryService.Application.Abstractions;
+﻿using DevQuestions.Web.EndpointResults;
 using DirectoryService.Application.Abstractions.Commands;
 using DirectoryService.Application.Abstractions.Queries;
 using DirectoryService.Application.CQRS.Locations.Commands.CreateLocation;
-using DirectoryService.Application.CQRS.Locations.Queries;
 using DirectoryService.Application.CQRS.Locations.Queries.GetLocationById;
 using DirectoryService.Application.CQRS.Locations.Queries.GetLocations;
 using DirectoryService.Contracts.Locations.Requests;

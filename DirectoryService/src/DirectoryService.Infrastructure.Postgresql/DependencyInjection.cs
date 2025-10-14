@@ -1,6 +1,7 @@
 ﻿using DirectoryService.Application.Database.IQueries;
 using DirectoryService.Application.Database.IRepositories;
 using DirectoryService.Application.Database.ITransactions;
+using DirectoryService.Infrastructure.Postgresql.Dapper;
 using DirectoryService.Infrastructure.Postgresql.Database;
 using DirectoryService.Infrastructure.Postgresql.Repositories;
 using Microsoft.Extensions.Configuration;
@@ -20,7 +21,7 @@ public static class DependencyInjection
         services.AddScoped<ILocationsRepository, LocationsRepository>();
         services.AddScoped<IPositionsRepository, PositionsRepository>();
         services.AddScoped<IDepartmentsRepository, DepartmentsRepository>();
-
+        services.AddScoped<IDapperConnectionFactory, DapperConnectionFactory>();
         services.AddScoped<ITransactionManager, TransactionManager>();
 
         return services;
