@@ -4,6 +4,8 @@ using DevQuestions.Domain.ValueObjects.LocationVO;
 using DirectoryService.Application.Abstractions.Queries;
 using DirectoryService.Application.Database.IQueries;
 using DirectoryService.Application.Extentions;
+using DirectoryService.Contracts.Locations.Dtos;
+using DirectoryService.Contracts.Locations.Requests;
 using DirectoryService.Contracts.Locations.Responses;
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
@@ -31,21 +33,48 @@ public class GetLocationsHandler : IQueryHandler<GetLocationsResponse, GetLocati
     {
         var validationResult = await _validator.ValidateAsync(query, cancellationToken);
         if (!validationResult.IsValid)
-            return validationResult.ToErrors(); // перетворюємо в твій стандартний формат помилки
+            return validationResult.ToErrors();
 
-        // Безпечна робота з Ids
-        var ids = query.Ids?.ToArray() ?? [];
+        var locationsQuery = _readDbContext.LocationsRead;
 
-        // Завантаження даних з БД
-        var locations = await _readDbContext.LocationsRead
-            .Where(l => ids.Contains(l.Id.Value))
-            .ToArrayAsync(cancellationToken);
+        if (query.Ids is not [])
+        {
+            // вывести локации департаментов
+        }
 
-        var locationIds = locations.Select(l => l.Id.Value).ToArray();
+        if (!string.IsNullOrWhiteSpace(query.Search))
+        {
+            locationsQuery = locationsQuery
+                .Where(l => EF.Functions
+                    .Like(
+                        l.Name.Value.ToLower(),
+                        $"%{query.Search.ToLower()}%"));
+        }
 
-        var response = new GetLocationsResponse(locationIds, query.Search, query.IsActive);
+        // Pagination
+        long totalCount = await locationsQuery.LongCountAsync(cancellationToken);
 
-        return Result.Success<GetLocationsResponse, Errors>(response);
+        locationsQuery = locationsQuery
+            .Skip((query.Page - 1) * query.PageSize)
+            .Take(query.PageSize);
+
+        var locations = await locationsQuery
+            .OrderBy(l => l.CreatedAt)
+            .Select(l => new LocationDto
+            {
+                Id = l.Id.Value,
+                Name = l.Name.Value,
+                Address = l.Address.ToString(),
+                TimeZone = l.Timezone.Value,
+            }).ToListAsync(cancellationToken);
+
+        _logger.LogInformation("Found {Count} locations", locations.Count);
+
+        return new GetLocationsResponse
+        {
+            Locations = locations,
+            TotalCount = totalCount,
+        };
     }
 
 }

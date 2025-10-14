@@ -1,5 +1,5 @@
 ﻿using DevQuestions.Domain.Entities;
-using DirectoryService.Contracts.Locations.VODto;
+using DirectoryService.Contracts.Locations.Dtos;
 
 namespace DirectoryService.Contracts.Locations.Requests;
 

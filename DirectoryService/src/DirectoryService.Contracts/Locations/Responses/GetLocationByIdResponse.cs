@@ -3,11 +3,4 @@ using DirectoryService.Contracts.Locations.Requests;
 
 namespace DirectoryService.Contracts.Locations.Responses;
 
-public record GetLocationsResponse
-{
-    public List<LocationDto> Locations { get; init; } = [];
-
-    public long TotalCount { get; init; }
-}
-
-
+public record GetLocationByIdResponse(LocationDto Location);

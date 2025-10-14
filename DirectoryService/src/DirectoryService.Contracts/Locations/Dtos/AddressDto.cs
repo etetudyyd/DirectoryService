@@ -1,4 +1,4 @@
-﻿namespace DirectoryService.Contracts.Locations.VODto;
+﻿namespace DirectoryService.Contracts.Locations.Dtos;
 
 public record AddressDto(
     string PostalCode,

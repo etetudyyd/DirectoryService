@@ -1,5 +1,5 @@
 ﻿using DevQuestions.Domain;
-using DirectoryService.Contracts.Locations.VODto;
+using DirectoryService.Contracts.Locations.Dtos;
 using FluentValidation;
 
 namespace DirectoryService.Application.CQRS.Locations.Commands.CreateLocation;

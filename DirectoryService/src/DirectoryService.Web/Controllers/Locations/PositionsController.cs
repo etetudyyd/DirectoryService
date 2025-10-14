@@ -11,7 +11,7 @@ namespace DevQuestions.Web.Controllers.Locations;
 
 [ApiController]
 [Route("api/[controller]")]
-public class PositionController : ControllerBase
+public class PositionsController : ControllerBase
 {
     [HttpPost]
     public async Task<EndpointResult<Guid>> Create(

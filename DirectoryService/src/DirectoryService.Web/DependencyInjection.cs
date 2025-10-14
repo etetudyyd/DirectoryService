@@ -7,7 +7,7 @@ public static class DependencyInjection
     public static IServiceCollection AddWeb(this IServiceCollection serviceCollection)
     {
         serviceCollection.AddControllers()
-            .AddApplicationPart(typeof(LocationController).Assembly);
+            .AddApplicationPart(typeof(LocationsController).Assembly);
         serviceCollection.AddOpenApi();
         return serviceCollection;
     }
