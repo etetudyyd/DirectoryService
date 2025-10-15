@@ -1,5 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using DevQuestions.Domain.Shared;
+using DevQuestions.Domain.ValueObjects.DepartmentVO;
 using DevQuestions.Domain.ValueObjects.LocationVO;
 using Guid = System.Guid;
 

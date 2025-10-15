@@ -1,8 +1,9 @@
 ﻿using CSharpFunctionalExtensions;
 using DevQuestions.Domain.Shared;
 using DevQuestions.Domain.ValueObjects.DepartmentVO;
-using DirectoryService.Application.Features.Departments.UpdateDepartmentLocations;
+using DirectoryService.Application.CQRS.Departments.Commands.UpdateDepartmentLocations;
 using DirectoryService.Contracts.Departments;
+using DirectoryService.Contracts.Departments.Requests;
 using DirectoryService.IntegrationTests.Infrastructure;
 using Microsoft.EntityFrameworkCore;
 
@@ -24,7 +25,7 @@ public class UpdateDepartmentLocationsTests(DirectoryTestWebFactory factory) : D
         {
             var command = new UpdateDepartmentLocationsCommand(
                 departmentId,
-                new UpdateDepartmentLocationsDto(
+                new UpdateDepartmentLocationsRequest(
                     locationUpdateIds));
 
             var result = await sut.Handle(command, cancellationToken);
@@ -61,7 +62,7 @@ public class UpdateDepartmentLocationsTests(DirectoryTestWebFactory factory) : D
             {
                 var command = new UpdateDepartmentLocationsCommand(
                     departmentId,
-                    new UpdateDepartmentLocationsDto(
+                    new UpdateDepartmentLocationsRequest(
                         locationUpdateIds.Value));
 
                 var result = await sut.Handle(command, cancellationToken);
@@ -90,7 +91,7 @@ public class UpdateDepartmentLocationsTests(DirectoryTestWebFactory factory) : D
             {
                 var command = new UpdateDepartmentLocationsCommand(
                     Guid.NewGuid(),
-                    new UpdateDepartmentLocationsDto(
+                    new UpdateDepartmentLocationsRequest(
                         locationUpdateIds));
 
                 var result = await sut.Handle(command, cancellationToken);
@@ -120,7 +121,7 @@ public class UpdateDepartmentLocationsTests(DirectoryTestWebFactory factory) : D
             {
                 var command = new UpdateDepartmentLocationsCommand(
                     departmentId,
-                    new UpdateDepartmentLocationsDto(
+                    new UpdateDepartmentLocationsRequest(
                         locationUpdateIds));
 
                 var result = await sut.Handle(command, cancellationToken);

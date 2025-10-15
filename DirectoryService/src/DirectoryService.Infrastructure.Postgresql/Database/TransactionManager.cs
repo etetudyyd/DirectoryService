@@ -1,6 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using DevQuestions.Domain.Shared;
-using DirectoryService.Application.Database.Transactions;
+using DirectoryService.Application.Database.ITransactions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 

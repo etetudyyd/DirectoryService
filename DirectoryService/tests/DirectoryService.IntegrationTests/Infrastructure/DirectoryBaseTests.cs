@@ -5,7 +5,6 @@ using DevQuestions.Domain.ValueObjects.ConectionEntitiesVO;
 using DevQuestions.Domain.ValueObjects.DepartmentVO;
 using DevQuestions.Domain.ValueObjects.LocationVO;
 using DirectoryService.Application.Abstractions;
-using DirectoryService.Application.Features.Departments.CreateDepartment;
 using DirectoryService.Infrastructure.Postgresql.Database;
 using Microsoft.Extensions.DependencyInjection;
 
