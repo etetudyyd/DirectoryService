@@ -4,6 +4,7 @@ using DevQuestions.Domain.ValueObjects.LocationVO;
 using DirectoryService.Application.Abstractions.Queries;
 using DirectoryService.Application.Database.IQueries;
 using DirectoryService.Application.Extentions;
+using DirectoryService.Contracts.Locations.Dtos;
 using DirectoryService.Contracts.Locations.Requests;
 using DirectoryService.Contracts.Locations.Responses;
 using FluentValidation;

@@ -21,7 +21,6 @@
 
     <ItemGroup>
       <Folder Include="CQRS\Departments\Commands\" />
-      <Folder Include="CQRS\Departments\Queries\" />
       <Folder Include="CQRS\Locations\Commands\" />
       <Folder Include="CQRS\Positions\Commands\" />
       <Folder Include="CQRS\Positions\Queries\" />

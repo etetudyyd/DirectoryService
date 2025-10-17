@@ -1,18 +1,21 @@
 ﻿using DevQuestions.Web.EndpointResults;
 using DirectoryService.Application.Abstractions;
 using DirectoryService.Application.Abstractions.Commands;
+using DirectoryService.Application.Abstractions.Queries;
 using DirectoryService.Application.CQRS.Departments.Commands.CreateDepartment;
 using DirectoryService.Application.CQRS.Departments.Commands.RelocateDepartmentParent;
 using DirectoryService.Application.CQRS.Departments.Commands.UpdateDepartmentLocations;
+using DirectoryService.Application.CQRS.Departments.Queries;
 using DirectoryService.Contracts.Departments;
 using DirectoryService.Contracts.Departments.Requests;
+using DirectoryService.Contracts.Departments.Responses;
 using DirectoryService.Contracts.Locations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DevQuestions.Web.Controllers.Locations;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/departments")]
 public class DepartmentsController : ControllerBase
 {
     [HttpPost]
@@ -26,7 +29,17 @@ public class DepartmentsController : ControllerBase
         return await handler.Handle(command, cancellationToken);
     }
 
-    [HttpPut("/api/departments/{departmentId}/locations")]
+    [HttpGet("top_positions")]
+    public async Task<EndpointResult<GetTopDepartmentsByPositionsResponse>> GetTopDepartmentsByPosition(
+        [FromServices] IQueryHandler<GetTopDepartmentsByPositionsResponse,
+            GetTopDepartmentsByPositionsQuery> handler,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetTopDepartmentsByPositionsQuery();
+        return await handler.Handle(query, cancellationToken);
+    }
+
+    [HttpPut("{departmentId}/locations")]
     public async Task<EndpointResult<Guid>> UpdateDepartmentLocations(
         [FromServices] ICommandHandler<Guid, UpdateDepartmentLocationsCommand> handler,
         [FromRoute] Guid departmentId,
