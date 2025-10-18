@@ -2,10 +2,10 @@
 using DirectoryService.Application.Abstractions;
 using DirectoryService.Application.Abstractions.Commands;
 using DirectoryService.Application.Abstractions.Queries;
-using DirectoryService.Application.CQRS.Departments.Commands.CreateDepartment;
-using DirectoryService.Application.CQRS.Departments.Commands.RelocateDepartmentParent;
-using DirectoryService.Application.CQRS.Departments.Commands.UpdateDepartmentLocations;
-using DirectoryService.Application.CQRS.Departments.Queries;
+using DirectoryService.Application.Features.Departments.Commands.CreateDepartment;
+using DirectoryService.Application.Features.Departments.Commands.RelocateDepartmentParent;
+using DirectoryService.Application.Features.Departments.Commands.UpdateDepartmentLocations;
+using DirectoryService.Application.Features.Departments.Queries;
 using DirectoryService.Contracts.Departments;
 using DirectoryService.Contracts.Departments.Requests;
 using DirectoryService.Contracts.Departments.Responses;

@@ -1,7 +1,7 @@
 ﻿using DevQuestions.Web.EndpointResults;
 using DirectoryService.Application.Abstractions;
 using DirectoryService.Application.Abstractions.Commands;
-using DirectoryService.Application.CQRS.Positions.Commands.CreatePosition;
+using DirectoryService.Application.Features.Positions.Commands.CreatePosition;
 using DirectoryService.Contracts.Locations;
 using DirectoryService.Contracts.Positions;
 using DirectoryService.Contracts.Positions.Requests;

@@ -1,9 +1,9 @@
 ﻿using DevQuestions.Web.EndpointResults;
 using DirectoryService.Application.Abstractions.Commands;
 using DirectoryService.Application.Abstractions.Queries;
-using DirectoryService.Application.CQRS.Locations.Commands.CreateLocation;
-using DirectoryService.Application.CQRS.Locations.Queries.GetLocationById;
-using DirectoryService.Application.CQRS.Locations.Queries.GetLocations;
+using DirectoryService.Application.Features.Locations.Commands.CreateLocation;
+using DirectoryService.Application.Features.Locations.Queries.GetLocationById;
+using DirectoryService.Application.Features.Locations.Queries.GetLocations;
 using DirectoryService.Contracts.Locations.Requests;
 using DirectoryService.Contracts.Locations.Responses;
 using Microsoft.AspNetCore.Mvc;

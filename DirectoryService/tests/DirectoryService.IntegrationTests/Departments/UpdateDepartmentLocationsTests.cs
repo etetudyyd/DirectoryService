@@ -1,7 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using DevQuestions.Domain.Shared;
 using DevQuestions.Domain.ValueObjects.DepartmentVO;
-using DirectoryService.Application.CQRS.Departments.Commands.UpdateDepartmentLocations;
+using DirectoryService.Application.Features.Departments.Commands.UpdateDepartmentLocations;
 using DirectoryService.Contracts.Departments;
 using DirectoryService.Contracts.Departments.Requests;
 using DirectoryService.IntegrationTests.Infrastructure;
