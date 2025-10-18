@@ -20,11 +20,10 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="CQRS\Departments\Commands\" />
-      <Folder Include="CQRS\Departments\Queries\" />
-      <Folder Include="CQRS\Locations\Commands\" />
-      <Folder Include="CQRS\Positions\Commands\" />
-      <Folder Include="CQRS\Positions\Queries\" />
+      <Folder Include="Features\Departments\Commands\" />
+      <Folder Include="Features\Locations\Commands\" />
+      <Folder Include="Features\Positions\Commands\" />
+      <Folder Include="Features\Positions\Queries\" />
     </ItemGroup>
 
 </Project>

@@ -3,7 +3,7 @@ using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.Shared;
 using DevQuestions.Domain.ValueObjects.DepartmentVO;
 using DevQuestions.Domain.ValueObjects.LocationVO;
-using DirectoryService.Application.CQRS.Departments.Commands.CreateDepartment;
+using DirectoryService.Application.Features.Departments.Commands.CreateDepartment;
 using DirectoryService.Contracts.Departments;
 using DirectoryService.Contracts.Departments.Requests;
 using DirectoryService.Infrastructure.Postgresql.Database;
