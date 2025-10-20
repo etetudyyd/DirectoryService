@@ -8,7 +8,7 @@ using DirectoryService.Contracts.Departments.Responses;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 
-namespace DirectoryService.Application.Features.Departments.Queries;
+namespace DirectoryService.Application.Features.Departments.Queries.GetTopDepartmentsByPositions;
 
 public class GetTopDepartmentsByPositionsHandler : IQueryHandler<GetTopDepartmentsByPositionsResponse, GetTopDepartmentsByPositionsQuery>
 {

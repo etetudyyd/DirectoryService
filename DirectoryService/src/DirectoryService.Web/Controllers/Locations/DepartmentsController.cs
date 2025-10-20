@@ -6,6 +6,8 @@ using DirectoryService.Application.Features.Departments.Commands.CreateDepartmen
 using DirectoryService.Application.Features.Departments.Commands.RelocateDepartmentParent;
 using DirectoryService.Application.Features.Departments.Commands.UpdateDepartmentLocations;
 using DirectoryService.Application.Features.Departments.Queries;
+using DirectoryService.Application.Features.Departments.Queries.GetRootDepartments;
+using DirectoryService.Application.Features.Departments.Queries.GetTopDepartmentsByPositions;
 using DirectoryService.Contracts.Departments;
 using DirectoryService.Contracts.Departments.Requests;
 using DirectoryService.Contracts.Departments.Responses;
@@ -18,15 +20,15 @@ namespace DevQuestions.Web.Controllers.Locations;
 [Route("api/departments")]
 public class DepartmentsController : ControllerBase
 {
-    [HttpPost]
-    public async Task<EndpointResult<Guid>> Create(
-        [FromServices] ICommandHandler<Guid, CreateDepartmentCommand> handler,
-        [FromBody] CreateDepartmentRequest request,
+    [HttpGet]
+    public async Task<EndpointResult<GetRootDepartmentsResponse>> GetRootDepartments(
+        [FromServices] IQueryHandler<GetRootDepartmentsResponse, GetRootDepartmentsQuery> handler,
+        [FromBody] GetRootDepartmentsRequest request,
         CancellationToken cancellationToken)
     {
-        var command = new CreateDepartmentCommand(request);
+        var query = new GetRootDepartmentsQuery(request);
 
-        return await handler.Handle(command, cancellationToken);
+        return await handler.Handle(query, cancellationToken);
     }
 
     [HttpGet("top_positions")]
@@ -37,6 +39,17 @@ public class DepartmentsController : ControllerBase
     {
         var query = new GetTopDepartmentsByPositionsQuery();
         return await handler.Handle(query, cancellationToken);
+    }
+
+    [HttpPost]
+    public async Task<EndpointResult<Guid>> Create(
+        [FromServices] ICommandHandler<Guid, CreateDepartmentCommand> handler,
+        [FromBody] CreateDepartmentRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new CreateDepartmentCommand(request);
+
+        return await handler.Handle(command, cancellationToken);
     }
 
     [HttpPut("{departmentId}/locations")]
