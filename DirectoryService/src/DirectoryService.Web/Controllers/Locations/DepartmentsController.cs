@@ -20,13 +20,19 @@ namespace DevQuestions.Web.Controllers.Locations;
 [Route("api/departments")]
 public class DepartmentsController : ControllerBase
 {
-    [HttpGet]
+    [HttpGet("roots")]
     public async Task<EndpointResult<GetRootDepartmentsResponse>> GetRootDepartments(
         [FromServices] IQueryHandler<GetRootDepartmentsResponse, GetRootDepartmentsQuery> handler,
-        [FromBody] GetRootDepartmentsRequest request,
+        [FromQuery] int? page,
+        [FromQuery] int? pageSize,
+        [FromQuery] int? prefetch,
         CancellationToken cancellationToken)
     {
-        var query = new GetRootDepartmentsQuery(request);
+        var query = new GetRootDepartmentsQuery(
+            new GetRootDepartmentsRequest(
+                page,
+                pageSize,
+                prefetch));
 
         return await handler.Handle(query, cancellationToken);
     }
