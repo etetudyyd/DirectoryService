@@ -105,8 +105,6 @@ public class GetRootDepartmentsHandler : IQueryHandler<GetRootDepartmentsRespons
                     ORDER BY d.created_at
                     LIMIT @child_limit
                     ) c;
-                
-                
                 """,
                 param: parameters);
 

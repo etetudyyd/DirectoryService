@@ -6,6 +6,7 @@ using DirectoryService.Application.Features.Departments.Commands.CreateDepartmen
 using DirectoryService.Application.Features.Departments.Commands.RelocateDepartmentParent;
 using DirectoryService.Application.Features.Departments.Commands.UpdateDepartmentLocations;
 using DirectoryService.Application.Features.Departments.Queries;
+using DirectoryService.Application.Features.Departments.Queries.GetChildrenDepartments;
 using DirectoryService.Application.Features.Departments.Queries.GetRootDepartments;
 using DirectoryService.Application.Features.Departments.Queries.GetTopDepartmentsByPositions;
 using DirectoryService.Contracts.Departments;
@@ -20,6 +21,23 @@ namespace DevQuestions.Web.Controllers.Locations;
 [Route("api/departments")]
 public class DepartmentsController : ControllerBase
 {
+    [HttpGet("{parentId:guid}")]
+    public async Task<EndpointResult<GetChildrenDepartmentsResponse>> GetChildrenDepartments(
+        [FromServices] IQueryHandler<GetChildrenDepartmentsResponse, GetChildrenDepartmentsQuery> handler,
+        [FromRoute] Guid parentId,
+        [FromQuery] int? page,
+        [FromQuery] int? pageSize,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetChildrenDepartmentsQuery(
+            new GetChildrenDepartmentsRequest(
+                parentId,
+                page,
+                pageSize));
+
+        return await handler.Handle(query, cancellationToken);
+    }
+
     [HttpGet("roots")]
     public async Task<EndpointResult<GetRootDepartmentsResponse>> GetRootDepartments(
         [FromServices] IQueryHandler<GetRootDepartmentsResponse, GetRootDepartmentsQuery> handler,
