@@ -38,26 +38,43 @@ public class GetChildrenDepartmentsHandler : IQueryHandler<GetChildrenDepartment
         using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
 
         var parameters = new DynamicParameters();
-        parameters.Add("parent_id", query.Request.ParentId);
-        parameters.Add("offset", (query.Request.Page - 1) * query.Request.PageSize, DbType.Int32);
-        parameters.Add("page_size", query.Request.PageSize, DbType.Int32);
+        parameters.Add("ParentId", query.Request.ParentId);
+        parameters.Add("Offset", (query.Request.Page - 1) * query.Request.PageSize, DbType.Int32);
+        parameters.Add("Limit", query.Request.PageSize, DbType.Int32);
 
         var departments = await connection.QueryAsync<DepartmentPrefetchResponse>(
             """
-             SELECT
-                 d.id AS "Id",
-                 d.name AS "Name",
-                 d.identifier AS "Identifier",
-                 d.path AS "Path",
-                 d.parent_id AS "ParentId",
-                 d.is_active AS "IsActive",
-                 d.created_at AS "CreatedAt",
-                 d.update_at AS "UpdateAt"
-             FROM departments d
-             WHERE d.parent_id = @parentId
-             ORDER BY d.created_at DESC
-             LIMIT @page_size OFFSET @offset;
-             """,
+            WITH child_departments AS (
+                SELECT
+                    d.id,
+                    d.name,
+                    d.identifier,
+                    d.path,
+                    d.parent_id AS ParentId,
+                    d.is_active AS IsActive,
+                    d.created_at AS CreatedAt,
+                    d.update_at AS UpdateAt
+                FROM departments d
+                WHERE d.parent_id = @ParentId
+                ORDER BY d.created_at
+                OFFSET @Offset LIMIT @Limit
+            )
+            SELECT
+                id,
+                name,
+                identifier,
+                path,
+                ParentId,
+                IsActive,
+                CreatedAt,
+                UpdateAt,
+                EXISTS(
+                    SELECT 1
+                    FROM departments d
+                    WHERE d.parent_id = child_departments.id
+                ) AS HasMoreChildren
+            FROM child_departments;
+            """,
             param: parameters);
 
         _logger.LogInformation("Departments was successfully founded!");
