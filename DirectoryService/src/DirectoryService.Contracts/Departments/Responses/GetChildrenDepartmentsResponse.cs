@@ -1,0 +1,3 @@
+﻿namespace DirectoryService.Contracts.Departments.Responses;
+
+public record GetChildrenDepartmentsResponse(IEnumerable<DepartmentPrefetchResponse> DepartmentsResponse);
