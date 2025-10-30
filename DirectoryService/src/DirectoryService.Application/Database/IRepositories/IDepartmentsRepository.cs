@@ -19,7 +19,5 @@ public interface IDepartmentsRepository
 
     Task<Result<Guid, Error>> RelocateDepartmentAsync(Department departmentUpdated, Path oldPath, CancellationToken cancellationToken);
 
-    Task<bool> IsIdentifierExistAsync(string identifier, CancellationToken cancellationToken);
-
-    Task<bool> AllDepartmentLocationsExistsAndActiveAsync(List<Guid> ids, CancellationToken cancellationToken);
+    Task<Result<Guid, Error>> Delete(Department department, CancellationToken cancellationToken);
 }
