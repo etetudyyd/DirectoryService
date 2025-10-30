@@ -37,4 +37,9 @@ public record Identifier
 
         return new Identifier(value);
     }
+
+    public static Result<Identifier, Error> CreateDeleted(Identifier identifier)
+    {
+        return new Identifier(Constants.SOFT_DELETED_LABEL + identifier.Value);
+    }
 }

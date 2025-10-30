@@ -5,7 +5,7 @@ using Path = DevQuestions.Domain.ValueObjects.DepartmentVO.Path;
 
 namespace DevQuestions.Domain.Entities;
 
-public sealed class Department
+public sealed class Department : ISoftDeletable
 {
     // ef
     private Department() { }
@@ -34,6 +34,8 @@ public sealed class Department
 
     public DateTime UpdatedAt { get; private set; }
 
+    public DateTime? DeletedAt { get; private set; }
+
     public IReadOnlyList<Department> ChildrenDepartments => _childrenDepartments;
 
     public IReadOnlyList<DepartmentLocation> DepartmentLocations => _departmentLocations;
@@ -59,6 +61,7 @@ public sealed class Department
         IsActive = true;
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
+        DeletedAt = null;
         _departmentLocations = departmentLocations.ToList();
     }
 
@@ -143,5 +146,24 @@ public sealed class Department
             parent.Depth + 1,
             parent.Id,
             departmentLocationsList);
+    }
+
+    public UnitResult<Error> Delete()
+    {
+        if(!IsActive)
+            return Error.Failure("department.error.delete", "department is already not active");
+        IsActive = false;
+        DeletedAt = DateTime.UtcNow;
+
+        return UnitResult.Success<Error>();
+    }
+
+    public UnitResult<Error> Restore()
+    {
+        if(IsActive)
+            return Error.Failure("department.error.delete", "department is already active");
+        IsActive = true;
+
+        return UnitResult.Success<Error>();
     }
 }

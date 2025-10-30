@@ -1,7 +1,9 @@
 ﻿namespace DevQuestions.Domain;
 
-public readonly struct LengthConstants
+public readonly struct Constants
 {
+    public const string SOFT_DELETED_LABEL = "deleted-";
+
     public static readonly int MAX_LENGTH_DEPARTMENT_NAME = 150;
     public static readonly int MIN_LENGTH_DEPARTMENT_NAME = 3;
     public const int MAX_LENGTH_DEPARTMENT_IDENTIFIER = 150;

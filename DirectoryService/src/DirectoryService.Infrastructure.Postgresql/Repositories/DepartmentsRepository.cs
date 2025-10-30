@@ -48,14 +48,16 @@ public class DepartmentsRepository : IDepartmentsRepository
     {
         var department = await _dbContext.Departments
             .Include(d => d.DepartmentLocations)
-            .FirstOrDefaultAsync(d => d.Id == new DepartmentId(id), cancellationToken);
+            .FirstOrDefaultAsync(
+                d => d.IsActive && d.Id == new DepartmentId(id),
+                cancellationToken);
 
         if (department is null)
         {
             return Error.Failure("department.not.found", "Department not found");
         }
 
-        return Result.Success<Department, Error>(department);
+        return department;
     }
 
     public async Task<bool> IsIdentifierExistAsync(string identifier, CancellationToken cancellationToken)
@@ -75,6 +77,17 @@ public class DepartmentsRepository : IDepartmentsRepository
 
         return count == ids.Count;
     }
+
+    public async Task<Result<Guid, Error>> Delete(
+        Department department,
+        CancellationToken cancellationToken)
+    {
+        _dbContext.Departments.Remove(department);
+
+        await _dbContext.SaveChangesAsync(cancellationToken);
+        return department.Id.Value;
+    }
+
 
     public async Task<Result<Department, Error>> GetByIdWithLockAsync(Guid id, CancellationToken cancellationToken)
     {

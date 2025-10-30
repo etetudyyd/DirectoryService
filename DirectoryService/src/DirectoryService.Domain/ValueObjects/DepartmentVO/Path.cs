@@ -54,4 +54,12 @@ public sealed record Path
 
         return new Path(value.ToLower());
     }
+
+    public static Path CreateDeleted(string oldIdentifier, Path path)
+    {
+        var newPath = path.Value.Replace(
+            oldIdentifier,
+            $"{Constants.SOFT_DELETED_LABEL}{oldIdentifier}");
+        return new Path(newPath);
+    }
 }
