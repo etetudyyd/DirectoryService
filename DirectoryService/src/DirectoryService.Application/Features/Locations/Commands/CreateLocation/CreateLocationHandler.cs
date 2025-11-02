@@ -1,6 +1,8 @@
 ﻿using CSharpFunctionalExtensions;
 using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.Shared;
+using DevQuestions.Domain.ValueObjects.ConectionEntitiesVO;
+using DevQuestions.Domain.ValueObjects.DepartmentVO;
 using DevQuestions.Domain.ValueObjects.LocationVO;
 using DirectoryService.Application.Abstractions.Commands;
 using DirectoryService.Application.Database.IRepositories;
@@ -80,11 +82,21 @@ public class CreateLocationHandler : ICommandHandler<Guid, CreateLocationCommand
             return timeZone.Error.ToErrors();
         }
 
+        var locationId = new LocationId(Guid.NewGuid());
+
+        var departmentLocations = command.LocationRequest.DepartmentsIds
+            .Select(departmentId => new DepartmentLocation(
+                new DepartmentLocationId(Guid.NewGuid()),
+                new DepartmentId(departmentId),
+                locationId))
+            .ToList();
+
         var location = Location.Create(
+            locationId,
             name.Value,
             address.Value,
             timeZone.Value,
-            command.LocationRequest.DepartmentLocations);
+            departmentLocations);
 
         if (location.IsFailure)
         {
@@ -93,12 +105,12 @@ public class CreateLocationHandler : ICommandHandler<Guid, CreateLocationCommand
         }
 
         // save to db
-        var locationId = await _locationsRepository.AddAsync(location.Value, cancellationToken);
+        await _locationsRepository.AddAsync(location.Value, cancellationToken);
 
         // log result
         _logger.LogInformation($"Location created successfully with id {locationId}", locationId);
 
         // return result
-        return locationId;
+        return locationId.Value;
     }
 }

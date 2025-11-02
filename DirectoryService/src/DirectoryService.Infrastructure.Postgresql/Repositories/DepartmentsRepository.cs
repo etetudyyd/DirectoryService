@@ -1,5 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using Dapper;
+using DevQuestions.Domain;
 using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.Shared;
 using DevQuestions.Domain.ValueObjects.DepartmentVO;
@@ -8,6 +9,7 @@ using DirectoryService.Application.Features.Departments.Commands.CreateDepartmen
 using DirectoryService.Infrastructure.Postgresql.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 using Path = DevQuestions.Domain.ValueObjects.DepartmentVO.Path;
 
 namespace DirectoryService.Infrastructure.Postgresql.Repositories;
@@ -17,9 +19,6 @@ public class DepartmentsRepository : IDepartmentsRepository
     private readonly DirectoryServiceDbContext _dbContext;
 
     private readonly ILogger<CreateDepartmentHandler> _logger;
-
-    private const string DEPARTMENT_TABLE_ROUTE = "\"DirectoryService\".\"departments\"";
-
 
     public DepartmentsRepository(
         DirectoryServiceDbContext dbContext,
@@ -60,24 +59,6 @@ public class DepartmentsRepository : IDepartmentsRepository
         return department;
     }
 
-    public async Task<bool> IsIdentifierExistAsync(string identifier, CancellationToken cancellationToken)
-    {
-        return await _dbContext.Departments
-            .AnyAsync(
-                d => d.Identifier.Value == identifier,
-                cancellationToken: cancellationToken);
-    }
-
-    public async Task<bool> AllDepartmentLocationsExistsAndActiveAsync(List<Guid> ids, CancellationToken cancellationToken)
-    {
-        int count = await _dbContext.Departments
-            .Where(d => ids.Contains(d.Id.Value))
-            .Where(d => d.IsActive)
-            .CountAsync(cancellationToken);
-
-        return count == ids.Count;
-    }
-
     public async Task<Result<Guid, Error>> Delete(
         Department department,
         CancellationToken cancellationToken)
@@ -88,13 +69,123 @@ public class DepartmentsRepository : IDepartmentsRepository
         return department.Id.Value;
     }
 
+    public async Task<Result<Guid, Error>> UpdateChildDepartmentsPath(
+        Department parent,
+        CancellationToken cancellationToken)
+    {
+        string oldPath = parent.Path.Value
+            .Replace("deleted-", string.Empty);
 
-    public async Task<Result<Department, Error>> GetByIdWithLockAsync(Guid id, CancellationToken cancellationToken)
+        const string sql = $"""
+                           UPDATE {Constants.DEPARTMENT_TABLE_ROUTE}
+                           SET path = REGEXP_REPLACE(path::text, @OldPath || '.*', @NewPath || substring(path::text, length(@OldPath)+1))::ltree
+                           WHERE path <@ @OldPath::ltree
+                             AND id != @ParentId
+                           """;
+
+        var conn = _dbContext.Database.GetDbConnection();
+
+        await conn.ExecuteAsync(sql, new
+        {
+            OldPath = oldPath,
+            NewPath = parent.Path.Value,
+            ParentId = parent.Id.Value,
+        });
+
+        return parent.Id.Value;
+    }
+
+    public async Task<Result<Guid[], Error>> DeactivateConnectedLocations(
+        DepartmentId departmentId,
+        CancellationToken cancellationToken)
+    {
+        const string dapperSql = $"""
+                                      WITH target_locations AS (
+                                          SELECT location_id
+                                          FROM {Constants.DEPARTMENT_LOCATIONS_TABLE_ROUTE}
+                                          WHERE department_id = @DepartmentId
+                                      ),
+                                      disabled_locations AS (
+                                          SELECT location_id
+                                          FROM target_locations tl
+                                          WHERE NOT EXISTS (
+                                              SELECT 1
+                                              FROM {Constants.DEPARTMENT_LOCATIONS_TABLE_ROUTE} dl
+                                              JOIN {Constants.DEPARTMENT_TABLE_ROUTE} d ON d.id = dl.department_id
+                                              WHERE dl.location_id = tl.location_id AND d.is_active = TRUE
+                                          )
+                                      )
+                                      UPDATE {Constants.LOCATION_TABLE_ROUTE} l
+                                      SET is_active = FALSE,
+                                          deleted_at = NOW()
+                                      WHERE l.id IN (SELECT location_id FROM disabled_locations)
+                                      RETURNING l.id;
+                                  """;
+
+        var conn = _dbContext.Database.GetDbConnection();
+
+        var ids = (await conn.QueryAsync<Guid>(
+                dapperSql,
+                new { DepartmentId = departmentId.Value }))
+            .ToArray();
+
+        return Result.Success<Guid[], Error>(ids);
+    }
+
+
+
+
+    public async Task<Result<Guid[], Error>> DeactivateConnectedPositions(
+        DepartmentId departmentId,
+        CancellationToken cancellationToken)
+    {
+        const string dapperSql = $"""
+                                 WITH target_positions AS   
+                                    (
+                                        SELECT position_id 
+                                        FROM {Constants.DEPARTMENT_POSITIONS_TABLE_ROUTE}
+                                        WHERE department_id = @DepartmentId
+                                    ),
+                                    disabled_positions AS
+                                    (
+                                        SELECT position_id
+                                        FROM target_positions tp
+                                        WHERE NOT EXISTS 
+                                        (
+                                            SELECT position_id
+                                            FROM {Constants.DEPARTMENT_POSITIONS_TABLE_ROUTE} dp
+                                            JOIN {Constants.DEPARTMENT_TABLE_ROUTE} d ON d.id = dp.department_id
+                                            WHERE dp.position_id = tp.position_id AND d.is_active = TRUE
+                                        )
+                                    )
+                                   -- "" 
+                                 UPDATE {Constants.POSITION_TABLE_ROUTE} p
+                                 SET 
+                                     is_active = FALSE,
+                                     deleted_at = NOW()
+                                 WHERE p.id IN (SELECT position_id FROM disabled_positions)
+                                 RETURNING p.id
+                                 """;
+
+        var conn = _dbContext.Database.GetDbConnection();
+
+        var ids = (await conn.QueryAsync<Guid>(
+                dapperSql,
+                new { DepartmentId = departmentId.Value }))
+            .ToArray();
+
+        return Result.Success<Guid[], Error>(ids);
+    }
+
+
+    public async Task<Result<Department, Error>> GetByIdWithLockAsync(
+        Guid id,
+        CancellationToken cancellationToken)
     {
         var department = await _dbContext.Departments
             .FromSqlRaw(
                 $@"SELECT * 
-                   FROM {DEPARTMENT_TABLE_ROUTE} 
+                   FROM {Constants.DEPARTMENT_TABLE_ROUTE} 
                    WHERE id = {{0}} 
                    FOR UPDATE", id)
             .FirstOrDefaultAsync(cancellationToken);
@@ -110,9 +201,9 @@ public class DepartmentsRepository : IDepartmentsRepository
         var conn = _dbContext.Database.GetDbConnection();
 
         const string sql =
-            $$"""
+            $"""
               SELECT id 
-              FROM {{DEPARTMENT_TABLE_ROUTE}} 
+              FROM {Constants.DEPARTMENT_TABLE_ROUTE} 
               WHERE path <@ @rootPath::ltree
               AND id != @selfId
               FOR UPDATE
@@ -134,7 +225,7 @@ public class DepartmentsRepository : IDepartmentsRepository
         const string dapperSql =
             $$"""
               SELECT 1 
-              FROM {{DEPARTMENT_TABLE_ROUTE}} 
+              FROM {{Constants.DEPARTMENT_TABLE_ROUTE}} 
               WHERE path <@ @rootPath::ltree
               AND id = @candidateId
               """;
@@ -156,7 +247,7 @@ public class DepartmentsRepository : IDepartmentsRepository
 
         const string dapperSql =
             $$"""
-              UPDATE {{DEPARTMENT_TABLE_ROUTE}}
+              UPDATE {{Constants.DEPARTMENT_TABLE_ROUTE}}
               SET
                   parent_id = CASE 
                                   WHEN id = @id THEN @parentId 

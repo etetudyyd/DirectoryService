@@ -1,11 +1,9 @@
 ﻿using CSharpFunctionalExtensions;
-using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.Shared;
 using DirectoryService.Application.Abstractions.Commands;
 using DirectoryService.Application.Database.IRepositories;
 using DirectoryService.Application.Database.ITransactions;
 using DirectoryService.Application.Extentions;
-using DirectoryService.Application.Features.Departments.Commands.CreateDepartment;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 
@@ -57,24 +55,52 @@ public class DeleteDepartmentHandler : ICommandHandler<Guid, DeleteDepartmentCom
             return departmentResult.Error.ToErrors();
         }
 
-        // удаление департамента
-        var result = await _departmentsRepository.Delete(departmentResult.Value, cancellationToken);
-        if (result.IsFailure)
+        var departmentDeleteResult = await _departmentsRepository.Delete(departmentResult.Value, cancellationToken);
+        if (departmentDeleteResult.IsFailure)
         {
             transaction.Rollback(cancellationToken);
-            return result.Error.ToErrors();
+            return departmentDeleteResult.Error.ToErrors();
         }
 
-        // TODO деактивирование локаций связаных только с этим подразделением
-        //
-        // TODO обновление пути у дочерних подразделений
+        var lockDescendantsResult = await _departmentsRepository
+            .LockDescendantsAsync(departmentResult.Value, cancellationToken);
+        if (lockDescendantsResult.IsFailure)
+        {
+            transaction.Rollback(cancellationToken);
+            return lockDescendantsResult.Error.ToErrors();
+        }
+
+        var updateChildDepartmentsPathResult = await _departmentsRepository
+            .UpdateChildDepartmentsPath(departmentResult.Value, cancellationToken);
+        if (updateChildDepartmentsPathResult.IsFailure)
+        {
+            transaction.Rollback(cancellationToken);
+            return updateChildDepartmentsPathResult.Error.ToErrors();
+        }
+
+        var deactivateConnectedLocationsResult = await _departmentsRepository
+            .DeactivateConnectedLocations(departmentResult.Value.Id, cancellationToken);
+        if (deactivateConnectedLocationsResult.IsFailure)
+        {
+            transaction.Rollback(cancellationToken);
+            return deactivateConnectedLocationsResult.Error.ToErrors();
+        }
+
+        var deactivateConnectedPositions = await _departmentsRepository
+            .DeactivateConnectedPositions(departmentResult.Value.Id, cancellationToken);
+        if (deactivateConnectedPositions.IsFailure)
+        {
+            transaction.Rollback(cancellationToken);
+            return deactivateConnectedPositions.Error.ToErrors();
+        }
+
         var commitResult = transaction.Commit(cancellationToken);
         if (commitResult.IsFailure)
             return commitResult.Error.ToErrors();
 
-        _logger.LogInformation($"Department deleted with id{result.Value}");
+        _logger.LogInformation($"Department deleted with id{departmentDeleteResult.Value}");
 
-        return result.Value;
+        return departmentDeleteResult.Value;
 
     }
 }

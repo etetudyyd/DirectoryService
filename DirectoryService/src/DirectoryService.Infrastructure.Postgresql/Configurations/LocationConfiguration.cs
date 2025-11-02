@@ -80,7 +80,8 @@ public class LocationConfiguration : IEntityTypeConfiguration<Location>
             .HasColumnName("update_at");
 
         builder.Property(p => p.DeletedAt)
-            .HasColumnName("deleted_at");
+            .HasColumnName("deleted_at")
+            .IsRequired(false);
 
         builder.HasMany(x => x.DepartmentLocations)
             .WithOne()
