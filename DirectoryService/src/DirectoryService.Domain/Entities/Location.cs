@@ -1,8 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using DevQuestions.Domain.Shared;
-using DevQuestions.Domain.ValueObjects.DepartmentVO;
 using DevQuestions.Domain.ValueObjects.LocationVO;
-using Guid = System.Guid;
 
 namespace DevQuestions.Domain.Entities;
 
@@ -50,6 +48,7 @@ public sealed class Location : ISoftDeletable
     }
 
     public static Result<Location, Error> Create(
+        LocationId id,
         LocationName name,
         Address address,
         Timezone timezone,
@@ -67,7 +66,7 @@ public sealed class Location : ISoftDeletable
         }
 
         return new Location(
-            new LocationId(Guid.NewGuid()),
+            id,
             name,
             address,
             timezone,

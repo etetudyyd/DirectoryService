@@ -1,6 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.Shared;
+using DevQuestions.Domain.ValueObjects.DepartmentVO;
 using Path = DevQuestions.Domain.ValueObjects.DepartmentVO.Path;
 
 namespace DirectoryService.Application.Database.IRepositories;
@@ -20,4 +21,10 @@ public interface IDepartmentsRepository
     Task<Result<Guid, Error>> RelocateDepartmentAsync(Department departmentUpdated, Path oldPath, CancellationToken cancellationToken);
 
     Task<Result<Guid, Error>> Delete(Department department, CancellationToken cancellationToken);
+
+    Task<Result<Guid, Error>> UpdateChildDepartmentsPath(Department parent, CancellationToken cancellationToken);
+
+    Task<Result<Guid[], Error>> DeactivateConnectedLocations(DepartmentId departmentId, CancellationToken cancellationToken);
+
+    Task<Result<Guid[], Error>> DeactivateConnectedPositions(DepartmentId departmentId, CancellationToken cancellationToken);
 }

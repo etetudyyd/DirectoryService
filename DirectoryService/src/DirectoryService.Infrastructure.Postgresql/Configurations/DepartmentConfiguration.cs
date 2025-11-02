@@ -76,7 +76,8 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
             .HasColumnName("update_at");
 
             builder.Property(p => p.DeletedAt)
-                .HasColumnName("deleted_at");
+                .HasColumnName("deleted_at")
+                .IsRequired(false);
 
             builder.HasMany(x => x.ChildrenDepartments)
             .WithOne()

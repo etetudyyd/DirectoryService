@@ -7,4 +7,4 @@ public record CreateLocationRequest(
     NameDto Name,
     AddressDto Address,
     TimezoneDto Timezone,
-    IEnumerable<DepartmentLocation> DepartmentLocations);
+    Guid[] DepartmentsIds);

@@ -2,6 +2,13 @@
 
 public readonly struct Constants
 {
+    // Routes
+    public const string DEPARTMENT_TABLE_ROUTE = "\"DirectoryService\".\"departments\"";
+    public const string LOCATION_TABLE_ROUTE = "\"DirectoryService\".\"locations\"";
+    public const string POSITION_TABLE_ROUTE = "\"DirectoryService\".\"positions\"";
+    public const string DEPARTMENT_POSITIONS_TABLE_ROUTE = "\"DirectoryService\".\"department_positions\"";
+    public const string DEPARTMENT_LOCATIONS_TABLE_ROUTE = "\"DirectoryService\".\"department_locations\"";
+
     public const string SOFT_DELETED_LABEL = "deleted-";
 
     public static readonly int MAX_LENGTH_DEPARTMENT_NAME = 150;

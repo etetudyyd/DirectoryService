@@ -11,7 +11,7 @@ public class CreateLocationCommandValidator : AbstractValidator<CreateLocationCo
         RuleFor(x => x.LocationRequest.Name).SetValidator(new NameValidator());
         RuleFor(x => x.LocationRequest.Address).SetValidator(new AddressValidator());
         RuleFor(x => x.LocationRequest.Timezone).SetValidator(new TimezoneValidator());
-        RuleForEach(x => x.LocationRequest.DepartmentLocations).NotEmpty().WithMessage("Department locations should not be empty");
+        RuleForEach(x => x.LocationRequest.DepartmentsIds).NotEmpty().WithMessage("Department locations should not be empty");
     }
 }
 

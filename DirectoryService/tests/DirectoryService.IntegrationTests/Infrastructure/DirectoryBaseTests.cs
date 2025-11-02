@@ -57,6 +57,7 @@ public class DirectoryBaseTests : IClassFixture<DirectoryTestWebFactory>, IAsync
         for (int i = 0; i < count; i++)
         {
             var location = Location.Create(
+                new LocationId(Guid.NewGuid()),
                 LocationName.Create($"test-name-{i}").Value,
                 Address.Create(
                     $"12345{i}",
@@ -86,6 +87,7 @@ public class DirectoryBaseTests : IClassFixture<DirectoryTestWebFactory>, IAsync
         for (int i = 0; i < count; i++)
         {
             var location = Location.Create(
+                new LocationId(Guid.NewGuid()),
                 LocationName.Create($"test-update-name-{i}").Value,
                 Address.Create(
                     $"12345{i}",
@@ -139,6 +141,7 @@ public class DirectoryBaseTests : IClassFixture<DirectoryTestWebFactory>, IAsync
             }
 
             var location = Location.Create(
+                new LocationId(Guid.NewGuid()),
                 name.Value,
                 address.Value,
                 timezone.Value,
