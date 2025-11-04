@@ -13,8 +13,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DirectoryService.Infrastructure.Postgresql.Migrations
 {
     [DbContext(typeof(DirectoryServiceDbContext))]
-    [Migration("20251030122911_AddSoftDelete")]
-    partial class AddSoftDelete
+    [Migration("20251104164850_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -42,7 +42,7 @@ namespace DirectoryService.Infrastructure.Postgresql.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
-                    b.Property<DateTime>("DeletedAt")
+                    b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("deleted_at");
 
@@ -153,6 +153,10 @@ namespace DirectoryService.Infrastructure.Postgresql.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
                     b.Property<bool>("IsActive")
                         .HasColumnType("boolean")
                         .HasColumnName("is_active");
@@ -232,6 +236,10 @@ namespace DirectoryService.Infrastructure.Postgresql.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(1000)
@@ -271,32 +279,40 @@ namespace DirectoryService.Infrastructure.Postgresql.Migrations
 
             modelBuilder.Entity("DevQuestions.Domain.Entities.DepartmentLocation", b =>
                 {
-                    b.HasOne("DevQuestions.Domain.Entities.Department", null)
+                    b.HasOne("DevQuestions.Domain.Entities.Department", "Department")
                         .WithMany("DepartmentLocations")
                         .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("DevQuestions.Domain.Entities.Location", null)
+                    b.HasOne("DevQuestions.Domain.Entities.Location", "Location")
                         .WithMany("DepartmentLocations")
                         .HasForeignKey("LocationId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Department");
+
+                    b.Navigation("Location");
                 });
 
             modelBuilder.Entity("DevQuestions.Domain.Entities.DepartmentPosition", b =>
                 {
-                    b.HasOne("DevQuestions.Domain.Entities.Department", null)
+                    b.HasOne("DevQuestions.Domain.Entities.Department", "Department")
                         .WithMany("DepartmentPositions")
                         .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
-                    b.HasOne("DevQuestions.Domain.Entities.Position", null)
+                    b.HasOne("DevQuestions.Domain.Entities.Position", "Position")
                         .WithMany("DepartmentPositions")
                         .HasForeignKey("PositionId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
+
+                    b.Navigation("Department");
+
+                    b.Navigation("Position");
                 });
 
             modelBuilder.Entity("DevQuestions.Domain.Entities.Department", b =>

@@ -38,9 +38,9 @@ public sealed class Department : ISoftDeletable
 
     public IReadOnlyList<Department> ChildrenDepartments => _childrenDepartments;
 
-    public IReadOnlyList<DepartmentLocation> DepartmentLocations => _departmentLocations;
+    public ICollection<DepartmentLocation> DepartmentLocations => _departmentLocations;
 
-    public IReadOnlyList<DepartmentPosition> DepartmentPositions => _departmentPositions;
+    public ICollection<DepartmentPosition> DepartmentPositions => _departmentPositions;
 
     private Department(
         DepartmentId id,

@@ -34,5 +34,16 @@ public class DepartmentPositionConfiguration : IEntityTypeConfiguration<Departme
             .HasConversion(
                 id => id.Value,
                 value => new PositionId(value));
+
+        builder.HasOne(dl => dl.Department)
+            .WithMany(d => d.DepartmentPositions)
+            .HasForeignKey(dl => dl.DepartmentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+
+        builder.HasOne<Position>()
+            .WithMany(d => d.DepartmentPositions)
+            .HasForeignKey(x => x.PositionId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

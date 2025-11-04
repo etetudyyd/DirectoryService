@@ -86,12 +86,14 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
             .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasMany(x => x.DepartmentLocations)
-            .WithOne()
-            .HasForeignKey(x => x.DepartmentId);
+            .WithOne(x => x.Department)
+            .HasForeignKey(x => x.DepartmentId)
+            .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasMany(x => x.DepartmentPositions)
-            .WithOne()
-            .HasForeignKey(x => x.DepartmentId);
+            .WithOne(x => x.Department)
+            .HasForeignKey(x => x.DepartmentId)
+            .OnDelete(DeleteBehavior.Restrict);
         }
 
 }

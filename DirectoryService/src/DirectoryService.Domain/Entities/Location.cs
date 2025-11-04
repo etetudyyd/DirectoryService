@@ -27,7 +27,7 @@ public sealed class Location : ISoftDeletable
 
     public DateTime? DeletedAt { get; private set; }
 
-    public IReadOnlyList<DepartmentLocation> DepartmentLocations => _departmentLocations;
+    public ICollection<DepartmentLocation> DepartmentLocations => _departmentLocations;
 
     private Location(
         LocationId id,

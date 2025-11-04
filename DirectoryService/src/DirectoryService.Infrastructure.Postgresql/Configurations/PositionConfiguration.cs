@@ -56,8 +56,9 @@ public class PositionConfiguration : IEntityTypeConfiguration<Position>
             .IsRequired(false);
 
         builder.HasMany(x => x.DepartmentPositions)
-            .WithOne()
-            .HasForeignKey(x => x.PositionId);
+            .WithOne(x => x.Position)
+            .HasForeignKey(x => x.PositionId)
+            .OnDelete(DeleteBehavior.Restrict);
 
     }
 }

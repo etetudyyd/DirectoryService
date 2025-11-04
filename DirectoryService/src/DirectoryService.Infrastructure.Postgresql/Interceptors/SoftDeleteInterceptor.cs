@@ -21,6 +21,9 @@ public class SoftDeleteInterceptor : SaveChangesInterceptor
         {
             entry.State = EntityState.Modified;
             entry.Entity.Delete();
+
+            foreach (var nav in entry.Navigations)
+                nav.IsModified = false;
         }
 
         return await base.SavingChangesAsync(eventData, result, cancellationToken);

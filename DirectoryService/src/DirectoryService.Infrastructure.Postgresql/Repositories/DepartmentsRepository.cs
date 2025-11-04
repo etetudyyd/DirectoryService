@@ -63,11 +63,39 @@ public class DepartmentsRepository : IDepartmentsRepository
         Department department,
         CancellationToken cancellationToken)
     {
-        _dbContext.Departments.Remove(department);
+        // _dbContext.Departments.Remove(department);
+        department.Delete();
+        _dbContext.Departments.Update(department);
+
+        var entries = _dbContext.ChangeTracker.Entries()
+            .Select(e => new
+            {
+                EntityType = e.Entity.GetType().Name,
+                State = e.State.ToString(),
+                Props = e.Metadata.GetProperties()
+                    .Select(p => new
+                    {
+                        Name = p.Name,
+                        Value = e.CurrentValues[p],
+                    })
+                    .ToList(),
+            })
+            .ToList();
+
+        Console.WriteLine("=== ChangeTracker before SaveChanges ===");
+        foreach (var e in entries)
+        {
+            Console.WriteLine($"{e.EntityType} - {e.State}");
+            foreach (var p in e.Props)
+                Console.WriteLine($"  {p.Name} = {p.Value}");
+        }
+
+        Console.WriteLine("=== End ChangeTracker ===");
 
         await _dbContext.SaveChangesAsync(cancellationToken);
         return department.Id.Value;
     }
+
 
     public async Task<Result<Guid, Error>> UpdateChildDepartmentsPath(
         Department parent,
@@ -76,7 +104,7 @@ public class DepartmentsRepository : IDepartmentsRepository
         string oldPath = parent.Path.Value
             .Replace("deleted-", string.Empty);
 
-        const string sql = $"""
+        const string dapperSql = $"""
                            UPDATE {Constants.DEPARTMENT_TABLE_ROUTE}
                            SET path = REGEXP_REPLACE(path::text, @OldPath || '.*', @NewPath || substring(path::text, length(@OldPath)+1))::ltree
                            WHERE path <@ @OldPath::ltree
@@ -85,7 +113,7 @@ public class DepartmentsRepository : IDepartmentsRepository
 
         var conn = _dbContext.Database.GetDbConnection();
 
-        await conn.ExecuteAsync(sql, new
+        await conn.ExecuteAsync(dapperSql, new
         {
             OldPath = oldPath,
             NewPath = parent.Path.Value,
@@ -112,7 +140,9 @@ public class DepartmentsRepository : IDepartmentsRepository
                                               SELECT 1
                                               FROM {Constants.DEPARTMENT_LOCATIONS_TABLE_ROUTE} dl
                                               JOIN {Constants.DEPARTMENT_TABLE_ROUTE} d ON d.id = dl.department_id
-                                              WHERE dl.location_id = tl.location_id AND d.is_active = TRUE
+                                              WHERE dl.location_id = tl.location_id
+                                              AND d.is_active = TRUE
+                                              AND d.id <> @DepartmentId
                                           )
                                       )
                                       UPDATE {Constants.LOCATION_TABLE_ROUTE} l
@@ -155,10 +185,11 @@ public class DepartmentsRepository : IDepartmentsRepository
                                             SELECT position_id
                                             FROM {Constants.DEPARTMENT_POSITIONS_TABLE_ROUTE} dp
                                             JOIN {Constants.DEPARTMENT_TABLE_ROUTE} d ON d.id = dp.department_id
-                                            WHERE dp.position_id = tp.position_id AND d.is_active = TRUE
+                                            WHERE dp.position_id = tp.position_id
+                                            AND d.is_active = TRUE
+                                            AND d.id <> @DepartmentId
                                         )
                                     )
-                                   -- "" 
                                  UPDATE {Constants.POSITION_TABLE_ROUTE} p
                                  SET 
                                      is_active = FALSE,

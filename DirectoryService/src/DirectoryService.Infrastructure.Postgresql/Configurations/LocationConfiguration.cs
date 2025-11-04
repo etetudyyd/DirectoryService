@@ -84,7 +84,8 @@ public class LocationConfiguration : IEntityTypeConfiguration<Location>
             .IsRequired(false);
 
         builder.HasMany(x => x.DepartmentLocations)
-            .WithOne()
-            .HasForeignKey(x => x.LocationId);
+            .WithOne(x => x.Location)
+            .HasForeignKey(x => x.LocationId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

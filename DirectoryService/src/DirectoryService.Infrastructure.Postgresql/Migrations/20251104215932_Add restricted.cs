@@ -5,7 +5,7 @@
 namespace DirectoryService.Infrastructure.Postgresql.Migrations
 {
     /// <inheritdoc />
-    public partial class isRequier_False : Migration
+    public partial class Addrestricted : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
