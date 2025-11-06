@@ -11,7 +11,7 @@ public class CreateLocationCommandValidator : AbstractValidator<CreateLocationCo
         RuleFor(x => x.LocationRequest.Name).SetValidator(new NameValidator());
         RuleFor(x => x.LocationRequest.Address).SetValidator(new AddressValidator());
         RuleFor(x => x.LocationRequest.Timezone).SetValidator(new TimezoneValidator());
-        RuleForEach(x => x.LocationRequest.DepartmentLocations).NotEmpty().WithMessage("Department locations should not be empty");
+        RuleForEach(x => x.LocationRequest.DepartmentsIds).NotEmpty().WithMessage("Department locations should not be empty");
     }
 }
 
@@ -39,8 +39,8 @@ public class NameValidator : AbstractValidator<NameDto>
     public NameValidator()
     {
         RuleFor(x => x.Value)
-            .MinimumLength(LengthConstants.MIN_LENGTH_LOCATION_NAME).WithMessage("Name is has to be at least 3 characters long")
-            .MaximumLength(LengthConstants.MAX_LENGTH_LOCATION_NAME).WithMessage("Name is has to be at most 100 characters long")
+            .MinimumLength(Constants.MIN_LENGTH_LOCATION_NAME).WithMessage("Name is has to be at least 3 characters long")
+            .MaximumLength(Constants.MAX_LENGTH_LOCATION_NAME).WithMessage("Name is has to be at most 100 characters long")
             .NotEmpty().WithMessage("Name is has to be not empty");
     }
 }

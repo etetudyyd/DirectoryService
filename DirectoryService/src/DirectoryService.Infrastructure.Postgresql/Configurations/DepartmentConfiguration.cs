@@ -25,7 +25,7 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
             builder.Property(p => p.Name)
             .HasColumnName("name")
             .IsRequired()
-            .HasMaxLength(LengthConstants.MAX_LENGTH_DEPARTMENT_NAME)
+            .HasMaxLength(Constants.MAX_LENGTH_DEPARTMENT_NAME)
             .HasConversion(
                 name => name.Value,
                 value => DepartmentName.Create(value).Value);
@@ -35,7 +35,7 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
             builder.Property(p => p.Identifier)
             .HasColumnName("identifier")
             .IsRequired()
-            .HasMaxLength(LengthConstants.MAX_LENGTH_DEPARTMENT_IDENTIFIER)
+            .HasMaxLength(Constants.MAX_LENGTH_DEPARTMENT_IDENTIFIER)
             .HasConversion(
                 name => name.Value,
                 value => Identifier.Create(value).Value);
@@ -47,7 +47,7 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
                 .HasColumnName("path")
                 .HasColumnType("ltree")
                 .IsRequired()
-                .HasMaxLength(LengthConstants.MAX_LENGTH_DEPARTMENT_PATH)
+                .HasMaxLength(Constants.MAX_LENGTH_DEPARTMENT_PATH)
                 .HasConversion(
                     value => value.Value,
                     value => Path.CreateForDb(value));
@@ -75,6 +75,10 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
             builder.Property(p => p.UpdatedAt)
             .HasColumnName("update_at");
 
+            builder.Property(p => p.DeletedAt)
+                .HasColumnName("deleted_at")
+                .IsRequired(false);
+
             builder.HasMany(x => x.ChildrenDepartments)
             .WithOne()
             .IsRequired(false)
@@ -82,12 +86,14 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
             .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasMany(x => x.DepartmentLocations)
-            .WithOne()
-            .HasForeignKey(x => x.DepartmentId);
+            .WithOne(x => x.Department)
+            .HasForeignKey(x => x.DepartmentId)
+            .OnDelete(DeleteBehavior.Restrict);
 
             builder.HasMany(x => x.DepartmentPositions)
-            .WithOne()
-            .HasForeignKey(x => x.DepartmentId);
+            .WithOne(x => x.Department)
+            .HasForeignKey(x => x.DepartmentId)
+            .OnDelete(DeleteBehavior.Restrict);
         }
 
 }

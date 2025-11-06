@@ -5,7 +5,7 @@ using Path = DevQuestions.Domain.ValueObjects.DepartmentVO.Path;
 
 namespace DevQuestions.Domain.Entities;
 
-public sealed class Department
+public sealed class Department : ISoftDeletable
 {
     // ef
     private Department() { }
@@ -34,11 +34,13 @@ public sealed class Department
 
     public DateTime UpdatedAt { get; private set; }
 
+    public DateTime? DeletedAt { get; private set; }
+
     public IReadOnlyList<Department> ChildrenDepartments => _childrenDepartments;
 
-    public IReadOnlyList<DepartmentLocation> DepartmentLocations => _departmentLocations;
+    public ICollection<DepartmentLocation> DepartmentLocations => _departmentLocations;
 
-    public IReadOnlyList<DepartmentPosition> DepartmentPositions => _departmentPositions;
+    public ICollection<DepartmentPosition> DepartmentPositions => _departmentPositions;
 
     private Department(
         DepartmentId id,
@@ -59,6 +61,7 @@ public sealed class Department
         IsActive = true;
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
+        DeletedAt = null;
         _departmentLocations = departmentLocations.ToList();
     }
 
@@ -143,5 +146,31 @@ public sealed class Department
             parent.Depth + 1,
             parent.Id,
             departmentLocationsList);
+    }
+
+    public UnitResult<Error> Delete()
+    {
+        if(!IsActive)
+            return Error.Failure("department.error.delete", "department is already not active");
+
+        Path = Path.CreateDeleted(Identifier.Value, Path);
+        Identifier = Identifier.CreateDeleted(Identifier).Value;
+        IsActive = false;
+        DeletedAt = DateTime.UtcNow;
+
+        return UnitResult.Success<Error>();
+    }
+
+    public UnitResult<Error> Restore()
+    {
+        if(IsActive)
+            return Error.Failure("department.error.delete", "department is already active");
+        
+        Path = Path.CreateRestored(Identifier.Value, Path);
+        Identifier = Identifier.CreateRestored(Identifier).Value;
+        IsActive = true;
+        DeletedAt = null;
+
+        return UnitResult.Success<Error>();
     }
 }

@@ -1,12 +1,10 @@
 ﻿using CSharpFunctionalExtensions;
 using DevQuestions.Domain.Shared;
-using DevQuestions.Domain.ValueObjects.DepartmentVO;
 using DevQuestions.Domain.ValueObjects.LocationVO;
-using Guid = System.Guid;
 
 namespace DevQuestions.Domain.Entities;
 
-public sealed class Location
+public sealed class Location : ISoftDeletable
 {
     // ef
     private Location() { }
@@ -27,7 +25,9 @@ public sealed class Location
 
     public DateTime UpdatedAt { get; private set; }
 
-    public IReadOnlyList<DepartmentLocation> DepartmentLocations => _departmentLocations;
+    public DateTime? DeletedAt { get; private set; }
+
+    public ICollection<DepartmentLocation> DepartmentLocations => _departmentLocations;
 
     private Location(
         LocationId id,
@@ -42,11 +42,13 @@ public sealed class Location
         Timezone = timezone;
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
+        DeletedAt = null;
         IsActive = true;
         _departmentLocations = departmentLocations.ToList();
     }
 
     public static Result<Location, Error> Create(
+        LocationId id,
         LocationName name,
         Address address,
         Timezone timezone,
@@ -55,7 +57,7 @@ public sealed class Location
         var departmentLocationsList = departmentLocations.ToList();
 
         if (string.IsNullOrWhiteSpace(name.Value)
-            || name.Value.Length > LengthConstants.MAX_LENGTH_LOCATION_NAME)
+            || name.Value.Length > Constants.MAX_LENGTH_LOCATION_NAME)
         {
             return Error
                 .Validation(
@@ -64,10 +66,29 @@ public sealed class Location
         }
 
         return new Location(
-            new LocationId(Guid.NewGuid()),
+            id,
             name,
             address,
             timezone,
             departmentLocationsList);
+    }
+
+    public UnitResult<Error> Delete()
+    {
+        if(!IsActive)
+            return Error.Failure("location.error.delete", "location is already not active");
+        IsActive = false;
+        DeletedAt = DateTime.UtcNow;
+
+        return UnitResult.Success<Error>();
+    }
+
+    public UnitResult<Error> Restore()
+    {
+        if(IsActive)
+            return Error.Failure("location.error.delete", "location is already active");
+        IsActive = true;
+
+        return UnitResult.Success<Error>();
     }
 }

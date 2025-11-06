@@ -5,7 +5,7 @@ using DevQuestions.Domain.ValueObjects.PositionVO;
 
 namespace DevQuestions.Domain.Entities;
 
-public sealed class Position
+public sealed class Position : ISoftDeletable
 {
     // ef
     private Position() { }
@@ -24,7 +24,9 @@ public sealed class Position
 
     public DateTime UpdatedAt { get; private set; }
 
-    public IReadOnlyList<DepartmentPosition> DepartmentPositions => _departmentPositions;
+    public DateTime? DeletedAt { get; private set; }
+
+    public ICollection<DepartmentPosition> DepartmentPositions => _departmentPositions;
 
     private Position(
         PositionId id,
@@ -38,6 +40,7 @@ public sealed class Position
         IsActive = true;
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
+        DeletedAt = null;
         _departmentPositions = departmentPositions.ToList();
     }
 
@@ -46,7 +49,7 @@ public sealed class Position
         Description description,
         IEnumerable<DepartmentPosition> departmentPositions)
     {
-        if (string.IsNullOrWhiteSpace(name.Value) || name.Value.Length > LengthConstants.MAX_LENGTH_POSITION_NAME)
+        if (string.IsNullOrWhiteSpace(name.Value) || name.Value.Length > Constants.MAX_LENGTH_POSITION_NAME)
         {
             return Error.Validation(
                 null,
@@ -58,5 +61,24 @@ public sealed class Position
             name,
             description,
             departmentPositions);
+    }
+
+    public UnitResult<Error> Delete()
+    {
+        if(!IsActive)
+            return Error.Failure("position.error.delete", "position is already not active");
+        IsActive = false;
+        DeletedAt = DateTime.UtcNow;
+
+        return UnitResult.Success<Error>();
+    }
+
+    public UnitResult<Error> Restore()
+    {
+        if(IsActive)
+            return Error.Failure("position.error.delete", "position is already active");
+        IsActive = true;
+
+        return UnitResult.Success<Error>();
     }
 }

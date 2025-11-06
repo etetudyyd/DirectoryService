@@ -15,6 +15,10 @@ public sealed class DepartmentLocation
 
     public LocationId LocationId { get; init; }
 
+    public Department Department { get; private set; } = null!;
+
+    public Location Location { get; private set; } = null!;
+
     public DepartmentLocation(
         DepartmentLocationId id,
         DepartmentId departmentId,

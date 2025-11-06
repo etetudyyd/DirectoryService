@@ -4,8 +4,5 @@ namespace DirectoryService.Application.Features.Departments.Commands.CreateDepar
 
 public class CreateDepartmentCommandValidator : AbstractValidator<CreateDepartmentCommand>
 {
-    public CreateDepartmentCommandValidator()
-    {
-        
-    }
+    public CreateDepartmentCommandValidator() { }
 }

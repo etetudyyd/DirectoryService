@@ -25,7 +25,7 @@ public class LocationConfiguration : IEntityTypeConfiguration<Location>
         builder.Property(p => p.Name)
             .HasColumnName("name")
             .IsRequired()
-            .HasMaxLength(LengthConstants.MAX_LENGTH_POSITION_NAME)
+            .HasMaxLength(Constants.MAX_LENGTH_POSITION_NAME)
             .HasConversion(
                 name => name.Value,
                 value => LocationName.Create(value).Value);
@@ -34,31 +34,31 @@ public class LocationConfiguration : IEntityTypeConfiguration<Location>
 
         builder.ComplexProperty(p => p.Address, a => {
             a.Property(address => address.PostalCode)
-                .HasMaxLength(LengthConstants.Address.MAX_LENGTH_ADDRESS_POSTAL_CODE)
+                .HasMaxLength(Constants.Address.MAX_LENGTH_ADDRESS_POSTAL_CODE)
                 .HasColumnName("postal_code");
 
             a.Property(address => address.Region)
-                .HasMaxLength(LengthConstants.Address.MAX_LENGTH_ADDRESS_REGION)
+                .HasMaxLength(Constants.Address.MAX_LENGTH_ADDRESS_REGION)
                 .HasColumnName("region");
 
             a.Property(address => address.City)
                 .IsRequired()
-                .HasMaxLength(LengthConstants.Address.MAX_LENGTH_ADDRESS_CITY)
+                .HasMaxLength(Constants.Address.MAX_LENGTH_ADDRESS_CITY)
                 .HasColumnName("city");
 
             a.Property(address => address.Street)
                 .IsRequired()
-                .HasMaxLength(LengthConstants.Address.MAX_LENGTH_ADDRESS_STREET)
+                .HasMaxLength(Constants.Address.MAX_LENGTH_ADDRESS_STREET)
                 .HasColumnName("street");
 
             a.Property(address => address.House)
                 .IsRequired()
-                .HasMaxLength(LengthConstants.Address.MAX_LENGTH_ADDRESS_HOUSE)
+                .HasMaxLength(Constants.Address.MAX_LENGTH_ADDRESS_HOUSE)
                 .HasColumnName("house");
 
             a.Property(address => address.Apartment)
                 .IsRequired()
-                .HasMaxLength(LengthConstants.Address.MAX_LENGTH_ADDRESS_APARTAMENT)
+                .HasMaxLength(Constants.Address.MAX_LENGTH_ADDRESS_APARTAMENT)
                 .HasColumnName("apartment");
         });
 
@@ -79,8 +79,13 @@ public class LocationConfiguration : IEntityTypeConfiguration<Location>
         builder.Property(p => p.UpdatedAt)
             .HasColumnName("update_at");
 
+        builder.Property(p => p.DeletedAt)
+            .HasColumnName("deleted_at")
+            .IsRequired(false);
+
         builder.HasMany(x => x.DepartmentLocations)
-            .WithOne()
-            .HasForeignKey(x => x.LocationId);
+            .WithOne(x => x.Location)
+            .HasForeignKey(x => x.LocationId)
+            .OnDelete(DeleteBehavior.Restrict);
     }
 }

@@ -37,4 +37,17 @@ public record Identifier
 
         return new Identifier(value);
     }
+
+    public static Result<Identifier, Error> CreateDeleted(Identifier identifier)
+    {
+        return new Identifier(Constants.SOFT_DELETED_LABEL + identifier.Value);
+    }
+
+    public static Result<Identifier, Error> CreateRestored(Identifier identifier)
+    {
+        return new Identifier(
+            identifier.Value.Replace(
+            $"{Constants.SOFT_DELETED_LABEL}{identifier.Value}",
+            identifier.Value));
+    }
 }
