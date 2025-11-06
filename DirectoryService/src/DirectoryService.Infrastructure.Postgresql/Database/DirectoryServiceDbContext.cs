@@ -1,6 +1,5 @@
 ﻿using DevQuestions.Domain.Entities;
 using DirectoryService.Application.Database.IQueries;
-using DirectoryService.Infrastructure.Postgresql.Interceptors;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
@@ -39,8 +38,6 @@ public class DirectoryServiceDbContext : DbContext, IReadDbContext
     {
         optionsBuilder.UseNpgsql(_connectionString);
         optionsBuilder.EnableSensitiveDataLogging();
-
-        optionsBuilder.AddInterceptors(new SoftDeleteInterceptor());
 
         base.OnConfiguring(optionsBuilder);
     }

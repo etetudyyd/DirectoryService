@@ -62,4 +62,12 @@ public sealed record Path
             $"{Constants.SOFT_DELETED_LABEL}{oldIdentifier}");
         return new Path(newPath);
     }
+
+    public static Path CreateRestored(string oldIdentifier, Path path)
+    {
+        var newPath = path.Value.Replace(
+            $"{Constants.SOFT_DELETED_LABEL}{oldIdentifier}",
+            oldIdentifier);
+        return new Path(newPath);
+    }
 }

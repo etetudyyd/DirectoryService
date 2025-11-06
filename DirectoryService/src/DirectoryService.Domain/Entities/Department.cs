@@ -165,7 +165,11 @@ public sealed class Department : ISoftDeletable
     {
         if(IsActive)
             return Error.Failure("department.error.delete", "department is already active");
+        
+        Path = Path.CreateRestored(Identifier.Value, Path);
+        Identifier = Identifier.CreateRestored(Identifier).Value;
         IsActive = true;
+        DeletedAt = null;
 
         return UnitResult.Success<Error>();
     }

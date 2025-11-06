@@ -59,44 +59,6 @@ public class DepartmentsRepository : IDepartmentsRepository
         return department;
     }
 
-    public async Task<Result<Guid, Error>> Delete(
-        Department department,
-        CancellationToken cancellationToken)
-    {
-        // _dbContext.Departments.Remove(department);
-        department.Delete();
-        _dbContext.Departments.Update(department);
-
-        var entries = _dbContext.ChangeTracker.Entries()
-            .Select(e => new
-            {
-                EntityType = e.Entity.GetType().Name,
-                State = e.State.ToString(),
-                Props = e.Metadata.GetProperties()
-                    .Select(p => new
-                    {
-                        Name = p.Name,
-                        Value = e.CurrentValues[p],
-                    })
-                    .ToList(),
-            })
-            .ToList();
-
-        Console.WriteLine("=== ChangeTracker before SaveChanges ===");
-        foreach (var e in entries)
-        {
-            Console.WriteLine($"{e.EntityType} - {e.State}");
-            foreach (var p in e.Props)
-                Console.WriteLine($"  {p.Name} = {p.Value}");
-        }
-
-        Console.WriteLine("=== End ChangeTracker ===");
-
-        await _dbContext.SaveChangesAsync(cancellationToken);
-        return department.Id.Value;
-    }
-
-
     public async Task<Result<Guid, Error>> UpdateChildDepartmentsPath(
         Department parent,
         CancellationToken cancellationToken)

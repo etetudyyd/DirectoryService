@@ -55,23 +55,25 @@ public class DeleteDepartmentHandler : ICommandHandler<Guid, DeleteDepartmentCom
             return departmentResult.Error.ToErrors();
         }
 
-        var departmentDeleteResult = await _departmentsRepository.Delete(departmentResult.Value, cancellationToken);
-        if (departmentDeleteResult.IsFailure)
-        {
-            transaction.Rollback(cancellationToken);
-            return departmentDeleteResult.Error.ToErrors();
-        }
+        var department = departmentResult.Value;
 
         var lockDescendantsResult = await _departmentsRepository
-            .LockDescendantsAsync(departmentResult.Value, cancellationToken);
+            .LockDescendantsAsync(department, cancellationToken);
         if (lockDescendantsResult.IsFailure)
         {
             transaction.Rollback(cancellationToken);
             return lockDescendantsResult.Error.ToErrors();
         }
 
+        department.Delete();
+
+        var saveChangesResult = await _transactionManager
+            .SaveChangesAsync(cancellationToken);
+        if (saveChangesResult.IsFailure)
+            return saveChangesResult.Error.ToErrors();
+
         var updateChildDepartmentsPathResult = await _departmentsRepository
-            .UpdateChildDepartmentsPath(departmentResult.Value, cancellationToken);
+            .UpdateChildDepartmentsPath(department, cancellationToken);
         if (updateChildDepartmentsPathResult.IsFailure)
         {
             transaction.Rollback(cancellationToken);
@@ -79,7 +81,7 @@ public class DeleteDepartmentHandler : ICommandHandler<Guid, DeleteDepartmentCom
         }
 
         var deactivateConnectedLocationsResult = await _departmentsRepository
-            .DeactivateConnectedLocations(departmentResult.Value.Id, cancellationToken);
+            .DeactivateConnectedLocations(department.Id, cancellationToken);
         if (deactivateConnectedLocationsResult.IsFailure)
         {
             transaction.Rollback(cancellationToken);
@@ -87,7 +89,7 @@ public class DeleteDepartmentHandler : ICommandHandler<Guid, DeleteDepartmentCom
         }
 
         var deactivateConnectedPositions = await _departmentsRepository
-            .DeactivateConnectedPositions(departmentResult.Value.Id, cancellationToken);
+            .DeactivateConnectedPositions(department.Id, cancellationToken);
         if (deactivateConnectedPositions.IsFailure)
         {
             transaction.Rollback(cancellationToken);
@@ -98,9 +100,9 @@ public class DeleteDepartmentHandler : ICommandHandler<Guid, DeleteDepartmentCom
         if (commitResult.IsFailure)
             return commitResult.Error.ToErrors();
 
-        _logger.LogInformation($"Department deleted with id{departmentDeleteResult.Value}");
+        _logger.LogInformation($"Department deleted with id{department.Id}");
 
-        return departmentDeleteResult.Value;
+        return department.Id.Value;
 
     }
 }
