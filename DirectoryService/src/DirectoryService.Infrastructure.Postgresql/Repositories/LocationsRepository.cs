@@ -8,6 +8,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DirectoryService.Infrastructure.Postgresql.Repositories;
 
+/// <summary>
+/// LocationsRepository - realization of Repository Pattern for Locations database logic by using DirectoryServiceDbContext.
+/// It realizes interface ILocationsRepository.
+/// </summary>
 public class LocationsRepository : ILocationsRepository
 {
     private readonly DirectoryServiceDbContext _dbContext;

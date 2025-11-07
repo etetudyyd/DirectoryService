@@ -7,6 +7,9 @@ using Path = DevQuestions.Domain.ValueObjects.DepartmentVO.Path;
 
 namespace DirectoryService.Infrastructure.Postgresql.Configurations;
 
+/// <summary>
+/// DepartmentConfiguration - configuration file for building table "departments". Delete type "Restricted".
+/// </summary>
 public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
 {
     public void Configure(EntityTypeBuilder<Department> builder)

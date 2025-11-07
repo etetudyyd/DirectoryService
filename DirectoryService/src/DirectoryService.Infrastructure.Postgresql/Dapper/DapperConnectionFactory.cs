@@ -7,6 +7,10 @@ using Npgsql;
 
 namespace DirectoryService.Infrastructure.Postgresql.Dapper;
 
+/// <summary>
+/// DapperConnectionFactory - the factory of creating connections for queries of Dapper.
+/// It realizes interfaces like: IDapperConnectionFactory, IDisposable, IAsyncDisposable.
+/// </summary>
 public class DapperConnectionFactory : IDapperConnectionFactory, IDisposable, IAsyncDisposable
 {
     private readonly NpgsqlDataSource _dataSource;

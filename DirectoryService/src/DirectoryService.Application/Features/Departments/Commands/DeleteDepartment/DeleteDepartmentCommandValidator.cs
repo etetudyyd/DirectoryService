@@ -4,5 +4,9 @@ namespace DirectoryService.Application.Features.Departments.Commands.DeleteDepar
 
 public class DeleteDepartmentCommandValidator : AbstractValidator<DeleteDepartmentCommand>
 {
-    public DeleteDepartmentCommandValidator() { }
+    public DeleteDepartmentCommandValidator()
+    {
+        RuleFor(x => x.Id)
+            .NotEmpty().WithMessage("Id is has to be not empty.");
+    }
 }

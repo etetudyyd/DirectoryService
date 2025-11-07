@@ -6,6 +6,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace DirectoryService.Infrastructure.Postgresql.Configurations;
 
+/// <summary>
+/// LocationConfiguration - configuration file for building table "locations". Delete type "Restricted".
+/// </summary>
 public class LocationConfiguration : IEntityTypeConfiguration<Location>
 {
     public void Configure(EntityTypeBuilder<Location> builder)

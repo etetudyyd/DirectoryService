@@ -6,6 +6,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace DirectoryService.Infrastructure.Postgresql.Configurations;
 
+/// <summary>
+/// PositionConfiguration - configuration file for building table "positions". Delete type "Restricted".
+/// </summary>
 public class PositionConfiguration : IEntityTypeConfiguration<Position>
 {
     public void Configure(EntityTypeBuilder<Position> builder)

@@ -7,6 +7,10 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace DirectoryService.Infrastructure.Postgresql.Configurations;
 
+/// <summary>
+/// DepartmentPositionConfiguration - configuration file for building table "departments_positions". This table
+/// connects such tables as "departments" and "positions". Delete type "Restricted".
+/// </summary>
 public class DepartmentPositionConfiguration : IEntityTypeConfiguration<DepartmentPosition>
 {
     public void Configure(EntityTypeBuilder<DepartmentPosition> builder)

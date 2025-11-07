@@ -4,5 +4,9 @@ namespace DirectoryService.Application.Features.Departments.Queries.GetRootDepar
 
 public class GetRootDepartmentsQueryValidator : AbstractValidator<GetRootDepartmentsQuery>
 {
-    public GetRootDepartmentsQueryValidator() { }
+    public GetRootDepartmentsQueryValidator()
+    {
+        RuleFor(x => x.DepartmentsRequest.Prefetch)
+            .LessThan(x => x.DepartmentsRequest.PageSize);
+    }
 }

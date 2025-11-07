@@ -6,5 +6,9 @@ public class UpdateDepartmentLocationsCommandValidator : AbstractValidator<Updat
 {
     public UpdateDepartmentLocationsCommandValidator()
     {
+        RuleFor(x => x.DepartmentId)
+            .NotEmpty().WithMessage("Id is has to be not empty.");
+        RuleForEach(x => x.DepartmentRequest.LocationsIds)
+            .NotEmpty().WithMessage("To update department is has to be at least one location.");
     }
 }

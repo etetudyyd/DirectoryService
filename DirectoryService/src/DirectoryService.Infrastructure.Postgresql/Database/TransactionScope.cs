@@ -6,6 +6,9 @@ using Microsoft.Extensions.Logging;
 
 namespace DirectoryService.Infrastructure.Postgresql.Database;
 
+/// <summary>
+/// TransactionScope - class for commiting and rollback transactions depending on imagining on requirements. It realizes interface ITransactionScope.
+/// </summary>
 public class TransactionScope : ITransactionScope
 {
     private readonly IDbTransaction _transaction;

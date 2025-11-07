@@ -4,5 +4,9 @@ namespace DirectoryService.Application.Features.Departments.Queries.GetChildrenD
 
 public class GetChildrenDepartmentsQueryValidator : AbstractValidator<GetChildrenDepartmentsQuery>
 {
-    public GetChildrenDepartmentsQueryValidator() { }
+    public GetChildrenDepartmentsQueryValidator()
+    {
+        RuleFor(x => x.Request.ParentId)
+            .NotEmpty().WithMessage("ParentId is has to be not empty.");
+    }
 }

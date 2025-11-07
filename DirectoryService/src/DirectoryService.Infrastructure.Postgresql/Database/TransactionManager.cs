@@ -6,6 +6,9 @@ using Microsoft.Extensions.Logging;
 
 namespace DirectoryService.Infrastructure.Postgresql.Database;
 
+/// <summary>
+/// TransactionManager - class for creating transactions and saving changes. It realizes interface ITransactionManager.
+/// </summary>
 public class TransactionManager : ITransactionManager
 {
     private readonly DirectoryServiceDbContext _dbContext;

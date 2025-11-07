@@ -9,6 +9,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DirectoryService.Infrastructure.Postgresql;
 
+/// <summary>
+/// DependencyInjection - service for adding scopes in DI infrastructure services.
+/// </summary>
 public static class DependencyInjection
 {
     public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)

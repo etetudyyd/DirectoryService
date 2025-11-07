@@ -14,6 +14,10 @@ using Path = DevQuestions.Domain.ValueObjects.DepartmentVO.Path;
 
 namespace DirectoryService.Infrastructure.Postgresql.Repositories;
 
+/// <summary>
+/// DepartmentsRepository - realization of Repository Pattern for Departments database logic by using DirectoryServiceDbContext.
+/// It realizes interface IDepartmentsRepository.
+/// </summary>
 public class DepartmentsRepository : IDepartmentsRepository
 {
     private readonly DirectoryServiceDbContext _dbContext;
