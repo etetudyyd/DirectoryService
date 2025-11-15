@@ -148,7 +148,7 @@ public sealed class Department : ISoftDeletable
             departmentLocationsList);
     }
 
-    public UnitResult<Error> Delete()
+    public UnitResult<Error> Deactivate()
     {
         if(!IsActive)
             return Error.Failure("department.error.delete", "department is already not active");
@@ -161,11 +161,11 @@ public sealed class Department : ISoftDeletable
         return UnitResult.Success<Error>();
     }
 
-    public UnitResult<Error> Restore()
+    public UnitResult<Error> Activate()
     {
         if(IsActive)
             return Error.Failure("department.error.delete", "department is already active");
-        
+
         Path = Path.CreateRestored(Identifier.Value, Path);
         Identifier = Identifier.CreateRestored(Identifier).Value;
         IsActive = true;

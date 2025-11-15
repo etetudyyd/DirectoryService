@@ -73,7 +73,7 @@ public sealed class Location : ISoftDeletable
             departmentLocationsList);
     }
 
-    public UnitResult<Error> Delete()
+    public UnitResult<Error> Deactivate()
     {
         if(!IsActive)
             return Error.Failure("location.error.delete", "location is already not active");
@@ -83,7 +83,7 @@ public sealed class Location : ISoftDeletable
         return UnitResult.Success<Error>();
     }
 
-    public UnitResult<Error> Restore()
+    public UnitResult<Error> Activate()
     {
         if(IsActive)
             return Error.Failure("location.error.delete", "location is already active");

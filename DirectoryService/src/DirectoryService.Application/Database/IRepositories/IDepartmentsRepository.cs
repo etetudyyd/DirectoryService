@@ -2,6 +2,7 @@
 using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.Shared;
 using DevQuestions.Domain.ValueObjects.DepartmentVO;
+using DirectoryService.Contracts.Shared;
 using Path = DevQuestions.Domain.ValueObjects.DepartmentVO.Path;
 
 namespace DirectoryService.Application.Database.IRepositories;
@@ -25,4 +26,10 @@ public interface IDepartmentsRepository
     Task<Result<Guid[], Error>> DeactivateConnectedLocations(DepartmentId departmentId, CancellationToken cancellationToken);
 
     Task<Result<Guid[], Error>> DeactivateConnectedPositions(DepartmentId departmentId, CancellationToken cancellationToken);
+
+    Task<Result<List<Department>, Error>> GetAllInactiveDepartmentsAsync(TimeOptions timeOptions, CancellationToken cancellationToken);
+
+    Task<Result<List<Department>, Error>> GetChildrenDepartmentsAsync(Guid[] ids, CancellationToken cancellationToken);
+
+    Task<Result<List<Department>, Error>> GetParentDepartmentsAsync(Guid[] ids, CancellationToken cancellationToken);
 }

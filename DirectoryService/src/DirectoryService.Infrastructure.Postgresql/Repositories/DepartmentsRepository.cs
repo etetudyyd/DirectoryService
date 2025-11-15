@@ -6,6 +6,7 @@ using DevQuestions.Domain.Shared;
 using DevQuestions.Domain.ValueObjects.DepartmentVO;
 using DirectoryService.Application.Database.IRepositories;
 using DirectoryService.Application.Features.Departments.Commands.CreateDepartment;
+using DirectoryService.Contracts.Shared;
 using DirectoryService.Infrastructure.Postgresql.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -272,5 +273,38 @@ public class DepartmentsRepository : IDepartmentsRepository
 
         return Result.Success<Guid, Error>(departmentUpdated.Id.Value);
     }
+
+    public async Task<Result<List<Department>, Error>> GetAllInactiveDepartmentsAsync(TimeOptions timeOptions, CancellationToken cancellationToken)
+    {
+        var departments = await _dbContext.Departments
+           .Where(
+               d => !d.IsActive && d.DeletedAt < timeOptions.InputDate)
+           .ToListAsync(cancellationToken);
+
+        return departments;
+    }
+
+    public async Task<Result<List<Department>, Error>> GetChildrenDepartmentsAsync(
+        Guid[] ids,
+        CancellationToken cancellationToken)
+    {
+        var departments = await _dbContext.Departments
+            .Where(d => ids.Contains(d.Id.Value) && d.IsActive)
+            .ToListAsync(cancellationToken);
+
+        return Result.Success<List<Department>, Error>(departments);
+    }
+
+    public async Task<Result<List<Department>, Error>> GetParentDepartmentsAsync(
+        Guid[] ids,
+        CancellationToken cancellationToken)
+    {
+        var departments = await _dbContext.Departments
+            .Where(d => d.ParentId != null && ids.Contains(d.ParentId.Value))
+            .ToListAsync(cancellationToken);
+
+        return Result.Success<List<Department>, Error>(departments);
+    }
+
 
 }

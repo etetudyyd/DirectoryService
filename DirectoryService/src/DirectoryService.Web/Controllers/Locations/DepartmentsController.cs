@@ -3,7 +3,7 @@ using DirectoryService.Application.Abstractions;
 using DirectoryService.Application.Abstractions.Commands;
 using DirectoryService.Application.Abstractions.Queries;
 using DirectoryService.Application.Features.Departments.Commands.CreateDepartment;
-using DirectoryService.Application.Features.Departments.Commands.DeleteDepartment;
+using DirectoryService.Application.Features.Departments.Commands.DeactivateDepartment;
 using DirectoryService.Application.Features.Departments.Commands.RelocateDepartmentParent;
 using DirectoryService.Application.Features.Departments.Commands.UpdateDepartmentLocations;
 using DirectoryService.Application.Features.Departments.Queries;
@@ -102,12 +102,12 @@ public class DepartmentsController : ControllerBase
 
     [Route("{departmentId:Guid}")]
     [HttpDelete]
-    public async Task<EndpointResult<Guid>> Delete(
-        [FromServices] ICommandHandler<Guid, DeleteDepartmentCommand> handler,
+    public async Task<EndpointResult<Guid>> Deactivate(
+        [FromServices] ICommandHandler<Guid, DeactivateDepartmentCommand> handler,
         [FromRoute] Guid departmentId,
         CancellationToken cancellationToken)
     {
-        var command = new DeleteDepartmentCommand(departmentId);
+        var command = new DeactivateDepartmentCommand(departmentId);
         return await handler.Handle(command, cancellationToken);
     }
 

@@ -45,6 +45,7 @@ public sealed class Position : ISoftDeletable
     }
 
     public static Result<Position, Error> Create(
+        PositionId id,
         PositionName name,
         Description description,
         IEnumerable<DepartmentPosition> departmentPositions)
@@ -57,13 +58,13 @@ public sealed class Position : ISoftDeletable
         }
 
         return new Position(
-            new PositionId(Guid.NewGuid()),
+            id,
             name,
             description,
             departmentPositions);
     }
 
-    public UnitResult<Error> Delete()
+    public UnitResult<Error> Deactivate()
     {
         if(!IsActive)
             return Error.Failure("position.error.delete", "position is already not active");
@@ -73,7 +74,7 @@ public sealed class Position : ISoftDeletable
         return UnitResult.Success<Error>();
     }
 
-    public UnitResult<Error> Restore()
+    public UnitResult<Error> Activate()
     {
         if(IsActive)
             return Error.Failure("position.error.delete", "position is already active");
