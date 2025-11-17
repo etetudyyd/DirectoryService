@@ -14,7 +14,6 @@ namespace DirectoryService.Application.Features.Departments.Commands.DeleteInact
 public class DeleteInactiveDepartmentsHandler : ICommandHandler<DeleteInactiveDepartmentsCommand>
 {
     private readonly ILogger<DeleteInactiveDepartmentsHandler> _logger;
-    private readonly IValidator<DeleteInactiveDepartmentsHandler> _validator;
     private readonly IDepartmentsRepository _departmentsRepository;
     private readonly ITransactionManager _transactionManager;
 
@@ -41,8 +40,6 @@ public class DeleteInactiveDepartmentsHandler : ICommandHandler<DeleteInactiveDe
 
         TimeOptions timeOptions = TimeOptions.FromMonthsAgo(1);
 
-        // удаление неактивных департаментов
-
         // получение неактивных департаментов
         var departmentsResult = await _departmentsRepository
             .GetAllInactiveDepartmentsAsync(timeOptions, cancellationToken);
@@ -52,12 +49,12 @@ public class DeleteInactiveDepartmentsHandler : ICommandHandler<DeleteInactiveDe
             return departmentsResult.Error.ToErrors();
         }
 
-        var inactiveDepartmentIds = departmentsResult.Value;
+        var inactiveDepartments = departmentsResult.Value;
 
         // получение первых детей неактивных департаментов
         var childrenDepartmentsResult = await _departmentsRepository
             .GetChildrenDepartmentsAsync(
-                inactiveDepartmentIds
+                inactiveDepartments
                 .Select(d => d.Id.Value).ToArray(),
                 cancellationToken);
         if (childrenDepartmentsResult.IsFailure)
@@ -69,7 +66,7 @@ public class DeleteInactiveDepartmentsHandler : ICommandHandler<DeleteInactiveDe
         // получение родителей неактивных департаментов
         var parentDepartmentsResult = await _departmentsRepository
             .GetParentDepartmentsAsync(
-                inactiveDepartmentIds
+                inactiveDepartments
                 .Select(d => d.ParentId!.Value).ToArray(), cancellationToken);
         if(parentDepartmentsResult.IsFailure)
         {
@@ -84,8 +81,8 @@ public class DeleteInactiveDepartmentsHandler : ICommandHandler<DeleteInactiveDe
             var newParent = parentDepartmentsResult.Value
                 .FirstOrDefault(d => d.Id == oldParent?.ParentId);
             var oldPath = children.Path;
-            children.SetParent(newParent);
-            
+            int depthDelta = children.SetParent(newParent).Value;
+
             var updateDescendantDepartmentsResult = await _departmentsRepository
                 .BulkUpdateDescendantsPath(
                 oldPath,
@@ -99,6 +96,17 @@ public class DeleteInactiveDepartmentsHandler : ICommandHandler<DeleteInactiveDe
                 return updateDescendantDepartmentsResult.Error.ToErrors();
             }
         }
+
+        var saveChanges = await _departmentsRepository.SaveChangesAsync(cancellationToken);
+        if (saveChanges.IsFailure)
+        {
+            _logger.LogInformation("Failed to save changes.");
+            transactionScope.Rollback(cancellationToken);
+            return saveChanges.Error.ToErrors();
+        }
+
+        await _departmentsRepository.BulkDeleteAsync(
+            inactiveDepartments.Select(d => d.Id.Value).ToArray(), cancellationToken);
 
         var commitResult = transactionScope.Commit(cancellationToken);
         if (commitResult.IsFailure)

@@ -1,19 +1,15 @@
 ﻿using DevQuestions.Web.EndpointResults;
-using DirectoryService.Application.Abstractions;
 using DirectoryService.Application.Abstractions.Commands;
 using DirectoryService.Application.Abstractions.Queries;
 using DirectoryService.Application.Features.Departments.Commands.CreateDepartment;
 using DirectoryService.Application.Features.Departments.Commands.DeactivateDepartment;
 using DirectoryService.Application.Features.Departments.Commands.RelocateDepartmentParent;
 using DirectoryService.Application.Features.Departments.Commands.UpdateDepartmentLocations;
-using DirectoryService.Application.Features.Departments.Queries;
 using DirectoryService.Application.Features.Departments.Queries.GetChildrenDepartments;
 using DirectoryService.Application.Features.Departments.Queries.GetRootDepartments;
 using DirectoryService.Application.Features.Departments.Queries.GetTopDepartmentsByPositions;
-using DirectoryService.Contracts.Departments;
 using DirectoryService.Contracts.Departments.Requests;
 using DirectoryService.Contracts.Departments.Responses;
-using DirectoryService.Contracts.Locations;
 using Microsoft.AspNetCore.Mvc;
 
 namespace DevQuestions.Web.Controllers.Locations;

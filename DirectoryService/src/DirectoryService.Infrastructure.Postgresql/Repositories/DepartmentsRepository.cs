@@ -129,9 +129,6 @@ public class DepartmentsRepository : IDepartmentsRepository
         return Result.Success<Guid[], Error>(ids);
     }
 
-
-
-
     public async Task<Result<Guid[], Error>> DeactivateConnectedPositions(
         DepartmentId departmentId,
         CancellationToken cancellationToken)
@@ -274,6 +271,37 @@ public class DepartmentsRepository : IDepartmentsRepository
         return Result.Success<Guid, Error>(departmentUpdated.Id.Value);
     }
 
+    public async Task<UnitResult<Error>> BulkUpdateDescendantsPath(
+        Path oldPath,
+        Path newPath,
+        int depthDelta,
+        CancellationToken cancellationToken)
+    {
+        await _dbContext.Database.ExecuteSqlAsync(
+            $"""
+             UPDATE departments 
+             SET path = {newPath.Value}::ltree || subpath(path, nlevel({oldPath.Value}::ltree)),
+                 depth = depth + {depthDelta},
+                 updated_at = {DateTime.UtcNow}
+             WHERE path <@ {oldPath.Value}::ltree AND path != {oldPath.Value}::ltree
+             """, cancellationToken);
+
+        return UnitResult.Success<Error>();
+    }
+
+    public async Task<UnitResult<Error>> BulkDeleteAsync(
+        Guid[] departmentIds, CancellationToken cancellationToken)
+    {
+        await _dbContext.Database.ExecuteSqlAsync(
+            $"""
+             DELETE FROM departments
+             WHERE department_id = ANY({departmentIds})
+             RETURNING department_id
+             """, cancellationToken);
+
+        return UnitResult.Success<Error>();
+    }
+
     public async Task<Result<List<Department>, Error>> GetAllInactiveDepartmentsAsync(TimeOptions timeOptions, CancellationToken cancellationToken)
     {
         var departments = await _dbContext.Departments
@@ -306,5 +334,18 @@ public class DepartmentsRepository : IDepartmentsRepository
         return Result.Success<List<Department>, Error>(departments);
     }
 
+    public async Task<UnitResult<Error>> SaveChangesAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _dbContext.SaveChangesAsync(cancellationToken);
 
+            return UnitResult.Success<Error>();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Failed to save changes");
+            return Error.Failure("Failed to save changes", "Failed to save changes");
+        }
+    }
 }
