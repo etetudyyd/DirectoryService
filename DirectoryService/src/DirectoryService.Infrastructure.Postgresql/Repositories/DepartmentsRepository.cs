@@ -309,6 +309,9 @@ public class DepartmentsRepository : IDepartmentsRepository
                d => !d.IsActive && d.DeletedAt < timeOptions.InputDate)
            .ToListAsync(cancellationToken);
 
+        if (departments.Count == 0)
+            return Error.NotFound("departments.not.found", "departments was not found.");
+
         return departments;
     }
 

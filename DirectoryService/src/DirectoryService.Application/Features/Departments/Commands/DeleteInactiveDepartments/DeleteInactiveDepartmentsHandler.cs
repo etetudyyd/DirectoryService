@@ -39,13 +39,14 @@ public class DeleteInactiveDepartmentsHandler : ICommandHandler<DeleteInactiveDe
         using var transactionScope = transactionScopeResult.Value;
 
         TimeOptions timeOptions = TimeOptions.FromMonthsAgo(1);
-
         // получение неактивных департаментов
         var departmentsResult = await _departmentsRepository
             .GetAllInactiveDepartmentsAsync(timeOptions, cancellationToken);
+
         if (departmentsResult.IsFailure)
         {
             transactionScope.Rollback(cancellationToken);
+            _logger.LogInformation("Departments for deleting was not found!");
             return departmentsResult.Error.ToErrors();
         }
 

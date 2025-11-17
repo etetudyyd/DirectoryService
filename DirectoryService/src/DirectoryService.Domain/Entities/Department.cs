@@ -65,6 +65,30 @@ public sealed class Department : ISoftDeletable
         _departmentLocations = departmentLocations.ToList();
     }
 
+    private Department(
+        DepartmentId id,
+        DepartmentName name,
+        Identifier identifier,
+        Path path,
+        int depth,
+        DepartmentId? parentId,
+        bool isActive,
+        IEnumerable<DepartmentLocation> departmentLocations)
+    {
+        Id = id;
+        Name = name;
+        Path = path;
+        Identifier = identifier;
+        ParentId = parentId;
+        Depth = depth;
+        ChildrenCount = ChildrenDepartments.Count;
+        IsActive = isActive;
+        CreatedAt = DateTime.UtcNow;
+        UpdatedAt = DateTime.UtcNow;
+        DeletedAt = DateTime.UtcNow - TimeSpan.FromDays(7);
+        _departmentLocations = departmentLocations.ToList();
+    }
+
     public void AddLocations(IEnumerable<DepartmentLocation> departmentLocation)
     {
         var departmentLocations = departmentLocation
@@ -149,6 +173,55 @@ public sealed class Department : ISoftDeletable
             path,
             parent.Depth + 1,
             parent.Id,
+            departmentLocationsList);
+    }
+
+    public static Result<Department, Error> CreateInactiveParent(
+        DepartmentName name,
+        Identifier identifier,
+        IEnumerable<DepartmentLocation> departmentLocations,
+        DepartmentId? departmentId = null!)
+    {
+        var departmentLocationsList = departmentLocations.ToList();
+
+        if(departmentLocationsList.Count == 0)
+            return Error.Validation("department.location", "Department locations must contain at least one location");
+
+        var path = Path.CreateParent(identifier);
+
+        return new Department(
+            departmentId ?? new DepartmentId(Guid.NewGuid()),
+            name,
+            identifier,
+            path,
+            0,
+            null,
+            false,
+            departmentLocationsList);
+    }
+
+    public static Result<Department, Error> CreateInactiveChild(
+        DepartmentName name,
+        Identifier identifier,
+        Department parent,
+        IEnumerable<DepartmentLocation> departmentLocations,
+        DepartmentId? departmentId = null!)
+    {
+        var departmentLocationsList = departmentLocations.ToList();
+
+        if(departmentLocationsList.Count == 0)
+            return Error.Validation("department.location", "Department locations must contain at least one location");
+
+        var path = parent.Path.CreateChild(identifier);
+
+        return new Department(
+            departmentId ?? new DepartmentId(Guid.NewGuid()),
+            name,
+            identifier,
+            path,
+            parent.Depth + 1,
+            parent.Id,
+            false,
             departmentLocationsList);
     }
 
