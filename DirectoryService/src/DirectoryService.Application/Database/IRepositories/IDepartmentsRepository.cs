@@ -38,4 +38,8 @@ public interface IDepartmentsRepository
     Task<UnitResult<Error>> SaveChangesAsync(CancellationToken cancellationToken);
 
     Task<UnitResult<Error>> BulkDeleteAsync(List<DepartmentId> departmentIds, CancellationToken cancellationToken);
+
+    Task<UnitResult<Error>> DeleteDepartmentPositionsAsync(List<DepartmentId> departmentIds, CancellationToken cancellationToken);
+
+    Task<UnitResult<Error>> DeleteDepartmentLocationsAsync(List<DepartmentId> departmentIds, CancellationToken cancellationToken);
 }

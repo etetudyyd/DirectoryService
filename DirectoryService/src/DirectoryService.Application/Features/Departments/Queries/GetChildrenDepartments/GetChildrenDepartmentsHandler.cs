@@ -53,7 +53,7 @@ public class GetChildrenDepartmentsHandler : IQueryHandler<GetChildrenDepartment
                     d.parent_id AS ParentId,
                     d.is_active AS IsActive,
                     d.created_at AS CreatedAt,
-                    d.update_at AS UpdateAt
+                    d.updated_at AS UpdatedAt
                 FROM departments d
                 WHERE d.parent_id = @ParentId
                 ORDER BY d.created_at

@@ -317,6 +317,41 @@ public class DepartmentsRepository : IDepartmentsRepository
 
         return UnitResult.Success<Error>();
     }
+    
+    public async Task<UnitResult<Error>> DeleteDepartmentLocationsAsync(
+        List<DepartmentId> departmentIds, CancellationToken cancellationToken)
+    {
+        var connection = _dbContext.Database.GetDbConnection();
+
+        var ids = departmentIds.Select(d => d.Value).ToArray();
+
+        const string sql = @$"
+        DELETE FROM {Constants.DEPARTMENT_LOCATIONS_TABLE_ROUTE}
+        WHERE department_id = ANY(@Ids);
+    ";
+
+        await connection.ExecuteAsync(sql, new { Ids = ids });
+
+        return UnitResult.Success<Error>();
+    }
+
+    public async Task<UnitResult<Error>> DeleteDepartmentPositionsAsync(
+        List<DepartmentId> departmentIds, CancellationToken cancellationToken)
+    {
+        var connection = _dbContext.Database.GetDbConnection();
+
+        var ids = departmentIds.Select(d => d.Value).ToArray();
+
+        const string sql = @$"
+        DELETE FROM {Constants.DEPARTMENT_POSITIONS_TABLE_ROUTE}
+        WHERE department_id = ANY(@Ids);
+    ";
+
+        await connection.ExecuteAsync(sql, new { Ids = ids });
+
+        return UnitResult.Success<Error>();
+    }
+
 
 
     public async Task<Result<List<Department>, Error>> GetAllInactiveDepartmentsAsync(TimeOptions timeOptions, CancellationToken cancellationToken)
@@ -327,7 +362,7 @@ public class DepartmentsRepository : IDepartmentsRepository
            .ToListAsync(cancellationToken);
 
         if (departments.Count == 0)
-            return Error.NotFound("departments.not.found", "departments was not found.");
+            return Error.NotFound("departments.not.found", "Departments was not found.");
 
         return departments;
     }
@@ -350,8 +385,12 @@ public class DepartmentsRepository : IDepartmentsRepository
         var departments = await _dbContext.Departments
             .Where(d => ids.Contains(d.Id) && d.IsActive)
             .ToListAsync(cancellationToken);
+        if (departments.Count == 0)
+        {
+            departments = null;
+        }
 
-        return Result.Success<List<Department>, Error>(departments);
+        return Result.Success<List<Department>, Error>(departments!);
     }
 
     public async Task<UnitResult<Error>> SaveChangesAsync(CancellationToken cancellationToken)

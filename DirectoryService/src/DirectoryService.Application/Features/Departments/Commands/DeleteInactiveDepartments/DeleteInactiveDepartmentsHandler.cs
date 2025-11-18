@@ -68,37 +68,40 @@ public class DeleteInactiveDepartmentsHandler : ICommandHandler<DeleteInactiveDe
             return childrenDepartmentsResult.Error.ToErrors();
         }
 
-        // получение родителей неактивных департаментов
-        var parentDepartmentsResult = await _departmentsRepository
-            .GetParentDepartmentsAsync(
-                inactiveDepartments
-                .Select(d => d.ParentId!).ToList(), cancellationToken);
-        if(parentDepartmentsResult.IsFailure)
+        if (childrenDepartmentsResult.Value.Count != 0)
         {
-            transactionScope.Rollback(cancellationToken);
-            return childrenDepartmentsResult.Error.ToErrors();
-        }
-
-        foreach (var children in childrenDepartmentsResult.Value)
-        {
-            var oldParent = departmentsResult.Value
-                .FirstOrDefault(d => d.Id == children.ParentId);
-            var newParent = parentDepartmentsResult.Value
-                .FirstOrDefault(d => d.Id == oldParent?.ParentId);
-            var oldPath = children.Path;
-            int depthDelta = children.SetParent(newParent).Value;
-
-            var updateDescendantDepartmentsResult = await _departmentsRepository
-                .BulkUpdateDescendantsPath(
-                oldPath,
-                children.Path,
-                depthDelta,
-                cancellationToken);
-            if (updateDescendantDepartmentsResult.IsFailure)
+            // получение родителей неактивных департаментов
+            var parentDepartmentsResult = await _departmentsRepository
+                .GetParentDepartmentsAsync(
+                    inactiveDepartments
+                        .Select(d => d.ParentId!).ToList(), cancellationToken);
+            if(parentDepartmentsResult.IsFailure)
             {
-                _logger.LogInformation("Failed to update descendant departments.");
                 transactionScope.Rollback(cancellationToken);
-                return updateDescendantDepartmentsResult.Error.ToErrors();
+                return childrenDepartmentsResult.Error.ToErrors();
+            }
+
+            foreach (var children in childrenDepartmentsResult.Value)
+            {
+                var oldParent = departmentsResult.Value
+                    .FirstOrDefault(d => d.Id == children.ParentId);
+                var newParent = parentDepartmentsResult.Value
+                    .FirstOrDefault(d => d.Id == oldParent?.ParentId);
+                var oldPath = children.Path;
+                int depthDelta = children.SetParent(newParent).Value;
+
+                var updateDescendantDepartmentsResult = await _departmentsRepository
+                    .BulkUpdateDescendantsPath(
+                        oldPath,
+                        children.Path,
+                        depthDelta,
+                        cancellationToken);
+                if (updateDescendantDepartmentsResult.IsFailure)
+                {
+                    _logger.LogInformation("Failed to update descendant departments.");
+                    transactionScope.Rollback(cancellationToken);
+                    return updateDescendantDepartmentsResult.Error.ToErrors();
+                }
             }
         }
 
@@ -112,6 +115,11 @@ public class DeleteInactiveDepartmentsHandler : ICommandHandler<DeleteInactiveDe
 
         await _locationsRepository.DeleteInactiveAsync(cancellationToken);
         await _positionsRepository.DeleteInactiveAsync(cancellationToken);
+
+        await _departmentsRepository.DeleteDepartmentLocationsAsync(
+            inactiveDepartments.Select(d => d.Id).ToList(), cancellationToken);
+        await _departmentsRepository.DeleteDepartmentPositionsAsync(
+            inactiveDepartments.Select(d => d.Id).ToList(), cancellationToken);
 
         await _departmentsRepository.BulkDeleteAsync(
             inactiveDepartments.Select(d => d.Id).ToList(), cancellationToken);
