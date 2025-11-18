@@ -15,6 +15,8 @@ public interface ILocationsRepository
 
     Task<UnitResult<Error>> IsLocationActiveAsync(LocationId[] locationIds, CancellationToken cancellationToken);
 
+    Task<UnitResult<Error>> DeleteInactiveAsync(CancellationToken cancellationToken);
+
     //Task<Guid> SaveAsync(Location location, CancellationToken cancellationToken);
 
     //Task UpdateAsync(Guid id, Location location, CancellationToken cancellationToken);

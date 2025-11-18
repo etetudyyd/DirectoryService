@@ -1,6 +1,10 @@
-﻿using DevQuestions.Domain.Entities;
+﻿using CSharpFunctionalExtensions;
+using DevQuestions.Domain;
+using DevQuestions.Domain.Entities;
+using DevQuestions.Domain.Shared;
 using DirectoryService.Application.Database.IRepositories;
 using DirectoryService.Infrastructure.Postgresql.Database;
+using Microsoft.EntityFrameworkCore;
 
 namespace DirectoryService.Infrastructure.Postgresql.Repositories;
 
@@ -23,4 +27,22 @@ public class PositionsRepository : IPositionsRepository
         await _dbContext.SaveChangesAsync(cancellationToken);
         return position.Id.Value;
     }
+
+    public async Task<UnitResult<Error>> DeleteInactiveAsync(CancellationToken cancellationToken)
+    {
+        string sql = $@"
+        DELETE FROM {Constants.POSITION_TABLE_ROUTE}
+        WHERE is_active = false
+          AND NOT EXISTS (
+                SELECT 1
+                FROM {Constants.DEPARTMENT_POSITIONS_TABLE_ROUTE} dp
+                WHERE dp.position_id = {Constants.POSITION_TABLE_ROUTE}.id
+          );
+    ";
+
+        await _dbContext.Database.ExecuteSqlRawAsync(sql, cancellationToken);
+
+        return UnitResult.Success<Error>();
+    }
+
 }

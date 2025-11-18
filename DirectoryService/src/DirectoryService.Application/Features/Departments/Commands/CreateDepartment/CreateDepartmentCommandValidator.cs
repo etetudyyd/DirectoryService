@@ -16,8 +16,6 @@ public class CreateDepartmentCommandValidator : AbstractValidator<CreateDepartme
             .WithMessage($"Identifier is has to be at least {Constants.MIN_LENGTH_DEPARTMENT_IDENTIFIER} characters long")
             .MaximumLength(Constants.MAX_LENGTH_DEPARTMENT_IDENTIFIER).WithMessage($"Identifier is has to be at most {Constants.MAX_LENGTH_DEPARTMENT_IDENTIFIER} characters long")
             .NotEmpty().WithMessage("Identifier is has to be not empty");
-        RuleFor(x => x.DepartmentRequest.ParentId)
-            .NotEmpty().WithMessage("ParentId is has to be not empty.");
         RuleForEach(x => x.DepartmentRequest.LocationsIds)
             .NotEmpty().WithMessage("Department is has to be at least 1 location.");
     }

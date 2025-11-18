@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using DevQuestions.Domain;
 using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.Shared;
 using DevQuestions.Domain.ValueObjects.LocationVO;
@@ -55,6 +56,23 @@ public class LocationsRepository : ILocationsRepository
                 return Error.Failure($"location{locationId}.not_active", locationId.ToString());
             }
         }
+
+        return UnitResult.Success<Error>();
+    }
+
+    public async Task<UnitResult<Error>> DeleteInactiveAsync(CancellationToken cancellationToken)
+    {
+        string sql = $@"
+        DELETE FROM {Constants.LOCATION_TABLE_ROUTE}
+        WHERE is_active = false
+          AND NOT EXISTS (
+                SELECT 1
+                FROM {Constants.DEPARTMENT_LOCATIONS_TABLE_ROUTE} dl
+                WHERE dl.location_id = {Constants.LOCATION_TABLE_ROUTE}.id
+          );
+    ";
+
+        await _dbContext.Database.ExecuteSqlRawAsync(sql, cancellationToken);
 
         return UnitResult.Success<Error>();
     }

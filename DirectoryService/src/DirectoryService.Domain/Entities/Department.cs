@@ -85,7 +85,7 @@ public sealed class Department : ISoftDeletable
         IsActive = isActive;
         CreatedAt = DateTime.UtcNow;
         UpdatedAt = DateTime.UtcNow;
-        DeletedAt = DateTime.UtcNow - TimeSpan.FromDays(7);
+        DeletedAt = DateTime.UtcNow - TimeSpan.FromDays(50);
         _departmentLocations = departmentLocations.ToList();
     }
 

@@ -277,30 +277,47 @@ public class DepartmentsRepository : IDepartmentsRepository
         int depthDelta,
         CancellationToken cancellationToken)
     {
-        await _dbContext.Database.ExecuteSqlAsync(
-            $"""
-             UPDATE departments 
-             SET path = {newPath.Value}::ltree || subpath(path, nlevel({oldPath.Value}::ltree)),
-                 depth = depth + {depthDelta},
-                 updated_at = {DateTime.UtcNow}
-             WHERE path <@ {oldPath.Value}::ltree AND path != {oldPath.Value}::ltree
-             """, cancellationToken);
+        var oldPathLiteral = oldPath.Value;
+        var newPathLiteral = newPath.Value;
+        var now = DateTime.UtcNow;
+
+        var sql = $"""
+                   UPDATE {Constants.DEPARTMENT_TABLE_ROUTE}
+                   SET path = '{newPathLiteral}'::ltree 
+                              || subpath(path, nlevel('{oldPathLiteral}'::ltree)),
+                       depth = depth + {depthDelta},
+                       updated_at = '{now:yyyy-MM-dd HH:mm:ss.fffffffK}'
+                   WHERE path <@ '{oldPathLiteral}'::ltree
+                     AND path != '{oldPathLiteral}'::ltree
+                   """;
+
+        await _dbContext.Database.ExecuteSqlRawAsync(sql, cancellationToken);
 
         return UnitResult.Success<Error>();
     }
+
 
     public async Task<UnitResult<Error>> BulkDeleteAsync(
-        Guid[] departmentIds, CancellationToken cancellationToken)
+        List<DepartmentId> departmentIds,
+        CancellationToken cancellationToken)
     {
-        await _dbContext.Database.ExecuteSqlAsync(
-            $"""
-             DELETE FROM departments
-             WHERE department_id = ANY({departmentIds})
-             RETURNING department_id
-             """, cancellationToken);
+        var connection = _dbContext.Database.GetDbConnection();
+
+        var ids = departmentIds.Select(d => d.Value).ToArray();
+
+        const string sql = @$"
+        DELETE FROM {Constants.DEPARTMENT_TABLE_ROUTE}
+        WHERE id = ANY(@Ids)
+        RETURNING id;
+    ";
+
+        await connection.ExecuteAsync(
+            sql,
+            new { Ids = ids });
 
         return UnitResult.Success<Error>();
     }
+
 
     public async Task<Result<List<Department>, Error>> GetAllInactiveDepartmentsAsync(TimeOptions timeOptions, CancellationToken cancellationToken)
     {
@@ -316,22 +333,22 @@ public class DepartmentsRepository : IDepartmentsRepository
     }
 
     public async Task<Result<List<Department>, Error>> GetChildrenDepartmentsAsync(
-        Guid[] ids,
+        List<DepartmentId> ids,
         CancellationToken cancellationToken)
     {
         var departments = await _dbContext.Departments
-            .Where(d => ids.Contains(d.Id.Value) && d.IsActive)
+            .Where(d => d.ParentId != null && ids.Contains(d.ParentId))
             .ToListAsync(cancellationToken);
 
         return Result.Success<List<Department>, Error>(departments);
     }
 
     public async Task<Result<List<Department>, Error>> GetParentDepartmentsAsync(
-        Guid[] ids,
+        List<DepartmentId> ids,
         CancellationToken cancellationToken)
     {
         var departments = await _dbContext.Departments
-            .Where(d => d.ParentId != null && ids.Contains(d.ParentId.Value))
+            .Where(d => ids.Contains(d.Id) && d.IsActive)
             .ToListAsync(cancellationToken);
 
         return Result.Success<List<Department>, Error>(departments);

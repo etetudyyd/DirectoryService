@@ -39,7 +39,7 @@ public class DepartmentPositionConfiguration : IEntityTypeConfiguration<Departme
                 id => id.Value,
                 value => new PositionId(value));
 
-        builder.HasOne(dl => dl.Department)
+        /*builder.HasOne(dl => dl.Department)
             .WithMany(d => d.DepartmentPositions)
             .HasForeignKey(dl => dl.DepartmentId)
             .OnDelete(DeleteBehavior.Restrict);
@@ -48,6 +48,6 @@ public class DepartmentPositionConfiguration : IEntityTypeConfiguration<Departme
         builder.HasOne<Position>()
             .WithMany(d => d.DepartmentPositions)
             .HasForeignKey(x => x.PositionId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Restrict);*/
     }
 }
