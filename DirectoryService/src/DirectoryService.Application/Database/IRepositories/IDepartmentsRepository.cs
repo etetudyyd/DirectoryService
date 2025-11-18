@@ -29,13 +29,13 @@ public interface IDepartmentsRepository
 
     Task<Result<List<Department>, Error>> GetAllInactiveDepartmentsAsync(TimeOptions timeOptions, CancellationToken cancellationToken);
 
-    Task<Result<List<Department>, Error>> GetChildrenDepartmentsAsync(Guid[] ids, CancellationToken cancellationToken);
+    Task<Result<List<Department>, Error>> GetChildrenDepartmentsAsync(List<DepartmentId> ids, CancellationToken cancellationToken);
 
-    Task<Result<List<Department>, Error>> GetParentDepartmentsAsync(Guid[] ids, CancellationToken cancellationToken);
+    Task<Result<List<Department>, Error>> GetParentDepartmentsAsync(List<DepartmentId> ids, CancellationToken cancellationToken);
 
     Task<UnitResult<Error>> BulkUpdateDescendantsPath(Path oldPath, Path newPath, int depthDelta, CancellationToken cancellationToken);
 
     Task<UnitResult<Error>> SaveChangesAsync(CancellationToken cancellationToken);
 
-    Task<UnitResult<Error>> BulkDeleteAsync(Guid[] departmentIds, CancellationToken cancellationToken);
+    Task<UnitResult<Error>> BulkDeleteAsync(List<DepartmentId> departmentIds, CancellationToken cancellationToken);
 }

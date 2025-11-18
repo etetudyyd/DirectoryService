@@ -15,16 +15,20 @@ public class DeleteInactiveDepartmentsHandler : ICommandHandler<DeleteInactiveDe
 {
     private readonly ILogger<DeleteInactiveDepartmentsHandler> _logger;
     private readonly IDepartmentsRepository _departmentsRepository;
+    private readonly ILocationsRepository _locationsRepository;
+    private readonly IPositionsRepository _positionsRepository;
     private readonly ITransactionManager _transactionManager;
 
     public DeleteInactiveDepartmentsHandler(
         ILogger<DeleteInactiveDepartmentsHandler> logger,
         IDepartmentsRepository departmentsRepository,
-        ITransactionManager transactionManager)
+        ITransactionManager transactionManager, ILocationsRepository locationsRepository, IPositionsRepository positionsRepository)
     {
         _logger = logger;
         _departmentsRepository = departmentsRepository;
         _transactionManager = transactionManager;
+        _locationsRepository = locationsRepository;
+        _positionsRepository = positionsRepository;
     }
 
     public async Task<UnitResult<Errors>> Handle(
@@ -56,7 +60,7 @@ public class DeleteInactiveDepartmentsHandler : ICommandHandler<DeleteInactiveDe
         var childrenDepartmentsResult = await _departmentsRepository
             .GetChildrenDepartmentsAsync(
                 inactiveDepartments
-                .Select(d => d.Id.Value).ToArray(),
+                .Select(d => d.Id).ToList(),
                 cancellationToken);
         if (childrenDepartmentsResult.IsFailure)
         {
@@ -68,7 +72,7 @@ public class DeleteInactiveDepartmentsHandler : ICommandHandler<DeleteInactiveDe
         var parentDepartmentsResult = await _departmentsRepository
             .GetParentDepartmentsAsync(
                 inactiveDepartments
-                .Select(d => d.ParentId!.Value).ToArray(), cancellationToken);
+                .Select(d => d.ParentId!).ToList(), cancellationToken);
         if(parentDepartmentsResult.IsFailure)
         {
             transactionScope.Rollback(cancellationToken);
@@ -106,8 +110,11 @@ public class DeleteInactiveDepartmentsHandler : ICommandHandler<DeleteInactiveDe
             return saveChanges.Error.ToErrors();
         }
 
+        await _locationsRepository.DeleteInactiveAsync(cancellationToken);
+        await _positionsRepository.DeleteInactiveAsync(cancellationToken);
+
         await _departmentsRepository.BulkDeleteAsync(
-            inactiveDepartments.Select(d => d.Id.Value).ToArray(), cancellationToken);
+            inactiveDepartments.Select(d => d.Id).ToList(), cancellationToken);
 
         var commitResult = transactionScope.Commit(cancellationToken);
         if (commitResult.IsFailure)

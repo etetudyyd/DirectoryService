@@ -242,7 +242,7 @@ public class DirectoryBaseTests : IClassFixture<DirectoryTestWebFactory>, IAsync
     var sales = CreateDept("Sales Department", "sales", munich);
     var support = CreateDept("Customer Support Center", "support", munich);
     var developers = CreateDept("Developers Department", "developers", engineering);
-    var devOps = CreateDept("DevOps Department", "devOps", engineering);
+    var devOps = CreateDept("DevOps Department", "devops", engineering);
 
     var all = new[]
     {

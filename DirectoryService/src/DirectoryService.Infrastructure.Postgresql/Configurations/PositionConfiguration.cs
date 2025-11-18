@@ -52,7 +52,7 @@ public class PositionConfiguration : IEntityTypeConfiguration<Position>
             .IsRequired();
 
         builder.Property(p => p.UpdatedAt)
-            .HasColumnName("update_at");
+            .HasColumnName("updated_at");
 
         builder.Property(p => p.DeletedAt)
             .HasColumnName("deleted_at")
@@ -61,7 +61,7 @@ public class PositionConfiguration : IEntityTypeConfiguration<Position>
         builder.HasMany(x => x.DepartmentPositions)
             .WithOne(x => x.Position)
             .HasForeignKey(x => x.PositionId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
     }
 }

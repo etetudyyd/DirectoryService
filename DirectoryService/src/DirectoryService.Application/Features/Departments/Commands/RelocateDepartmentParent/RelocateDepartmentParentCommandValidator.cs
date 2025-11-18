@@ -9,7 +9,5 @@ public class RelocateDepartmentParentCommandValidator : AbstractValidator<Reloca
         RuleFor(x => x.DepartmentId)
             .NotEmpty().WithMessage("Id is has to be not empty.")
             .NotNull().WithMessage("Id is has to be null");
-        RuleFor(x => x.DepartmentRequest.ParentId)
-            .NotEmpty().WithMessage("ParentId is has to be not empty.");
     }
 }
