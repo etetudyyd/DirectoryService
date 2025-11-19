@@ -13,7 +13,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DirectoryService.Infrastructure.Postgresql.Migrations
 {
     [DbContext(typeof(DirectoryServiceDbContext))]
-    [Migration("20251104164850_Initial")]
+    [Migration("20251118234106_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -78,7 +78,7 @@ namespace DirectoryService.Infrastructure.Postgresql.Migrations
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("update_at");
+                        .HasColumnName("updated_at");
 
                     b.HasKey("Id");
 
@@ -174,7 +174,7 @@ namespace DirectoryService.Infrastructure.Postgresql.Migrations
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("update_at");
+                        .HasColumnName("updated_at");
 
                     b.ComplexProperty<Dictionary<string, object>>("Address", "DevQuestions.Domain.Entities.Location.Address#Address", b1 =>
                         {
@@ -258,7 +258,7 @@ namespace DirectoryService.Infrastructure.Postgresql.Migrations
 
                     b.Property<DateTime>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
-                        .HasColumnName("update_at");
+                        .HasColumnName("updated_at");
 
                     b.HasKey("Id")
                         .HasName("pk_position");
@@ -274,7 +274,7 @@ namespace DirectoryService.Infrastructure.Postgresql.Migrations
                     b.HasOne("DevQuestions.Domain.Entities.Department", null)
                         .WithMany("ChildrenDepartments")
                         .HasForeignKey("ParentId")
-                        .OnDelete(DeleteBehavior.Restrict);
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("DevQuestions.Domain.Entities.DepartmentLocation", b =>
@@ -282,13 +282,13 @@ namespace DirectoryService.Infrastructure.Postgresql.Migrations
                     b.HasOne("DevQuestions.Domain.Entities.Department", "Department")
                         .WithMany("DepartmentLocations")
                         .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("DevQuestions.Domain.Entities.Location", "Location")
                         .WithMany("DepartmentLocations")
                         .HasForeignKey("LocationId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Department");
@@ -301,13 +301,13 @@ namespace DirectoryService.Infrastructure.Postgresql.Migrations
                     b.HasOne("DevQuestions.Domain.Entities.Department", "Department")
                         .WithMany("DepartmentPositions")
                         .HasForeignKey("DepartmentId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("DevQuestions.Domain.Entities.Position", "Position")
                         .WithMany("DepartmentPositions")
                         .HasForeignKey("PositionId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("Department");
