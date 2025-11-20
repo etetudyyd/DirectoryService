@@ -1,12 +1,9 @@
 ﻿using CSharpFunctionalExtensions;
 using DevQuestions.Domain.Shared;
-using DevQuestions.Domain.ValueObjects.DepartmentVO;
 using DirectoryService.Application.Abstractions.Commands;
 using DirectoryService.Application.Database.IRepositories;
 using DirectoryService.Application.Database.ITransactions;
-using DirectoryService.Application.Extentions;
 using DirectoryService.Contracts.Shared;
-using FluentValidation;
 using Microsoft.Extensions.Logging;
 
 namespace DirectoryService.Application.Features.Departments.Commands.DeleteInactiveDepartments;
@@ -43,6 +40,7 @@ public class DeleteInactiveDepartmentsHandler : ICommandHandler<DeleteInactiveDe
         using var transactionScope = transactionScopeResult.Value;
 
         TimeOptions timeOptions = TimeOptions.FromMonthsAgo(1);
+
         // получение неактивных департаментов
         var departmentsResult = await _departmentsRepository
             .GetAllInactiveDepartmentsAsync(timeOptions, cancellationToken);
@@ -75,33 +73,39 @@ public class DeleteInactiveDepartmentsHandler : ICommandHandler<DeleteInactiveDe
                 .GetParentDepartmentsAsync(
                     inactiveDepartments
                         .Select(d => d.ParentId!).ToList(), cancellationToken);
-            if(parentDepartmentsResult.IsFailure)
+            if (parentDepartmentsResult.IsFailure)
             {
                 transactionScope.Rollback(cancellationToken);
                 return childrenDepartmentsResult.Error.ToErrors();
             }
 
-            foreach (var children in childrenDepartmentsResult.Value)
+            var moves = new List<(string OldPath, string NewPath, int DepthDelta)>();
+
+            foreach (var child in childrenDepartmentsResult.Value)
             {
                 var oldParent = departmentsResult.Value
-                    .FirstOrDefault(d => d.Id == children.ParentId);
+                    .FirstOrDefault(d => d.Id == child.ParentId);
+
                 var newParent = parentDepartmentsResult.Value
                     .FirstOrDefault(d => d.Id == oldParent?.ParentId);
-                var oldPath = children.Path;
-                int depthDelta = children.SetParent(newParent).Value;
 
-                var updateDescendantDepartmentsResult = await _departmentsRepository
-                    .BulkUpdateDescendantsPath(
-                        oldPath,
-                        children.Path,
-                        depthDelta,
-                        cancellationToken);
-                if (updateDescendantDepartmentsResult.IsFailure)
-                {
-                    _logger.LogInformation("Failed to update descendant departments.");
-                    transactionScope.Rollback(cancellationToken);
-                    return updateDescendantDepartmentsResult.Error.ToErrors();
-                }
+                var oldPath = child.Path;
+                int depthDelta = child.SetParent(newParent).Value;
+
+                moves.Add((oldPath.Value, child.Path.Value, depthDelta));
+            }
+
+            var updateResult = await _departmentsRepository.BulkUpdateDescendantsPathAsync(
+                oldPaths: moves.Select(m => m.OldPath).ToArray(),
+                newPaths: moves.Select(m => m.NewPath).ToArray(),
+                depthDeltas: moves.Select(m => m.DepthDelta).ToArray(),
+                cancellationToken);
+
+            if (updateResult.IsFailure)
+            {
+                _logger.LogInformation("Failed to update descendant departments.");
+                transactionScope.Rollback(cancellationToken);
+                return updateResult.Error.ToErrors();
             }
         }
 
@@ -113,15 +117,13 @@ public class DeleteInactiveDepartmentsHandler : ICommandHandler<DeleteInactiveDe
             return saveChanges.Error.ToErrors();
         }
 
-        await _locationsRepository.DeleteInactiveAsync(cancellationToken);
-        await _positionsRepository.DeleteInactiveAsync(cancellationToken);
-
-        await _departmentsRepository.DeleteDepartmentLocationsAsync(
-            inactiveDepartments.Select(d => d.Id).ToList(), cancellationToken);
-        await _departmentsRepository.DeleteDepartmentPositionsAsync(
+        await _locationsRepository.BulkDeleteInactiveLocationsAsync(
             inactiveDepartments.Select(d => d.Id).ToList(), cancellationToken);
 
-        await _departmentsRepository.BulkDeleteAsync(
+        await _positionsRepository.BulkDeleteInactivePositionsAsync(
+            inactiveDepartments.Select(d => d.Id).ToList(), cancellationToken);
+
+        await _departmentsRepository.DeleteDepartmentsAsync(
             inactiveDepartments.Select(d => d.Id).ToList(), cancellationToken);
 
         var commitResult = transactionScope.Commit(cancellationToken);

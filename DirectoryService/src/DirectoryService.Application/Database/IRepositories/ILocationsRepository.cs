@@ -1,6 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.Shared;
+using DevQuestions.Domain.ValueObjects.DepartmentVO;
 using DevQuestions.Domain.ValueObjects.LocationVO;
 
 namespace DirectoryService.Application.Database.IRepositories;
@@ -15,7 +16,7 @@ public interface ILocationsRepository
 
     Task<UnitResult<Error>> IsLocationActiveAsync(LocationId[] locationIds, CancellationToken cancellationToken);
 
-    Task<UnitResult<Error>> DeleteInactiveAsync(CancellationToken cancellationToken);
+    Task<UnitResult<Error>> BulkDeleteInactiveLocationsAsync(List<DepartmentId> departmentIds, CancellationToken cancellationToken);
 
     //Task<Guid> SaveAsync(Location location, CancellationToken cancellationToken);
 

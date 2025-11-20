@@ -297,7 +297,7 @@ public class DepartmentsRepository : IDepartmentsRepository
     }
 
 
-    public async Task<UnitResult<Error>> BulkDeleteAsync(
+    public async Task<UnitResult<Error>> DeleteDepartmentsAsync(
         List<DepartmentId> departmentIds,
         CancellationToken cancellationToken)
     {
@@ -317,42 +317,43 @@ public class DepartmentsRepository : IDepartmentsRepository
 
         return UnitResult.Success<Error>();
     }
-    
-    public async Task<UnitResult<Error>> DeleteDepartmentLocationsAsync(
-        List<DepartmentId> departmentIds, CancellationToken cancellationToken)
+
+    public async Task<UnitResult<Error>> BulkUpdateDescendantsPathAsync(
+        string[] oldPaths,
+        string[] newPaths,
+        int[] depthDeltas,
+        CancellationToken cancellationToken)
     {
         var connection = _dbContext.Database.GetDbConnection();
 
-        var ids = departmentIds.Select(d => d.Value).ToArray();
-
-        const string sql = @$"
-        DELETE FROM {Constants.DEPARTMENT_LOCATIONS_TABLE_ROUTE}
-        WHERE department_id = ANY(@Ids);
+        string sql = $@"
+        WITH move_data AS (
+            SELECT *
+            FROM UNNEST(@OldPaths, @NewPaths, @DepthDeltas)
+                AS t(old_path, new_path, delta)
+        )
+        UPDATE {Constants.DEPARTMENT_TABLE_ROUTE} d
+        SET path = (
+                regexp_replace(
+                    d.path::text,
+                    '^' || md.old_path,
+                    md.new_path
+                )
+            )::ltree,
+            depth = d.depth + md.delta
+        FROM move_data md
+        WHERE d.path ~ (md.old_path || '.*{{1,}}')::lquery;
     ";
 
-        await connection.ExecuteAsync(sql, new { Ids = ids });
+        await connection.ExecuteAsync(sql, new
+        {
+            OldPaths = oldPaths,
+            NewPaths = newPaths,
+            DepthDeltas = depthDeltas,
+        });
 
         return UnitResult.Success<Error>();
     }
-
-    public async Task<UnitResult<Error>> DeleteDepartmentPositionsAsync(
-        List<DepartmentId> departmentIds, CancellationToken cancellationToken)
-    {
-        var connection = _dbContext.Database.GetDbConnection();
-
-        var ids = departmentIds.Select(d => d.Value).ToArray();
-
-        const string sql = @$"
-        DELETE FROM {Constants.DEPARTMENT_POSITIONS_TABLE_ROUTE}
-        WHERE department_id = ANY(@Ids);
-    ";
-
-        await connection.ExecuteAsync(sql, new { Ids = ids });
-
-        return UnitResult.Success<Error>();
-    }
-
-
 
     public async Task<Result<List<Department>, Error>> GetAllInactiveDepartmentsAsync(TimeOptions timeOptions, CancellationToken cancellationToken)
     {

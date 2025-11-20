@@ -1,7 +1,9 @@
 ﻿using CSharpFunctionalExtensions;
+using Dapper;
 using DevQuestions.Domain;
 using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.Shared;
+using DevQuestions.Domain.ValueObjects.DepartmentVO;
 using DevQuestions.Domain.ValueObjects.LocationVO;
 using DirectoryService.Application.Database.IRepositories;
 using DirectoryService.Infrastructure.Postgresql.Database;
@@ -59,6 +61,38 @@ public class LocationsRepository : ILocationsRepository
 
         return UnitResult.Success<Error>();
     }
+
+    public async Task<UnitResult<Error>> BulkDeleteInactiveLocationsAsync(
+        List<DepartmentId> departmentIds,
+        CancellationToken cancellationToken)
+    {
+        var connection = _dbContext.Database.GetDbConnection();
+        var ids = departmentIds.Select(d => d.Value).ToArray();
+
+        string sql = $@"
+        WITH deleted_dl AS (
+            DELETE FROM {Constants.DEPARTMENT_LOCATIONS_TABLE_ROUTE}
+            WHERE department_id = ANY(@Ids)
+            RETURNING 1
+        ),
+        deleted_locations AS (
+            DELETE FROM {Constants.LOCATION_TABLE_ROUTE} l
+            WHERE l.is_active = FALSE
+              AND NOT EXISTS (
+                  SELECT 1
+                  FROM {Constants.DEPARTMENT_LOCATIONS_TABLE_ROUTE} dl
+                  WHERE dl.location_id = l.id
+              )
+            RETURNING 1
+        )
+        SELECT 1;
+    ";
+
+        await connection.ExecuteAsync(sql, new { Ids = ids });
+
+        return UnitResult.Success<Error>();
+    }
+
 
     public async Task<UnitResult<Error>> DeleteInactiveAsync(CancellationToken cancellationToken)
     {

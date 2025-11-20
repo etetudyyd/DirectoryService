@@ -1,7 +1,9 @@
 ﻿using CSharpFunctionalExtensions;
+using Dapper;
 using DevQuestions.Domain;
 using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.Shared;
+using DevQuestions.Domain.ValueObjects.DepartmentVO;
 using DirectoryService.Application.Database.IRepositories;
 using DirectoryService.Infrastructure.Postgresql.Database;
 using Microsoft.EntityFrameworkCore;
@@ -27,6 +29,38 @@ public class PositionsRepository : IPositionsRepository
         await _dbContext.SaveChangesAsync(cancellationToken);
         return position.Id.Value;
     }
+
+    public async Task<UnitResult<Error>> BulkDeleteInactivePositionsAsync(
+        List<DepartmentId> departmentIds,
+        CancellationToken cancellationToken)
+    {
+        var connection = _dbContext.Database.GetDbConnection();
+        var ids = departmentIds.Select(d => d.Value).ToArray();
+
+        string sql = $@"
+        WITH deleted_dp AS (
+            DELETE FROM {Constants.DEPARTMENT_POSITIONS_TABLE_ROUTE}
+            WHERE department_id = ANY(@Ids)
+            RETURNING 1
+        ),
+        deleted_positions AS (
+            DELETE FROM {Constants.POSITION_TABLE_ROUTE} p
+            WHERE p.is_active = FALSE
+              AND NOT EXISTS (
+                  SELECT 1
+                  FROM {Constants.DEPARTMENT_POSITIONS_TABLE_ROUTE} dp
+                  WHERE dp.position_id = p.id
+              )
+            RETURNING 1
+        )
+        SELECT 1;
+    ";
+
+        await connection.ExecuteAsync(sql, new { Ids = ids });
+
+        return UnitResult.Success<Error>();
+    }
+
 
     public async Task<UnitResult<Error>> DeleteInactiveAsync(CancellationToken cancellationToken)
     {
