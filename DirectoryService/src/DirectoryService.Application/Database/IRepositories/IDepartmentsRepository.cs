@@ -2,6 +2,8 @@
 using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.Shared;
 using DevQuestions.Domain.ValueObjects.DepartmentVO;
+using DirectoryService.Application.Features.Departments.Commands.DeleteInactiveDepartments;
+using DirectoryService.Contracts.Shared;
 using Path = DevQuestions.Domain.ValueObjects.DepartmentVO.Path;
 
 namespace DirectoryService.Application.Database.IRepositories;
@@ -25,4 +27,16 @@ public interface IDepartmentsRepository
     Task<Result<Guid[], Error>> DeactivateConnectedLocations(DepartmentId departmentId, CancellationToken cancellationToken);
 
     Task<Result<Guid[], Error>> DeactivateConnectedPositions(DepartmentId departmentId, CancellationToken cancellationToken);
+
+    Task<Result<List<Department>, Error>> GetAllInactiveDepartmentsAsync(TimeOptions timeOptions, CancellationToken cancellationToken);
+
+    Task<Result<List<Department>, Error>> GetChildrenDepartmentsAsync(List<DepartmentId> ids, CancellationToken cancellationToken);
+
+    Task<Result<List<Department>, Error>> GetParentDepartmentsAsync(List<DepartmentId> ids, CancellationToken cancellationToken);
+
+    Task<UnitResult<Error>> SaveChangesAsync(CancellationToken cancellationToken);
+
+    Task<UnitResult<Error>> DeleteDepartmentsAsync(List<DepartmentId> departmentIds, CancellationToken cancellationToken);
+
+    Task<UnitResult<Error>> BulkUpdateDescendantsPathAsync(List<UpdatePath> moves, CancellationToken cancellationToken);
 }

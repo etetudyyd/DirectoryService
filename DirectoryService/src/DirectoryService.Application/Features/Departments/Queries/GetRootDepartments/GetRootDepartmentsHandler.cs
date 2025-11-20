@@ -54,7 +54,7 @@ public class GetRootDepartmentsHandler : IQueryHandler<GetRootDepartmentsRespons
                            d.parent_id AS ParentId,
                            d.is_active AS IsActive,
                            d.created_at AS CreatedAt,
-                           d.update_at AS UpdateAt
+                           d.updated_at AS UpdatedAt
                     FROM departments d
                     WHERE d.parent_id IS NULL
                     ORDER BY d.created_at
@@ -84,7 +84,7 @@ public class GetRootDepartmentsHandler : IQueryHandler<GetRootDepartmentsRespons
                     c.parent_id AS ParentId,
                     c.is_active AS IsActive,
                     c.created_at AS CreatedAt,
-                    c.update_at AS UpdateAt,
+                    c.updated_at AS UpdatedAt,
                     (EXISTS(
                         SELECT 1 FROM departments WHERE parent_id = c.id
                     ))::bool AS HasMoreChildren
@@ -98,7 +98,7 @@ public class GetRootDepartmentsHandler : IQueryHandler<GetRootDepartmentsRespons
                         d.parent_id,
                         d.is_active,
                         d.created_at,
-                        d.update_at
+                        d.updated_at
                     FROM departments d
                     WHERE d.parent_id = r.id
                       AND d.is_active = true

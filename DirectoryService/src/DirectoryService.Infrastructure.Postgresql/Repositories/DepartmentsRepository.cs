@@ -6,6 +6,8 @@ using DevQuestions.Domain.Shared;
 using DevQuestions.Domain.ValueObjects.DepartmentVO;
 using DirectoryService.Application.Database.IRepositories;
 using DirectoryService.Application.Features.Departments.Commands.CreateDepartment;
+using DirectoryService.Application.Features.Departments.Commands.DeleteInactiveDepartments;
+using DirectoryService.Contracts.Shared;
 using DirectoryService.Infrastructure.Postgresql.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
@@ -14,6 +16,10 @@ using Path = DevQuestions.Domain.ValueObjects.DepartmentVO.Path;
 
 namespace DirectoryService.Infrastructure.Postgresql.Repositories;
 
+/// <summary>
+/// DepartmentsRepository - realization of Repository Pattern for Departments database logic by using DirectoryServiceDbContext.
+/// It realizes interface IDepartmentsRepository.
+/// </summary>
 public class DepartmentsRepository : IDepartmentsRepository
 {
     private readonly DirectoryServiceDbContext _dbContext;
@@ -123,9 +129,6 @@ public class DepartmentsRepository : IDepartmentsRepository
 
         return Result.Success<Guid[], Error>(ids);
     }
-
-
-
 
     public async Task<Result<Guid[], Error>> DeactivateConnectedPositions(
         DepartmentId departmentId,
@@ -269,4 +272,143 @@ public class DepartmentsRepository : IDepartmentsRepository
         return Result.Success<Guid, Error>(departmentUpdated.Id.Value);
     }
 
+    public async Task<UnitResult<Error>> BulkUpdateDescendantsPath(
+        Path oldPath,
+        Path newPath,
+        int depthDelta,
+        CancellationToken cancellationToken)
+    {
+        var oldPathLiteral = oldPath.Value;
+        var newPathLiteral = newPath.Value;
+        var now = DateTime.UtcNow;
+
+        var sql = $"""
+                   UPDATE {Constants.DEPARTMENT_TABLE_ROUTE}
+                   SET path = '{newPathLiteral}'::ltree 
+                              || subpath(path, nlevel('{oldPathLiteral}'::ltree)),
+                       depth = depth + {depthDelta},
+                       updated_at = '{now:yyyy-MM-dd HH:mm:ss.fffffffK}'
+                   WHERE path <@ '{oldPathLiteral}'::ltree
+                     AND path != '{oldPathLiteral}'::ltree
+                   """;
+
+        await _dbContext.Database.ExecuteSqlRawAsync(sql, cancellationToken);
+
+        return UnitResult.Success<Error>();
+    }
+
+
+    public async Task<UnitResult<Error>> DeleteDepartmentsAsync(
+        List<DepartmentId> departmentIds,
+        CancellationToken cancellationToken)
+    {
+        var connection = _dbContext.Database.GetDbConnection();
+
+        var ids = departmentIds.Select(d => d.Value).ToArray();
+
+        const string sql = @$"
+        DELETE FROM {Constants.DEPARTMENT_TABLE_ROUTE}
+        WHERE id = ANY(@Ids)
+        RETURNING id;
+    ";
+
+        await connection.ExecuteAsync(
+            sql,
+            new { Ids = ids });
+
+        return UnitResult.Success<Error>();
+    }
+
+    public async Task<UnitResult<Error>> BulkUpdateDescendantsPathAsync(
+        List<UpdatePath> moves,
+        CancellationToken cancellationToken)
+    {
+        string[] oldPaths = moves.Select(m => m.OldPath).ToArray();
+        string[] newPaths = moves.Select(m => m.NewPath).ToArray();
+        int[] depthDeltas = moves.Select(m => m.DepthDelta).ToArray();
+
+        var connection = _dbContext.Database.GetDbConnection();
+
+        string sql = $@"
+        WITH move_data AS (
+            SELECT *
+            FROM UNNEST(@OldPaths, @NewPaths, @DepthDeltas)
+                AS t(old_path, new_path, delta)
+        )
+        UPDATE {Constants.DEPARTMENT_TABLE_ROUTE} d
+        SET path = (
+                regexp_replace(
+                    d.path::text,
+                    '^' || md.old_path,
+                    md.new_path
+                )
+            )::ltree,
+            depth = d.depth + md.delta
+        FROM move_data md
+        WHERE d.path ~ (md.old_path || '.*{{1,}}')::lquery;
+    ";
+
+        await connection.ExecuteAsync(sql, new
+        {
+            OldPaths = oldPaths,
+            NewPaths = newPaths,
+            DepthDeltas = depthDeltas,
+        });
+
+        return UnitResult.Success<Error>();
+    }
+
+    public async Task<Result<List<Department>, Error>> GetAllInactiveDepartmentsAsync(TimeOptions timeOptions, CancellationToken cancellationToken)
+    {
+        var departments = await _dbContext.Departments
+           .Where(
+               d => !d.IsActive && d.DeletedAt < timeOptions.InputDate)
+           .ToListAsync(cancellationToken);
+
+        if (departments.Count == 0)
+            return Error.NotFound("departments.not.found", "Departments was not found.");
+
+        return departments;
+    }
+
+    public async Task<Result<List<Department>, Error>> GetChildrenDepartmentsAsync(
+        List<DepartmentId> ids,
+        CancellationToken cancellationToken)
+    {
+        var departments = await _dbContext.Departments
+            .Where(d => d.ParentId != null && ids.Contains(d.ParentId))
+            .ToListAsync(cancellationToken);
+
+        return Result.Success<List<Department>, Error>(departments);
+    }
+
+    public async Task<Result<List<Department>, Error>> GetParentDepartmentsAsync(
+        List<DepartmentId> ids,
+        CancellationToken cancellationToken)
+    {
+        var departments = await _dbContext.Departments
+            .Where(d => ids.Contains(d.Id) && d.IsActive)
+            .ToListAsync(cancellationToken);
+        if (departments.Count == 0)
+        {
+            departments = null;
+        }
+
+        return Result.Success<List<Department>, Error>(departments!);
+    }
+
+    public async Task<UnitResult<Error>> SaveChangesAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            await _dbContext.SaveChangesAsync(cancellationToken);
+
+            return UnitResult.Success<Error>();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Failed to save changes");
+            return Error.Failure("Failed to save changes", "Failed to save changes");
+        }
+    }
 }

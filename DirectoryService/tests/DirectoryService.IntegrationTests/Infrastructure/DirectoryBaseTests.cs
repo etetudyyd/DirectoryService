@@ -226,10 +226,12 @@ public class DirectoryBaseTests : IClassFixture<DirectoryTestWebFactory>, IAsync
      Headquarters
         ├─ Berlin Office
         │  ├─ Engineering Department
-        │  ├─ Marketing Department
-        │  ├─ Sales Department
-        │  └─ Customer Support Center
+        │  │  ├─ Developers Department
+        │  │  └─ DevOps Department
+        │  └─ Marketing Department
         └─ Munich Office
+           ├─ Sales Department
+           └─ Customer Support Center
     */
 
     var headquarters = CreateDept("Headquarters", "hq");
@@ -237,13 +239,114 @@ public class DirectoryBaseTests : IClassFixture<DirectoryTestWebFactory>, IAsync
     var munich = CreateDept("Munich Office", "munich", headquarters);
     var engineering = CreateDept("Engineering Department", "engineering", berlin);
     var marketing = CreateDept("Marketing Department", "marketing", berlin);
-    var sales = CreateDept("Sales Department", "sales", berlin);
-    var support = CreateDept("Customer Support Center", "support", berlin);
+    var sales = CreateDept("Sales Department", "sales", munich);
+    var support = CreateDept("Customer Support Center", "support", munich);
+    var developers = CreateDept("Developers Department", "developers", engineering);
+    var devOps = CreateDept("DevOps Department", "devops", engineering);
 
     var all = new[]
     {
         headquarters, berlin, munich,
-        engineering, marketing, sales, support
+        engineering, marketing, sales,
+        support, developers, devOps,
+    };
+
+    // Сохраняем в базу
+    return await ExecuteInDb(async db =>
+    {
+        await db.Departments.AddRangeAsync(all);
+        await db.SaveChangesAsync();
+
+        return all.Select(d => d.Id.Value).ToList();
+    });
+}
+
+    protected async Task<List<Guid>> CreateDepartmentsHierarchyWithInactive(Guid[] locationIds)
+{
+    List<DepartmentLocation> CreateLocations(DepartmentId depId) =>
+        locationIds.Select(id => new DepartmentLocation(
+            new DepartmentLocationId(Guid.NewGuid()),
+            depId,
+            new LocationId(id)))
+        .ToList();
+
+    Department CreateDept(
+        string name,
+        string identifier,
+        Department? parent = null)
+    {
+        var depId = new DepartmentId(Guid.NewGuid());
+        var depLocations = CreateLocations(depId);
+
+        var department = parent is null
+            ? Department.CreateParent(
+                DepartmentName.Create(name).Value,
+                Identifier.Create(identifier).Value,
+                depLocations,
+                depId).Value
+            : Department.CreateChild(
+                DepartmentName.Create(name).Value,
+                Identifier.Create(identifier).Value,
+                parent,
+                depLocations).Value;
+
+        if (parent is not null)
+            department.SetParent(parent);
+
+        return department;
+    }
+
+    Department CreateInactiveDept(
+        string name,
+        string identifier,
+        Department? parent = null)
+    {
+        var depId = new DepartmentId(Guid.NewGuid());
+        var depLocations = CreateLocations(depId);
+
+        var department = parent is null
+            ? Department.CreateInactiveParent(
+                DepartmentName.Create(name).Value,
+                Identifier.Create(identifier).Value,
+                depLocations,
+                depId).Value
+            : Department.CreateInactiveChild(
+                DepartmentName.Create(name).Value,
+                Identifier.Create(identifier).Value,
+                parent,
+                depLocations).Value;
+
+        if (parent is not null)
+            department.SetParent(parent);
+
+        return department;
+    }
+
+    // Headquarters
+    //    ├─ Berlin Office
+    //    │  ├─ Engineering Department
+    //    │  │  ├─ Developers Department
+    //    │  │  └─ DevOps Department
+    //    │  └─ Marketing Department
+    //    └─ Munich Office
+    //       ├─ Sales Department
+    //       └─ Customer Support Center
+
+    var headquarters = CreateDept("Headquarters", "hq");
+    var berlin = CreateDept("Berlin Office", "berlin", headquarters);
+    var munich = CreateDept("Munich Office", "munich", headquarters);
+    var engineering = CreateInactiveDept("Engineering Department", "engineering", berlin);
+    var marketing = CreateDept("Marketing Department", "marketing", berlin);
+    var sales = CreateDept("Sales Department", "sales", munich);
+    var support = CreateDept("Customer Support Center", "support", munich);
+    var developers = CreateDept("Developers Department", "developers", engineering);
+    var devOps = CreateDept("DevOps Department", "devops", engineering);
+
+    var all = new[]
+    {
+        headquarters, berlin, munich,
+        engineering, marketing, sales,
+        support, developers, devOps,
     };
 
     // Сохраняем в базу

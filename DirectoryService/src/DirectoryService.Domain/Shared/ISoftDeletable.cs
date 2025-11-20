@@ -1,11 +1,10 @@
 ﻿using CSharpFunctionalExtensions;
-using DevQuestions.Domain.Shared;
 
-namespace DevQuestions.Domain.Entities;
+namespace DevQuestions.Domain.Shared;
 
 public interface ISoftDeletable
 {
-    UnitResult<Error> Delete();
+    UnitResult<Error> Deactivate();
 
-    UnitResult<Error> Restore();
+    UnitResult<Error> Activate();
 }

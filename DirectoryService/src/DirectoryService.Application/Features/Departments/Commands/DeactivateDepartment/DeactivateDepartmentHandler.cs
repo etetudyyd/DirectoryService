@@ -7,21 +7,21 @@ using DirectoryService.Application.Extentions;
 using FluentValidation;
 using Microsoft.Extensions.Logging;
 
-namespace DirectoryService.Application.Features.Departments.Commands.DeleteDepartment;
+namespace DirectoryService.Application.Features.Departments.Commands.DeactivateDepartment;
 
-public class DeleteDepartmentHandler : ICommandHandler<Guid, DeleteDepartmentCommand>
+public class DeactivateDepartmentHandler : ICommandHandler<Guid, DeactivateDepartmentCommand>
 {
     private readonly IDepartmentsRepository _departmentsRepository;
 
     private readonly ITransactionManager _transactionManager;
 
-    private readonly ILogger<DeleteDepartmentHandler> _logger;
+    private readonly ILogger<DeactivateDepartmentHandler> _logger;
 
-    private readonly IValidator<DeleteDepartmentCommand> _validator;
+    private readonly IValidator<DeactivateDepartmentCommand> _validator;
 
-    public DeleteDepartmentHandler(
-        ILogger<DeleteDepartmentHandler> logger,
-        IValidator<DeleteDepartmentCommand> validator,
+    public DeactivateDepartmentHandler(
+        ILogger<DeactivateDepartmentHandler> logger,
+        IValidator<DeactivateDepartmentCommand> validator,
         IDepartmentsRepository departmentsRepository,
         ITransactionManager transactionManager)
     {
@@ -32,7 +32,7 @@ public class DeleteDepartmentHandler : ICommandHandler<Guid, DeleteDepartmentCom
     }
 
     public async Task<Result<Guid, Errors>> Handle(
-        DeleteDepartmentCommand command,
+        DeactivateDepartmentCommand command,
         CancellationToken cancellationToken)
     {
         var validationResult = await _validator.ValidateAsync(command, cancellationToken);
@@ -65,7 +65,7 @@ public class DeleteDepartmentHandler : ICommandHandler<Guid, DeleteDepartmentCom
             return lockDescendantsResult.Error.ToErrors();
         }
 
-        department.Delete();
+        department.Deactivate();
 
         var saveChangesResult = await _transactionManager
             .SaveChangesAsync(cancellationToken);
@@ -100,7 +100,7 @@ public class DeleteDepartmentHandler : ICommandHandler<Guid, DeleteDepartmentCom
         if (commitResult.IsFailure)
             return commitResult.Error.ToErrors();
 
-        _logger.LogInformation($"Department deleted with id{department.Id}");
+        _logger.LogInformation($"Department was deactivated with id{department.Id}");
 
         return department.Id.Value;
 

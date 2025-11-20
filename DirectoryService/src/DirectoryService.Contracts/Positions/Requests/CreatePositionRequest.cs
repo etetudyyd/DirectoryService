@@ -4,6 +4,6 @@ using DirectoryService.Contracts.Positions.VODtos;
 namespace DirectoryService.Contracts.Positions.Requests;
 
 public record CreatePositionRequest(
-    NameDto Name,
-    DescriptionDto Description,
-    IEnumerable<DepartmentPosition> DepartmentPositions);
+    string Name,
+    string Description,
+    Guid[] DepartmentsIds);

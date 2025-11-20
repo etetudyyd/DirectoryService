@@ -7,6 +7,9 @@ using Path = DevQuestions.Domain.ValueObjects.DepartmentVO.Path;
 
 namespace DirectoryService.Infrastructure.Postgresql.Configurations;
 
+/// <summary>
+/// DepartmentConfiguration - configuration file for building table "departments". Delete type "Restricted".
+/// </summary>
 public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
 {
     public void Configure(EntityTypeBuilder<Department> builder)
@@ -73,7 +76,7 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
             .IsRequired();
 
             builder.Property(p => p.UpdatedAt)
-            .HasColumnName("update_at");
+            .HasColumnName("updated_at");
 
             builder.Property(p => p.DeletedAt)
                 .HasColumnName("deleted_at")
@@ -83,17 +86,17 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
             .WithOne()
             .IsRequired(false)
             .HasForeignKey(x => x.ParentId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasMany(x => x.DepartmentLocations)
             .WithOne(x => x.Department)
             .HasForeignKey(x => x.DepartmentId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
 
             builder.HasMany(x => x.DepartmentPositions)
             .WithOne(x => x.Department)
             .HasForeignKey(x => x.DepartmentId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
         }
 
 }

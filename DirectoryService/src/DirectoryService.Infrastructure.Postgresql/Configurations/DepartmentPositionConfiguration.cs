@@ -7,6 +7,10 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace DirectoryService.Infrastructure.Postgresql.Configurations;
 
+/// <summary>
+/// DepartmentPositionConfiguration - configuration file for building table "departments_positions". This table
+/// connects such tables as "departments" and "positions". Delete type "Restricted".
+/// </summary>
 public class DepartmentPositionConfiguration : IEntityTypeConfiguration<DepartmentPosition>
 {
     public void Configure(EntityTypeBuilder<DepartmentPosition> builder)
@@ -35,7 +39,7 @@ public class DepartmentPositionConfiguration : IEntityTypeConfiguration<Departme
                 id => id.Value,
                 value => new PositionId(value));
 
-        builder.HasOne(dl => dl.Department)
+        /*builder.HasOne(dl => dl.Department)
             .WithMany(d => d.DepartmentPositions)
             .HasForeignKey(dl => dl.DepartmentId)
             .OnDelete(DeleteBehavior.Restrict);
@@ -44,6 +48,6 @@ public class DepartmentPositionConfiguration : IEntityTypeConfiguration<Departme
         builder.HasOne<Position>()
             .WithMany(d => d.DepartmentPositions)
             .HasForeignKey(x => x.PositionId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Restrict);*/
     }
 }

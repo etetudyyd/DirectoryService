@@ -5,6 +5,9 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace DirectoryService.Infrastructure.Postgresql.Database;
 
+/// <summary>
+/// DirectoryServiceDbContext - basic realization of DbContext repository and declare DbSet contexts. Configuring ModelCreating.
+/// </summary>
 public class DirectoryServiceDbContext : DbContext, IReadDbContext
 {
     private readonly string _connectionString;

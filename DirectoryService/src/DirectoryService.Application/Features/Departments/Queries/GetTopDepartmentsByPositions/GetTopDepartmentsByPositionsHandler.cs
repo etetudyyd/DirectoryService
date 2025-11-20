@@ -48,11 +48,11 @@ public class GetTopDepartmentsByPositionsHandler : IQueryHandler<GetTopDepartmen
                 d.parent_id AS "ParentId",
                 d.is_active AS "IsActive",
                 d.created_at AS "CreatedAt",
-                d.update_at AS "UpdateAt",
+                d.updated_at AS "UpdatedAt",
                 COUNT(dp.position_id) AS "PositionCount"
             FROM departments d
             LEFT JOIN department_positions dp ON dp.department_id = d.id
-            GROUP BY d.id, d.name, d.identifier, d.path, d.parent_id, d.is_active, d.created_at, d.update_at
+            GROUP BY d.id, d.name, d.identifier, d.path, d.parent_id, d.is_active, d.created_at, d.updated_at
             ORDER BY "PositionCount" DESC
             LIMIT 5;
             """);

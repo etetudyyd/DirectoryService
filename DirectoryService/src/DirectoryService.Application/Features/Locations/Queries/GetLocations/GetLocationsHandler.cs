@@ -72,7 +72,7 @@ public class GetLocationsHandler : IQueryHandler<GetLocationsResponse, GetLocati
                      l.timezone,
                      l.is_active,
                      l.created_at,
-                     l.update_at,
+                     l.updated_at,
                      l.apartment,
                      l.city,
                      l.house,

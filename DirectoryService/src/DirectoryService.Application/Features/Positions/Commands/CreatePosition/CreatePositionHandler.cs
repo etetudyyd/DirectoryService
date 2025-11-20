@@ -1,6 +1,9 @@
 ﻿using CSharpFunctionalExtensions;
 using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.Shared;
+using DevQuestions.Domain.ValueObjects.ConectionEntitiesVO;
+using DevQuestions.Domain.ValueObjects.DepartmentVO;
+using DevQuestions.Domain.ValueObjects.LocationVO;
 using DevQuestions.Domain.ValueObjects.PositionVO;
 using DirectoryService.Application.Abstractions.Commands;
 using DirectoryService.Application.Database.IRepositories;
@@ -39,19 +42,29 @@ public class CreatePositionHandler: ICommandHandler<Guid, CreatePositionCommand>
             return validationResult.ToErrors();
         }
 
-        var name = PositionName.Create(command.PositionRequest.Name.Value);
+        var name = PositionName.Create(command.PositionRequest.Name);
         if (name.IsFailure)
         {
             _logger.LogError("Invalid PositionDto.Name");
             return name.Error.ToErrors();
         }
 
-        var description = Description.Create(command.PositionRequest.Description.Value);
+        var description = Description.Create(command.PositionRequest.Description);
+
+        var positionId = new PositionId(Guid.NewGuid());
+
+        var departmentPositions = command.PositionRequest.DepartmentsIds
+            .Select(departmentId => new DepartmentPosition(
+                new DepartmentPositionId(Guid.NewGuid()),
+                new DepartmentId(departmentId),
+                positionId))
+            .ToList();
 
         var position = Position.Create(
+            positionId,
             name.Value,
             description.Value,
-            command.PositionRequest.DepartmentPositions);
+            departmentPositions);
 
         if (position.IsFailure)
         {
@@ -60,10 +73,10 @@ public class CreatePositionHandler: ICommandHandler<Guid, CreatePositionCommand>
         }
 
 
-        var positionId = await _positionsRepository.AddAsync(position.Value, cancellationToken);
+        await _positionsRepository.AddAsync(position.Value, cancellationToken);
 
         _logger.LogInformation($"Location created successfully with id {positionId}", positionId);
 
-        return positionId;
+        return positionId.Value;
     }
 }

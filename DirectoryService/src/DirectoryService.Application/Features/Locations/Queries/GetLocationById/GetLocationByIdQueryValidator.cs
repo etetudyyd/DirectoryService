@@ -6,6 +6,8 @@ public class GetLocationByIdQueryValidator : AbstractValidator<GetLocationByIdQu
 {
     public GetLocationByIdQueryValidator()
     {
-
+        RuleFor(x => x.Id)
+            .NotEmpty().WithMessage("Id is has to be not empty.")
+            .NotNull().WithMessage("Id is has to be not empty.");
     }
 }

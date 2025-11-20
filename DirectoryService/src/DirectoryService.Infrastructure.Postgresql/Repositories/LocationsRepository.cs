@@ -1,6 +1,9 @@
 ﻿using CSharpFunctionalExtensions;
+using Dapper;
+using DevQuestions.Domain;
 using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.Shared;
+using DevQuestions.Domain.ValueObjects.DepartmentVO;
 using DevQuestions.Domain.ValueObjects.LocationVO;
 using DirectoryService.Application.Database.IRepositories;
 using DirectoryService.Infrastructure.Postgresql.Database;
@@ -8,6 +11,10 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DirectoryService.Infrastructure.Postgresql.Repositories;
 
+/// <summary>
+/// LocationsRepository - realization of Repository Pattern for Locations database logic by using DirectoryServiceDbContext.
+/// It realizes interface ILocationsRepository.
+/// </summary>
 public class LocationsRepository : ILocationsRepository
 {
     private readonly DirectoryServiceDbContext _dbContext;
@@ -51,6 +58,55 @@ public class LocationsRepository : ILocationsRepository
                 return Error.Failure($"location{locationId}.not_active", locationId.ToString());
             }
         }
+
+        return UnitResult.Success<Error>();
+    }
+
+    public async Task<UnitResult<Error>> BulkDeleteInactiveLocationsAsync(
+        List<DepartmentId> departmentIds,
+        CancellationToken cancellationToken)
+    {
+        var connection = _dbContext.Database.GetDbConnection();
+        var ids = departmentIds.Select(d => d.Value).ToArray();
+
+        string sql = $@"
+        WITH deleted_dl AS (
+            DELETE FROM {Constants.DEPARTMENT_LOCATIONS_TABLE_ROUTE}
+            WHERE department_id = ANY(@Ids)
+            RETURNING 1
+        ),
+        deleted_locations AS (
+            DELETE FROM {Constants.LOCATION_TABLE_ROUTE} l
+            WHERE l.is_active = FALSE
+              AND NOT EXISTS (
+                  SELECT 1
+                  FROM {Constants.DEPARTMENT_LOCATIONS_TABLE_ROUTE} dl
+                  WHERE dl.location_id = l.id
+              )
+            RETURNING 1
+        )
+        SELECT 1;
+    ";
+
+        await connection.ExecuteAsync(sql, new { Ids = ids });
+
+        return UnitResult.Success<Error>();
+    }
+
+
+    public async Task<UnitResult<Error>> DeleteInactiveAsync(CancellationToken cancellationToken)
+    {
+        string sql = $@"
+        DELETE FROM {Constants.LOCATION_TABLE_ROUTE}
+        WHERE is_active = false
+          AND NOT EXISTS (
+                SELECT 1
+                FROM {Constants.DEPARTMENT_LOCATIONS_TABLE_ROUTE} dl
+                WHERE dl.location_id = {Constants.LOCATION_TABLE_ROUTE}.id
+          );
+    ";
+
+        await _dbContext.Database.ExecuteSqlRawAsync(sql, cancellationToken);
 
         return UnitResult.Success<Error>();
     }

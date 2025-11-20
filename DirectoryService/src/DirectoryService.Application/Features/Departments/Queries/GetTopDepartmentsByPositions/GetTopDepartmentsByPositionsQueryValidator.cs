@@ -1,4 +1,5 @@
-﻿using FluentValidation;
+﻿using System.Data;
+using FluentValidation;
 
 namespace DirectoryService.Application.Features.Departments.Queries.GetTopDepartmentsByPositions;
 

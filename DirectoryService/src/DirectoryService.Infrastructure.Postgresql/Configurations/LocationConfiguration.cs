@@ -6,6 +6,9 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace DirectoryService.Infrastructure.Postgresql.Configurations;
 
+/// <summary>
+/// LocationConfiguration - configuration file for building table "locations". Delete type "Restricted".
+/// </summary>
 public class LocationConfiguration : IEntityTypeConfiguration<Location>
 {
     public void Configure(EntityTypeBuilder<Location> builder)
@@ -77,7 +80,7 @@ public class LocationConfiguration : IEntityTypeConfiguration<Location>
             .IsRequired();
 
         builder.Property(p => p.UpdatedAt)
-            .HasColumnName("update_at");
+            .HasColumnName("updated_at");
 
         builder.Property(p => p.DeletedAt)
             .HasColumnName("deleted_at")
@@ -86,6 +89,6 @@ public class LocationConfiguration : IEntityTypeConfiguration<Location>
         builder.HasMany(x => x.DepartmentLocations)
             .WithOne(x => x.Location)
             .HasForeignKey(x => x.LocationId)
-            .OnDelete(DeleteBehavior.Restrict);
+            .OnDelete(DeleteBehavior.Cascade);
     }
 }

@@ -6,6 +6,9 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace DirectoryService.Application;
 
+/// <summary>
+/// DependencyInjection - service for adding scopes in DI business-logic services.
+/// </summary>
 public static class DependencyInjection
 {
     public static IServiceCollection AddApplication(this IServiceCollection serviceCollection)
