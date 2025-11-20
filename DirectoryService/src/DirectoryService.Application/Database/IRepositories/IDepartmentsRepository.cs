@@ -2,6 +2,7 @@
 using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.Shared;
 using DevQuestions.Domain.ValueObjects.DepartmentVO;
+using DirectoryService.Application.Features.Departments.Commands.DeleteInactiveDepartments;
 using DirectoryService.Contracts.Shared;
 using Path = DevQuestions.Domain.ValueObjects.DepartmentVO.Path;
 
@@ -37,5 +38,5 @@ public interface IDepartmentsRepository
 
     Task<UnitResult<Error>> DeleteDepartmentsAsync(List<DepartmentId> departmentIds, CancellationToken cancellationToken);
 
-    Task<UnitResult<Error>> BulkUpdateDescendantsPathAsync(string[] oldPaths, string[] newPaths, int[] depthDeltas, CancellationToken cancellationToken);
+    Task<UnitResult<Error>> BulkUpdateDescendantsPathAsync(List<UpdatePath> moves, CancellationToken cancellationToken);
 }

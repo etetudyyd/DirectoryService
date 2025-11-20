@@ -6,6 +6,7 @@ using DevQuestions.Domain.Shared;
 using DevQuestions.Domain.ValueObjects.DepartmentVO;
 using DirectoryService.Application.Database.IRepositories;
 using DirectoryService.Application.Features.Departments.Commands.CreateDepartment;
+using DirectoryService.Application.Features.Departments.Commands.DeleteInactiveDepartments;
 using DirectoryService.Contracts.Shared;
 using DirectoryService.Infrastructure.Postgresql.Database;
 using Microsoft.EntityFrameworkCore;
@@ -319,11 +320,13 @@ public class DepartmentsRepository : IDepartmentsRepository
     }
 
     public async Task<UnitResult<Error>> BulkUpdateDescendantsPathAsync(
-        string[] oldPaths,
-        string[] newPaths,
-        int[] depthDeltas,
+        List<UpdatePath> moves,
         CancellationToken cancellationToken)
     {
+        string[] oldPaths = moves.Select(m => m.OldPath).ToArray();
+        string[] newPaths = moves.Select(m => m.NewPath).ToArray();
+        int[] depthDeltas = moves.Select(m => m.DepthDelta).ToArray();
+
         var connection = _dbContext.Database.GetDbConnection();
 
         string sql = $@"

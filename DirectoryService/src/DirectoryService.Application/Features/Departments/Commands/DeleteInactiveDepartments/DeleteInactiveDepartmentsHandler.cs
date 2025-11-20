@@ -79,7 +79,7 @@ public class DeleteInactiveDepartmentsHandler : ICommandHandler<DeleteInactiveDe
                 return childrenDepartmentsResult.Error.ToErrors();
             }
 
-            var moves = new List<(string OldPath, string NewPath, int DepthDelta)>();
+            var moves = new List<UpdatePath>();
 
             foreach (var child in childrenDepartmentsResult.Value)
             {
@@ -92,14 +92,11 @@ public class DeleteInactiveDepartmentsHandler : ICommandHandler<DeleteInactiveDe
                 var oldPath = child.Path;
                 int depthDelta = child.SetParent(newParent).Value;
 
-                moves.Add((oldPath.Value, child.Path.Value, depthDelta));
+                moves.Add(new UpdatePath(oldPath.Value, child.Path.Value, depthDelta));
             }
 
             var updateResult = await _departmentsRepository.BulkUpdateDescendantsPathAsync(
-                oldPaths: moves.Select(m => m.OldPath).ToArray(),
-                newPaths: moves.Select(m => m.NewPath).ToArray(),
-                depthDeltas: moves.Select(m => m.DepthDelta).ToArray(),
-                cancellationToken);
+                moves, cancellationToken);
 
             if (updateResult.IsFailure)
             {
@@ -137,3 +134,5 @@ public class DeleteInactiveDepartmentsHandler : ICommandHandler<DeleteInactiveDe
         return UnitResult.Success<Errors>();
     }
 }
+
+public record UpdatePath(string OldPath, string NewPath, int DepthDelta);
