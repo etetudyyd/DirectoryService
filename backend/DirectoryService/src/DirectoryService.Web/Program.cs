@@ -2,9 +2,21 @@ using DevQuestions.Web;
 using DevQuestions.Web.Middlewares;
 using DirectoryService.Application;
 using DirectoryService.Infrastructure.Postgresql;
+using DirectoryService.Infrastructure.Postgresql.Database;
+using Microsoft.EntityFrameworkCore;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "DirectoryService",
+        Version = "v1",
+    });
+});
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
@@ -23,16 +35,21 @@ builder.Services.AddSerilog();
 var app = builder.Build();
 
 app.UseExceptionMiddleware();
-
-if (app.Environment.IsDevelopment())
-{
-    app.MapOpenApi();
-    app.UseSwaggerUI(options => options.SwaggerEndpoint("/openapi/v1.json", "DevQuestions"));
-}
-
 app.UseSerilogRequestLogging();
 
+app.MapOpenApi();
+
+app.UseSwagger();
+app.UseSwaggerUI(options => options.SwaggerEndpoint(
+    "/openapi/v1.json", "DirectoryService"));
+
 app.MapControllers();
+
+using (var scope = app.Services.CreateScope())
+{
+    var db = scope.ServiceProvider.GetRequiredService<DirectoryServiceDbContext>();
+    db.Database.Migrate();
+}
 
 app.Run();
 
