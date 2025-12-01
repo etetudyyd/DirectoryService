@@ -1,4 +1,5 @@
 ﻿using DevQuestions.Web.Controllers.Locations;
+using Microsoft.OpenApi.Models;
 
 namespace DevQuestions.Web;
 
@@ -12,6 +13,7 @@ public static class DependencyInjection
         serviceCollection.AddControllers()
             .AddApplicationPart(typeof(LocationsController).Assembly);
         serviceCollection.AddOpenApi();
+
         return serviceCollection;
     }
 }
