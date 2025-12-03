@@ -3,4 +3,4 @@ using DirectoryService.Contracts.Departments.Requests;
 
 namespace DirectoryService.Application.Features.Departments.Queries.GetRootDepartments;
 
-public record GetRootDepartmentsQuery(GetRootDepartmentsRequest DepartmentsRequest) : IQuery;
+public record GetRootDepartmentsQuery(GetRootDepartmentsRequest Request) : IQuery;

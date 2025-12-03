@@ -59,7 +59,7 @@ public class InactiveDepartmentsCleanerBackgroundService : BackgroundService
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to delete inactive departments");
+            _logger.LogInformation(ex, "Failed to delete inactive departments");
         }
     }
 }
