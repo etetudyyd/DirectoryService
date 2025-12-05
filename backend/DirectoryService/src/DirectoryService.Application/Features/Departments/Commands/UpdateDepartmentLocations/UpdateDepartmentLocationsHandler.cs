@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using DevQuestions.Domain;
 using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.Shared;
 using DevQuestions.Domain.ValueObjects.DepartmentVO;
@@ -7,6 +8,7 @@ using DirectoryService.Application.Abstractions.Commands;
 using DirectoryService.Application.Database.IRepositories;
 using DirectoryService.Application.Database.ITransactions;
 using DirectoryService.Application.Extentions;
+using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Logging;
 
 namespace DirectoryService.Application.Features.Departments.Commands.UpdateDepartmentLocations;
@@ -22,19 +24,22 @@ public class UpdateDepartmentLocationsHandler : ICommandHandler<Guid, UpdateDepa
     private readonly UpdateDepartmentLocationsCommandValidator _validator;
 
     private readonly ILogger<UpdateDepartmentLocationsHandler> _logger;
+    
+    private readonly HybridCache _cache;
 
     public UpdateDepartmentLocationsHandler(
         IDepartmentsRepository departmentsRepository,
         ILocationsRepository locationsRepository,
         ITransactionManager transactionManager,
         UpdateDepartmentLocationsCommandValidator validator,
-        ILogger<UpdateDepartmentLocationsHandler> logger)
+        ILogger<UpdateDepartmentLocationsHandler> logger, HybridCache cache)
     {
         _departmentsRepository = departmentsRepository;
         _locationsRepository = locationsRepository;
         _transactionManager = transactionManager;
         _validator = validator;
         _logger = logger;
+        _cache = cache;
     }
 
     public async Task<Result<Guid, Errors>> Handle(
@@ -121,6 +126,10 @@ public class UpdateDepartmentLocationsHandler : ICommandHandler<Guid, UpdateDepa
         {
             return commitedResult.Error.ToErrors();
         }
+
+        await _cache.RemoveByTagAsync(Constants.DEPARTMENT_CACHE_PREFIX, cancellationToken);
+
+        _logger.LogInformation($"Department was updated with id{departmentId.Value}");
 
         return departmentId.Value;
     }

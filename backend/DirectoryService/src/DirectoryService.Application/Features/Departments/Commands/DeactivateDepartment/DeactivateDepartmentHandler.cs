@@ -1,10 +1,12 @@
 ﻿using CSharpFunctionalExtensions;
+using DevQuestions.Domain;
 using DevQuestions.Domain.Shared;
 using DirectoryService.Application.Abstractions.Commands;
 using DirectoryService.Application.Database.IRepositories;
 using DirectoryService.Application.Database.ITransactions;
 using DirectoryService.Application.Extentions;
 using FluentValidation;
+using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Logging;
 
 namespace DirectoryService.Application.Features.Departments.Commands.DeactivateDepartment;
@@ -19,16 +21,19 @@ public class DeactivateDepartmentHandler : ICommandHandler<Guid, DeactivateDepar
 
     private readonly IValidator<DeactivateDepartmentCommand> _validator;
 
+    private readonly HybridCache _cache;
+
     public DeactivateDepartmentHandler(
         ILogger<DeactivateDepartmentHandler> logger,
         IValidator<DeactivateDepartmentCommand> validator,
         IDepartmentsRepository departmentsRepository,
-        ITransactionManager transactionManager)
+        ITransactionManager transactionManager, HybridCache cache)
     {
         _logger = logger;
         _validator = validator;
         _departmentsRepository = departmentsRepository;
         _transactionManager = transactionManager;
+        _cache = cache;
     }
 
     public async Task<Result<Guid, Errors>> Handle(
@@ -99,6 +104,8 @@ public class DeactivateDepartmentHandler : ICommandHandler<Guid, DeactivateDepar
         var commitResult = transaction.Commit(cancellationToken);
         if (commitResult.IsFailure)
             return commitResult.Error.ToErrors();
+
+        await _cache.RemoveByTagAsync(Constants.DEPARTMENT_CACHE_PREFIX, cancellationToken);
 
         _logger.LogInformation($"Department was deactivated with id{department.Id}");
 
