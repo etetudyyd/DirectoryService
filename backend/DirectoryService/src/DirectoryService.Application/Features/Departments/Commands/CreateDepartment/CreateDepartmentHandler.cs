@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using DevQuestions.Domain;
 using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.Shared;
 using DevQuestions.Domain.ValueObjects.ConectionEntitiesVO;
@@ -8,6 +9,7 @@ using DirectoryService.Application.Abstractions.Commands;
 using DirectoryService.Application.Database.IRepositories;
 using DirectoryService.Application.Extentions;
 using FluentValidation;
+using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Logging;
 
 namespace DirectoryService.Application.Features.Departments.Commands.CreateDepartment;
@@ -19,15 +21,18 @@ public class CreateDepartmentHandler : ICommandHandler<Guid, CreateDepartmentCom
     private readonly ILogger<CreateDepartmentHandler> _logger;
 
     private readonly IValidator<CreateDepartmentCommand> _validator;
+    
+    private readonly HybridCache _cache;
 
     public CreateDepartmentHandler(
         IDepartmentsRepository departmentsRepository,
         ILogger<CreateDepartmentHandler> logger,
-        IValidator<CreateDepartmentCommand> validator)
+        IValidator<CreateDepartmentCommand> validator, HybridCache cache)
     {
         _departmentsRepository = departmentsRepository;
         _logger = logger;
         _validator = validator;
+        _cache = cache;
     }
 
     public async Task<Result<Guid, Errors>> Handle(
@@ -100,6 +105,8 @@ public class CreateDepartmentHandler : ICommandHandler<Guid, CreateDepartmentCom
     }
 
     await _departmentsRepository.AddAsync(departmentResult.Value, cancellationToken);
+
+    await _cache.RemoveByTagAsync(Constants.DEPARTMENT_CACHE_PREFIX, cancellationToken);
 
     _logger.LogInformation("Department created successfully with id {departmentId}", departmentId);
 

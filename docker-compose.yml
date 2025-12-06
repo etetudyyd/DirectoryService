@@ -13,8 +13,7 @@ services:
     
     depends_on:
       postgres:
-          condition: service_healthy
-      
+          condition: service_healthy   
   
   postgres:
     container_name: postgres
@@ -34,6 +33,15 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql/data
 
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/date
+    restart: always
+    
   seq:
     image: datalust/seq:2024.1
     container_name: seq
@@ -49,3 +57,4 @@ services:
 volumes:
   postgres-data:
   seq-data:
+  redis-data:

@@ -6,7 +6,7 @@ public class GetRootDepartmentsQueryValidator : AbstractValidator<GetRootDepartm
 {
     public GetRootDepartmentsQueryValidator()
     {
-        RuleFor(x => x.DepartmentsRequest.Prefetch)
-            .LessThan(x => x.DepartmentsRequest.PageSize);
+        RuleFor(x => x.Request.Prefetch)
+            .LessThan(x => x.Request.PageSize);
     }
 }

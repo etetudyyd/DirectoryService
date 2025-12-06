@@ -9,8 +9,18 @@ public readonly struct Constants
     public const string DEPARTMENT_POSITIONS_TABLE_ROUTE = "\"DirectoryService\".\"department_positions\"";
     public const string DEPARTMENT_LOCATIONS_TABLE_ROUTE = "\"DirectoryService\".\"department_locations\"";
 
+    // General
     public const string SOFT_DELETED_LABEL = "deleted-";
 
+    // Cache Prefixes
+    public const string DEPARTMENT_CACHE_PREFIX = "department";
+    public const string LOCATION_CACHE_PREFIX = "location";
+    public const string POSITION_CACHE_PREFIX = "position";
+
+    // ttl
+    public const int TTL_CACHE = 5;
+
+    // lenght constants
     public static readonly int MAX_LENGTH_DEPARTMENT_NAME = 150;
     public static readonly int MIN_LENGTH_DEPARTMENT_NAME = 3;
     public const int MAX_LENGTH_DEPARTMENT_IDENTIFIER = 150;

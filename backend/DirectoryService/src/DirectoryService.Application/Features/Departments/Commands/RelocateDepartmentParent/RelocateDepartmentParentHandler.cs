@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using DevQuestions.Domain;
 using DevQuestions.Domain.Entities;
 using DevQuestions.Domain.Shared;
 using DirectoryService.Application.Abstractions.Commands;
@@ -6,6 +7,7 @@ using DirectoryService.Application.Database.IRepositories;
 using DirectoryService.Application.Database.ITransactions;
 using DirectoryService.Application.Extentions;
 using FluentValidation;
+using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Logging;
 
 namespace DirectoryService.Application.Features.Departments.Commands.RelocateDepartmentParent;
@@ -20,16 +22,19 @@ public class RelocateDepartmentParentHandler : ICommandHandler<Guid, RelocateDep
 
     private readonly ITransactionManager _transactionManager;
 
+    private readonly HybridCache _cache;
+
     public RelocateDepartmentParentHandler(
         IDepartmentsRepository departmentsRepository,
         ITransactionManager transactionManager,
         ILogger<RelocateDepartmentParentHandler> logger,
-        IValidator<RelocateDepartmentParentCommand> validator)
+        IValidator<RelocateDepartmentParentCommand> validator, HybridCache cache)
     {
         _departmentsRepository = departmentsRepository;
         _transactionManager = transactionManager;
         _logger = logger;
         _validator = validator;
+        _cache = cache;
     }
 
     public async Task<Result<Guid, Errors>> Handle(RelocateDepartmentParentCommand command, CancellationToken cancellationToken)
@@ -109,6 +114,8 @@ public class RelocateDepartmentParentHandler : ICommandHandler<Guid, RelocateDep
         var commitResult = transaction.Commit(cancellationToken);
         if (commitResult.IsFailure)
             return commitResult.Error.ToErrors();
+        
+        await _cache.RemoveByTagAsync(Constants.DEPARTMENT_CACHE_PREFIX, cancellationToken);
 
         _logger.LogInformation(
             "Parent successfully updated Department id='{@Id}' new parent_id={@ParentId}",

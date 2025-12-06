@@ -28,8 +28,9 @@ Log.Logger = new LoggerConfiguration()
 Log.Information("Test message to Seq");
 
 builder.Services.AddWeb();
-builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
+builder.Services.AddDistributedCache(builder.Configuration);
 builder.Services.AddSerilog();
 
 var app = builder.Build();
