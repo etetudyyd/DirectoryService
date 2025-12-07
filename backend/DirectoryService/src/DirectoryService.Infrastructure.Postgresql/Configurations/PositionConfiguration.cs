@@ -1,10 +1,9 @@
-﻿using DevQuestions.Domain;
-using DevQuestions.Domain.Entities;
-using DevQuestions.Domain.ValueObjects.PositionVO;
+﻿using DirectoryService.Entities;
+using DirectoryService.ValueObjects.Position;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace DirectoryService.Infrastructure.Postgresql.Configurations;
+namespace DirectoryService.Configurations;
 
 /// <summary>
 /// PositionConfiguration - configuration file for building table "positions". Delete type "Restricted".

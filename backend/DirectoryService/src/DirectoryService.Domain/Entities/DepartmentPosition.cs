@@ -1,11 +1,10 @@
 ﻿using CSharpFunctionalExtensions;
-using DevQuestions.Domain.Shared;
-using DevQuestions.Domain.ValueObjects.ConectionEntitiesVO;
-using DevQuestions.Domain.ValueObjects.DepartmentVO;
-using DevQuestions.Domain.ValueObjects.LocationVO;
-using DevQuestions.Domain.ValueObjects.PositionVO;
+using DirectoryService.ValueObjects.ConnectionEntities;
+using DirectoryService.ValueObjects.Department;
+using DirectoryService.ValueObjects.Position;
+using Shared.SharedKernel;
 
-namespace DevQuestions.Domain.Entities;
+namespace DirectoryService.Entities;
 
 public sealed class DepartmentPosition
 {

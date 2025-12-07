@@ -1,10 +1,10 @@
-﻿using DirectoryService.Application.Features.Departments.Commands.DeleteInactiveDepartments;
+﻿using DirectoryService.Features.Departments.Commands.DeleteInactiveDepartments;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
-namespace DirectoryService.Infrastructure.Postgresql.BackgroundServices;
+namespace DirectoryService.BackgroundServices;
 
 public class InactiveDepartmentsCleanerBackgroundService : BackgroundService
 {

@@ -1,8 +1,6 @@
-using DevQuestions.Web;
-using DevQuestions.Web.Middlewares;
-using DirectoryService.Application;
-using DirectoryService.Infrastructure.Postgresql;
-using DirectoryService.Infrastructure.Postgresql.Database;
+using DirectoryService;
+using DirectoryService.Database;
+using Framework.Middlewares;
 using Microsoft.EntityFrameworkCore;
 using Serilog;
 
@@ -54,7 +52,7 @@ using (var scope = app.Services.CreateScope())
 
 app.Run();
 
-namespace DevQuestions.Web
+namespace DirectoryService
 {
 public partial class Program { }
 }

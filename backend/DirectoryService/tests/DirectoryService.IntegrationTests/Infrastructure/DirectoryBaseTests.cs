@@ -1,14 +1,13 @@
 ﻿using CSharpFunctionalExtensions;
-using DevQuestions.Domain.Entities;
-using DevQuestions.Domain.Shared;
-using DevQuestions.Domain.ValueObjects.ConectionEntitiesVO;
-using DevQuestions.Domain.ValueObjects.DepartmentVO;
-using DevQuestions.Domain.ValueObjects.LocationVO;
-using DirectoryService.Application.Abstractions;
-using DirectoryService.Infrastructure.Postgresql.Database;
+using DirectoryService.Database;
+using DirectoryService.Entities;
+using DirectoryService.ValueObjects.ConnectionEntities;
+using DirectoryService.ValueObjects.Department;
+using DirectoryService.ValueObjects.Location;
 using Microsoft.Extensions.DependencyInjection;
+using Shared.SharedKernel;
 
-namespace DirectoryService.IntegrationTests.Infrastructure;
+namespace DirectoryService.Infrastructure;
 
 public class DirectoryBaseTests : IClassFixture<DirectoryTestWebFactory>, IAsyncLifetime
 {

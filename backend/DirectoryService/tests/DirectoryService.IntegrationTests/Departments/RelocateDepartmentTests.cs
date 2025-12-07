@@ -1,14 +1,12 @@
-﻿using System.Runtime.InteropServices.JavaScript;
-using CSharpFunctionalExtensions;
-using DevQuestions.Domain.Shared;
-using DevQuestions.Domain.ValueObjects.DepartmentVO;
-using DirectoryService.Application.Features.Departments.Commands.RelocateDepartmentParent;
-using DirectoryService.Contracts.Departments;
-using DirectoryService.Contracts.Departments.Requests;
-using DirectoryService.IntegrationTests.Infrastructure;
+﻿using CSharpFunctionalExtensions;
+using DirectoryService.Departments.Requests;
+using DirectoryService.Features.Departments.Commands.RelocateDepartmentParent;
+using DirectoryService.Infrastructure;
+using DirectoryService.ValueObjects.Department;
 using Microsoft.EntityFrameworkCore;
+using Shared.SharedKernel;
 
-namespace DirectoryService.IntegrationTests.Departments;
+namespace DirectoryService.Departments;
 
 public class RelocateDepartmentTests(DirectoryTestWebFactory factory)
     : DirectoryBaseTests(factory)

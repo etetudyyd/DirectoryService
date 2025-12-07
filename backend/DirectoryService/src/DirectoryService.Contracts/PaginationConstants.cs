@@ -1,4 +1,4 @@
-﻿namespace DirectoryService.Contracts;
+﻿namespace DirectoryService;
 
 public static class PaginationConstants
 {

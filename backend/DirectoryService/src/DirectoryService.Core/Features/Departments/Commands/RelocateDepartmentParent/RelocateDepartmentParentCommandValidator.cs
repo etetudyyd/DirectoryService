@@ -1,0 +1,13 @@
+﻿using FluentValidation;
+
+namespace DirectoryService.Features.Departments.Commands.RelocateDepartmentParent;
+
+public class RelocateDepartmentParentCommandValidator : AbstractValidator<RelocateDepartmentParentCommand>
+{
+    public RelocateDepartmentParentCommandValidator()
+    {
+        RuleFor(x => x.DepartmentId)
+            .NotEmpty().WithMessage("Id is has to be not empty.")
+            .NotNull().WithMessage("Id is has to be null");
+    }
+}

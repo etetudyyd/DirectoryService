@@ -1,0 +1,16 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <PackageId>etetudyyd.SharedKernel</PackageId>
+    <Version>0.0.2</Version>
+    <Authors>etetudyyd</Authors>
+    <Company>etetudyyd</Company>
+    <PackageDescription>SharedKernel</PackageDescription>
+    <RepositoryUrl>https://github.com/etetudyyd/DirectoryService</RepositoryUrl>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="CSharpFunctionalExtensions" Version="3.6.0" />
+  </ItemGroup>
+  
+</Project>

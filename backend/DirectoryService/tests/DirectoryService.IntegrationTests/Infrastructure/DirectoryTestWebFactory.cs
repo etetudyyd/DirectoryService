@@ -1,5 +1,5 @@
 ﻿using System.Data.Common;
-using DirectoryService.Infrastructure.Postgresql.Database;
+using DirectoryService.Database;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
@@ -7,9 +7,8 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 using Npgsql;
 using Respawn;
 using Testcontainers.PostgreSql;
-using Program = DevQuestions.Web.Program;
 
-namespace DirectoryService.IntegrationTests.Infrastructure;
+namespace DirectoryService.Infrastructure;
 public class DirectoryTestWebFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
     private readonly PostgreSqlContainer _dbContainer = new PostgreSqlBuilder()

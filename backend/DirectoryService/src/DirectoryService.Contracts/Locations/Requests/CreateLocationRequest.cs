@@ -1,7 +1,6 @@
-﻿using DevQuestions.Domain.Entities;
-using DirectoryService.Contracts.Locations.Dtos;
+﻿using DirectoryService.Locations.Dtos;
 
-namespace DirectoryService.Contracts.Locations.Requests;
+namespace DirectoryService.Locations.Requests;
 
 public record CreateLocationRequest(
     NameDto Name,

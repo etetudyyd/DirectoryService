@@ -1,7 +1,6 @@
-﻿using DevQuestions.Web.Controllers.Locations;
-using Microsoft.OpenApi.Models;
+﻿using DirectoryService.Controllers;
 
-namespace DevQuestions.Web;
+namespace DirectoryService;
 
 /// <summary>
 /// DependencyInjection - service for adding scopes in DI web services.

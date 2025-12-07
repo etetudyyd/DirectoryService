@@ -1,10 +1,9 @@
-﻿using DevQuestions.Domain;
-using DevQuestions.Domain.Entities;
-using DevQuestions.Domain.ValueObjects.LocationVO;
+﻿using DirectoryService.Entities;
+using DirectoryService.ValueObjects.Location;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace DirectoryService.Infrastructure.Postgresql.Configurations;
+namespace DirectoryService.Configurations;
 
 /// <summary>
 /// LocationConfiguration - configuration file for building table "locations". Delete type "Restricted".

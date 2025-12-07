@@ -1,3 +1,3 @@
-﻿namespace DirectoryService.Contracts.Positions.VODtos;
+﻿namespace DirectoryService.Positions.VODtos;
 
 public record NameDto(string Value);
