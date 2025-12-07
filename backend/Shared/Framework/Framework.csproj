@@ -1,0 +1,21 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <ItemGroup>
+  <PackageReference Include="CSharpFunctionalExtensions" Version="3.6.0" />
+  <PackageReference Include="Microsoft.AspNetCore.App"/>
+  </ItemGroup>
+
+  <PropertyGroup>
+    <PackageId>etetudyyd.Framework</PackageId>
+    <Version>0.0.2</Version>
+    <Authors>etetudyyd</Authors>
+    <Company>etetudyyd</Company>
+    <PackageDescription>Framework</PackageDescription>
+    <RepositoryUrl>https://github.com/etetudyyd/DirectoryService</RepositoryUrl>
+  </PropertyGroup>
+  
+  <ItemGroup>
+    <ProjectReference Include="..\Shared.SharedKernel\Shared.SharedKernel.csproj" />
+  </ItemGroup>
+  
+</Project>

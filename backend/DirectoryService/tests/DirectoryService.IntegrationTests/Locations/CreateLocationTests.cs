@@ -1,6 +1,6 @@
-﻿using DirectoryService.IntegrationTests.Infrastructure;
+﻿using DirectoryService.Infrastructure;
 
-namespace DirectoryService.IntegrationTests.Locations;
+namespace DirectoryService.Locations;
 
 public class CreateLocationTests : DirectoryBaseTests
 {

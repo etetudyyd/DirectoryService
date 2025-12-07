@@ -1,11 +1,10 @@
-﻿using DevQuestions.Domain;
-using DevQuestions.Domain.Entities;
-using DevQuestions.Domain.ValueObjects.DepartmentVO;
+﻿using DirectoryService.Entities;
+using DirectoryService.ValueObjects.Department;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Path = DevQuestions.Domain.ValueObjects.DepartmentVO.Path;
+using Path = DirectoryService.ValueObjects.Department.Path;
 
-namespace DirectoryService.Infrastructure.Postgresql.Configurations;
+namespace DirectoryService.Configurations;
 
 /// <summary>
 /// DepartmentConfiguration - configuration file for building table "departments". Delete type "Restricted".

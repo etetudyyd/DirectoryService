@@ -1,9 +1,9 @@
-﻿using DevQuestions.Domain.Entities;
-using DirectoryService.Application.Database.IQueries;
+﻿using DirectoryService.Database.IQueries;
+using DirectoryService.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
-namespace DirectoryService.Infrastructure.Postgresql.Database;
+namespace DirectoryService.Database;
 
 /// <summary>
 /// DirectoryServiceDbContext - basic realization of DbContext repository and declare DbSet contexts. Configuring ModelCreating.

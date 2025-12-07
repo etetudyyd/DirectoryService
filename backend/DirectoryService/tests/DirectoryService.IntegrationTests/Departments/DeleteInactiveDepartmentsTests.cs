@@ -1,9 +1,9 @@
 ﻿using CSharpFunctionalExtensions;
-using DevQuestions.Domain.Shared;
-using DirectoryService.Application.Features.Departments.Commands.DeleteInactiveDepartments;
-using DirectoryService.IntegrationTests.Infrastructure;
+using DirectoryService.Features.Departments.Commands.DeleteInactiveDepartments;
+using DirectoryService.Infrastructure;
+using Shared.SharedKernel;
 
-namespace DirectoryService.IntegrationTests.Departments;
+namespace DirectoryService.Departments;
 
 public class DeleteInactiveDepartmentsTests(DirectoryTestWebFactory factory) : DirectoryBaseTests(factory)
 {

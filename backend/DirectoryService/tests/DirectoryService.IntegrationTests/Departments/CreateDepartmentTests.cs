@@ -1,17 +1,12 @@
 ﻿using CSharpFunctionalExtensions;
-using DevQuestions.Domain.Entities;
-using DevQuestions.Domain.Shared;
-using DevQuestions.Domain.ValueObjects.DepartmentVO;
-using DevQuestions.Domain.ValueObjects.LocationVO;
-using DirectoryService.Application.Features.Departments.Commands.CreateDepartment;
-using DirectoryService.Contracts.Departments;
-using DirectoryService.Contracts.Departments.Requests;
-using DirectoryService.Infrastructure.Postgresql.Database;
-using DirectoryService.IntegrationTests.Infrastructure;
+using DirectoryService.Departments.Requests;
+using DirectoryService.Features.Departments.Commands.CreateDepartment;
+using DirectoryService.Infrastructure;
+using DirectoryService.ValueObjects.Department;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
+using Shared.SharedKernel;
 
-namespace DirectoryService.IntegrationTests.Departments;
+namespace DirectoryService.Departments;
 
 public class CreateDepartmentTests(DirectoryTestWebFactory factory)
     : DirectoryBaseTests(factory)

@@ -1,11 +1,10 @@
-﻿using System.Net;
-using CSharpFunctionalExtensions;
-using DevQuestions.Domain.Shared;
-using DevQuestions.Domain.ValueObjects.ConectionEntitiesVO;
-using DevQuestions.Domain.ValueObjects.DepartmentVO;
-using DevQuestions.Domain.ValueObjects.LocationVO;
+﻿using CSharpFunctionalExtensions;
+using DirectoryService.ValueObjects.ConnectionEntities;
+using DirectoryService.ValueObjects.Department;
+using DirectoryService.ValueObjects.Location;
+using Shared.SharedKernel;
 
-namespace DevQuestions.Domain.Entities;
+namespace DirectoryService.Entities;
 
 public sealed class DepartmentLocation
 {

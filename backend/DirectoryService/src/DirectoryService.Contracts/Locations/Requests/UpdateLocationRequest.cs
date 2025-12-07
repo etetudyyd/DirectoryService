@@ -1,3 +1,3 @@
-﻿namespace DirectoryService.Contracts.Locations.Requests;
+﻿namespace DirectoryService.Locations.Requests;
 
 public record UpdateLocationRequest;

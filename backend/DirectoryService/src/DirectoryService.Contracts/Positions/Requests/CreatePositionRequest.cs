@@ -1,7 +1,4 @@
-﻿using DevQuestions.Domain.Entities;
-using DirectoryService.Contracts.Positions.VODtos;
-
-namespace DirectoryService.Contracts.Positions.Requests;
+﻿namespace DirectoryService.Positions.Requests;
 
 public record CreatePositionRequest(
     string Name,
