@@ -1,10 +1,10 @@
 ﻿using System.Data;
 using CSharpFunctionalExtensions;
-using DevQuestions.Domain.Shared;
-using DirectoryService.Application.Database.ITransactions;
+using DirectoryService.Database.ITransactions;
 using Microsoft.Extensions.Logging;
+using Shared.SharedKernel;
 
-namespace DirectoryService.Infrastructure.Postgresql.Database;
+namespace DirectoryService.Database;
 
 /// <summary>
 /// TransactionScope - class for commiting and rollback transactions depending on imagining on requirements. It realizes interface ITransactionScope.

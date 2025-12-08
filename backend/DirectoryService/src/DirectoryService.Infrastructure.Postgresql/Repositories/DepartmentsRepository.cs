@@ -1,20 +1,18 @@
-﻿using CSharpFunctionalExtensions;
+﻿using Core.Options;
+using CSharpFunctionalExtensions;
 using Dapper;
-using DevQuestions.Domain;
-using DevQuestions.Domain.Entities;
-using DevQuestions.Domain.Shared;
-using DevQuestions.Domain.ValueObjects.DepartmentVO;
-using DirectoryService.Application.Database.IRepositories;
-using DirectoryService.Application.Features.Departments.Commands.CreateDepartment;
-using DirectoryService.Application.Features.Departments.Commands.DeleteInactiveDepartments;
-using DirectoryService.Contracts.Shared;
-using DirectoryService.Infrastructure.Postgresql.Database;
+using DirectoryService.Database;
+using DirectoryService.Database.IRepositories;
+using DirectoryService.Entities;
+using DirectoryService.Features.Departments.Commands.CreateDepartment;
+using DirectoryService.Features.Departments.Commands.DeleteInactiveDepartments;
+using DirectoryService.ValueObjects.Department;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using Npgsql;
-using Path = DevQuestions.Domain.ValueObjects.DepartmentVO.Path;
+using Shared.SharedKernel;
+using Path = DirectoryService.ValueObjects.Department.Path;
 
-namespace DirectoryService.Infrastructure.Postgresql.Repositories;
+namespace DirectoryService.Repositories;
 
 /// <summary>
 /// DepartmentsRepository - realization of Repository Pattern for Departments database logic by using DirectoryServiceDbContext.
@@ -172,7 +170,6 @@ public class DepartmentsRepository : IDepartmentsRepository
 
         return Result.Success<Guid[], Error>(ids);
     }
-
 
     public async Task<Result<Department, Error>> GetByIdWithLockAsync(
         Guid id,

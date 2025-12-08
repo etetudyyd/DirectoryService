@@ -1,9 +1,9 @@
 ﻿using CSharpFunctionalExtensions;
-using DevQuestions.Domain.Shared;
-using DevQuestions.Domain.ValueObjects.DepartmentVO;
-using Path = DevQuestions.Domain.ValueObjects.DepartmentVO.Path;
+using DirectoryService.ValueObjects.Department;
+using Shared.SharedKernel;
+using Path = DirectoryService.ValueObjects.Department.Path;
 
-namespace DevQuestions.Domain.Entities;
+namespace DirectoryService.Entities;
 
 public sealed class Department : ISoftDeletable
 {

@@ -1,8 +1,8 @@
 ﻿using CSharpFunctionalExtensions;
-using DevQuestions.Domain.Shared;
-using DevQuestions.Domain.ValueObjects.LocationVO;
+using DirectoryService.ValueObjects.Location;
+using Shared.SharedKernel;
 
-namespace DevQuestions.Domain.Entities;
+namespace DirectoryService.Entities;
 
 public sealed class Location : ISoftDeletable
 {

@@ -1,11 +1,11 @@
-﻿using DevQuestions.Domain.Entities;
-using DevQuestions.Domain.ValueObjects.ConectionEntitiesVO;
-using DevQuestions.Domain.ValueObjects.DepartmentVO;
-using DevQuestions.Domain.ValueObjects.LocationVO;
+﻿using DirectoryService.Entities;
+using DirectoryService.ValueObjects.ConnectionEntities;
+using DirectoryService.ValueObjects.Department;
+using DirectoryService.ValueObjects.Location;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
-namespace DirectoryService.Infrastructure.Postgresql.Configurations;
+namespace DirectoryService.Configurations;
 
 /// <summary>
 /// DepartmentLocationConfiguration - configuration file for building table "departments_locations". This table

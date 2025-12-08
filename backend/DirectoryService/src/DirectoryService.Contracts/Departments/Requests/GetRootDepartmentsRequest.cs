@@ -1,4 +1,4 @@
-﻿namespace DirectoryService.Contracts.Departments.Requests;
+﻿namespace DirectoryService.Departments.Requests;
 
 public record GetRootDepartmentsRequest
 {

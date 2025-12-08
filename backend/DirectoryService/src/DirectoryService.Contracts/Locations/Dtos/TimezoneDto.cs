@@ -1,3 +1,3 @@
-﻿namespace DirectoryService.Contracts.Locations.Dtos;
+﻿namespace DirectoryService.Locations.Dtos;
 
 public record TimezoneDto(string Value);

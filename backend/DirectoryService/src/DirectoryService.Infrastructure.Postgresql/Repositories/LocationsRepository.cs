@@ -1,15 +1,14 @@
 ﻿using CSharpFunctionalExtensions;
 using Dapper;
-using DevQuestions.Domain;
-using DevQuestions.Domain.Entities;
-using DevQuestions.Domain.Shared;
-using DevQuestions.Domain.ValueObjects.DepartmentVO;
-using DevQuestions.Domain.ValueObjects.LocationVO;
-using DirectoryService.Application.Database.IRepositories;
-using DirectoryService.Infrastructure.Postgresql.Database;
+using DirectoryService.Database;
+using DirectoryService.Database.IRepositories;
+using DirectoryService.Entities;
+using DirectoryService.ValueObjects.Department;
+using DirectoryService.ValueObjects.Location;
 using Microsoft.EntityFrameworkCore;
+using Shared.SharedKernel;
 
-namespace DirectoryService.Infrastructure.Postgresql.Repositories;
+namespace DirectoryService.Repositories;
 
 /// <summary>
 /// LocationsRepository - realization of Repository Pattern for Locations database logic by using DirectoryServiceDbContext.

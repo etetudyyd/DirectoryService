@@ -10,11 +10,12 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 	ProjectSection(SolutionItems) = preProject
 		Directory.Build.props = Directory.Build.props
 		.editorconfig = .editorconfig
+		Directory.Packages.props = Directory.Packages.props
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DirectoryService.Infrastructure.Postgresql", "src\DirectoryService.Infrastructure.Postgresql\DirectoryService.Infrastructure.Postgresql.csproj", "{98A73184-D5D5-4549-924F-E69AC1094C61}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DirectoryService.Application", "src\DirectoryService.Application\DirectoryService.Application.csproj", "{7EA17DFF-0B97-470B-8ACC-087A9940664E}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DirectoryService.Core", "src\DirectoryService.Core\DirectoryService.Core.csproj", "{7EA17DFF-0B97-470B-8ACC-087A9940664E}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DirectoryService.Contracts", "src\DirectoryService.Contracts\DirectoryService.Contracts.csproj", "{17407C4B-2535-4A97-88AA-FCCF12241FF7}"
 EndProject

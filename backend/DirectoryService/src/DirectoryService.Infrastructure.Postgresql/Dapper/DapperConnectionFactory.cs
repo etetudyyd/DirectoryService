@@ -1,11 +1,11 @@
 ﻿using System.Data;
 using Dapper;
-using DirectoryService.Application.Database.IQueries;
+using DirectoryService.Database.IQueries;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 
-namespace DirectoryService.Infrastructure.Postgresql.Dapper;
+namespace DirectoryService.Dapper;
 
 /// <summary>
 /// DapperConnectionFactory - the factory of creating connections for queries of Dapper.

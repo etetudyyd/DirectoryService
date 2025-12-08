@@ -1,14 +1,14 @@
-﻿using DirectoryService.Application.Database.IQueries;
-using DirectoryService.Application.Database.IRepositories;
-using DirectoryService.Application.Database.ITransactions;
-using DirectoryService.Infrastructure.Postgresql.BackgroundServices;
-using DirectoryService.Infrastructure.Postgresql.Dapper;
-using DirectoryService.Infrastructure.Postgresql.Database;
-using DirectoryService.Infrastructure.Postgresql.Repositories;
+﻿using DirectoryService.BackgroundServices;
+using DirectoryService.Dapper;
+using DirectoryService.Database;
+using DirectoryService.Database.IQueries;
+using DirectoryService.Database.IRepositories;
+using DirectoryService.Database.ITransactions;
+using DirectoryService.Repositories;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace DirectoryService.Infrastructure.Postgresql;
+namespace DirectoryService;
 
 /// <summary>
 /// DependencyInjection - service for adding scopes in DI infrastructure services.

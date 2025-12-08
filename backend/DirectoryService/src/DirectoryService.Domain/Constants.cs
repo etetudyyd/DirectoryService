@@ -1,4 +1,4 @@
-﻿namespace DevQuestions.Domain;
+﻿namespace DirectoryService;
 
 public readonly struct Constants
 {

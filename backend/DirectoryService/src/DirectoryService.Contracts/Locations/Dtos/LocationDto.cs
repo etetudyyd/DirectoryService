@@ -1,4 +1,4 @@
-﻿namespace DirectoryService.Contracts.Locations.Dtos;
+﻿namespace DirectoryService.Locations.Dtos;
 
 public record LocationDto
 {

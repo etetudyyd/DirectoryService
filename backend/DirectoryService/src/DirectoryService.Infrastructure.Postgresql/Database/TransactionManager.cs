@@ -1,10 +1,10 @@
 ﻿using CSharpFunctionalExtensions;
-using DevQuestions.Domain.Shared;
-using DirectoryService.Application.Database.ITransactions;
+using DirectoryService.Database.ITransactions;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
+using Shared.SharedKernel;
 
-namespace DirectoryService.Infrastructure.Postgresql.Database;
+namespace DirectoryService.Database;
 
 /// <summary>
 /// TransactionManager - class for creating transactions and saving changes. It realizes interface ITransactionManager.
