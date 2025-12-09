@@ -1,6 +1,6 @@
 services:
   directory_service:
-    container_name: directory-service
+    container_name: directory-service-etetudyyd
     restart: always
     build:
       context: ./backend/DirectoryService
@@ -17,7 +17,7 @@ services:
           condition: service_healthy   
   
   postgres:
-    container_name: postgres
+    container_name: postgres-etetudyyd
     image: postgres
     restart: always
     environment:
@@ -45,7 +45,7 @@ services:
     
   seq:
     image: datalust/seq:2024.1
-    container_name: seq
+    container_name: seq-etetudyyd
     restart: always
     environment:
       - ACCEPT_EULA=Y
@@ -54,6 +54,18 @@ services:
       - 5342:5341    
     volumes:
       - seq-data:/data
+        
+  minio:
+    container_name: minio-etetudyyd
+    image: minio/minio:latest
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server --console-address ":9001" /data
+    restart: always
 
 volumes:
   postgres-data:
