@@ -1,0 +1,5 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup>
+    <PackageReference Include="etetudyyd.sharedkernel" Version="0.0.2" />
+  </ItemGroup>
+</Project>
