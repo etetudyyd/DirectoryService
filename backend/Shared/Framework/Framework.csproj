@@ -3,11 +3,15 @@
   <ItemGroup>
   <PackageReference Include="CSharpFunctionalExtensions" Version="3.6.0" />
   <PackageReference Include="Microsoft.AspNetCore.App"/>
+  <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.7" />
+  <PackageReference Include="Serilog.AspNetCore" Version="9.0.0" />
+  <PackageReference Include="Serilog.Exceptions" Version="8.4.0" />
+  <PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
   </ItemGroup>
 
   <PropertyGroup>
     <PackageId>etetudyyd.Framework</PackageId>
-    <Version>0.0.2</Version>
+    <Version>0.0.5</Version>
     <Authors>etetudyyd</Authors>
     <Company>etetudyyd</Company>
     <PackageDescription>Framework</PackageDescription>
