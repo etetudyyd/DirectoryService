@@ -1,0 +1,11 @@
+﻿using CSharpFunctionalExtensions;
+using Shared.SharedKernel;
+
+namespace DirectoryService;
+
+public interface IMediaAssetFactory
+{
+    Result<VideoAsset, Error> CreateVideoForUpload(MediaData mediaData, MediaOwner owner);
+
+    Result<PreviewAsset, Error> CreatePreviewForUpload(MediaData mediaData, MediaOwner owner);
+}
