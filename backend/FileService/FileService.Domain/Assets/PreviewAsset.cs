@@ -1,7 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using Shared.SharedKernel;
 
-namespace DirectoryService;
+namespace DirectoryService.Assets;
 
 public class PreviewAsset: MediaAsset
 {
