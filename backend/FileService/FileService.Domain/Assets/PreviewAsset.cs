@@ -12,6 +12,9 @@ public class PreviewAsset: MediaAsset
 
     public static readonly string[] AllowedExtensions = ["jpg", "jpeg", "png", "webp"];
 
+    private PreviewAsset()
+    { }
+
     private PreviewAsset(
         Guid id,
         MediaData mediaData,

@@ -8,7 +8,9 @@ public static class DependencyInjectionCoreExtensions
 {
     public static IServiceCollection AddCore(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddValidatorsFromAssembly(typeof(DependencyInjectionCoreExtensions).Assembly);
+        services.AddValidatorsFromAssembly(
+            typeof(DependencyInjectionCoreExtensions).Assembly,
+            includeInternalTypes: true);
 
         return services;
     }
