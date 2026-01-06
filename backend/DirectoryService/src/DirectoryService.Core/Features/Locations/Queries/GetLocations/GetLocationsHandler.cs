@@ -64,7 +64,7 @@ public class GetLocationsHandler : IQueryHandler<GetLocationsResponse, GetLocati
         long? totalCount = null;
 
         var locations = await connection
-            .QueryAsync<LocationDto, long, LocationDto>(
+            .QueryAsync<LocationDto, AddressDto, long, LocationDto>(
                 $"""
                  SELECT 
                      l.id,
@@ -73,12 +73,14 @@ public class GetLocationsHandler : IQueryHandler<GetLocationsResponse, GetLocati
                      l.is_active,
                      l.created_at,
                      l.updated_at,
-                     l.apartment,
-                     l.city,
-                     l.house,
-                     l.postal_code,
-                     l.region,
-                     l.street,
+                     
+                     l.postal_code   AS PostalCode,
+                     l.region        AS Region,
+                     l.city          AS City,
+                     l.street        AS Street,
+                     l.house         AS House,
+                     l.apartment     AS Apartment,
+                     
                      COUNT(*) OVER() as total_count
                  FROM locations l
                  {joinClause}
@@ -86,10 +88,12 @@ public class GetLocationsHandler : IQueryHandler<GetLocationsResponse, GetLocati
                  ORDER BY l.created_at DESC
                  LIMIT @page_size OFFSET @offset;
                  """,
-                splitOn: "total_count",
-                map: (location, count) =>
+                splitOn: "PostalCode, total_count",
+                map: (location, address, count) =>
                 {
-                    totalCount ??= count;
+                    location.Address = address;
+
+                    totalCount = count;
                     return location;
                 },
                 param: parameters);
