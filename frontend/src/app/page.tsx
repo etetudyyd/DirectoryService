@@ -1,11 +1,10 @@
-import { Button } from "@/components/ui/button";
+import { Button } from "@/shared/components/ui/button";
 import Image from "next/image";
 import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="w-full">
-      <main className="max-w-7xl mx-auto p-6">
+      <main>
         {/* Hero */}
         <section className="rounded-lg bg-linear-to-r from-white/5 to-white/2 p-8 mb-6">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
@@ -93,6 +92,5 @@ export default function Home() {
           </aside>
         </section>
       </main>
-    </div>
   );
 }

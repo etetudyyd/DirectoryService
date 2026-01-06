@@ -3,7 +3,8 @@
 import Link from "next/link";
 import { Search, Bell, Settings, User } from "lucide-react";
 import routes from "@/shared/routes";
-import { SidebarTrigger } from "../ui/sidebar";
+import { SidebarTrigger } from "@/shared/components/ui/sidebar";
+
 
 export default function Header() {
   return (
@@ -21,15 +22,7 @@ export default function Header() {
       </div>
 
       <div className="flex-1" />
-
-      <div className="flex items-center gap-3">
-        <div className="hidden md:flex items-center bg-gray-700 rounded-md px-2 py-1 gap-2">
-          <Search className="text-gray-300" />
-          <input
-            placeholder="Search..."
-            className="bg-transparent outline-none text-sm text-white placeholder-gray-400"
-          />
-        </div>
+      <div className="flex items-center gap-4">
 
         <button aria-label="Notifications" className="p-2 rounded-md hover:bg-gray-700">
           <Bell />
