@@ -6,8 +6,8 @@ public record LocationDto
 
     public string Name { get; init; } = string.Empty;
 
-    public string Address { get; init; } = string.Empty;
-
     public string TimeZone { get; init; } = string.Empty;
+
+    public required AddressDto Address { get; set; }
 
 }

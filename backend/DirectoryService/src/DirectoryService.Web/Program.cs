@@ -31,7 +31,26 @@ builder.Services.AddInfrastructure(builder.Configuration);
 builder.Services.AddDistributedCache(builder.Configuration);
 builder.Services.AddSerilog();
 
+var corsOrigins = builder.Configuration
+    .GetSection("Cors:AllowedOrigins")
+    .Get<string[]>();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("DefaultCorsPolicy", policy =>
+    {
+        policy
+            .WithOrigins(corsOrigins ?? [])
+            .AllowAnyHeader()
+            .AllowAnyMethod()
+            .AllowCredentials();
+    });
+});
+
+
 var app = builder.Build();
+
+app.UseCors("DefaultCorsPolicy");
 
 app.UseExceptionMiddleware();
 app.UseSerilogRequestLogging();

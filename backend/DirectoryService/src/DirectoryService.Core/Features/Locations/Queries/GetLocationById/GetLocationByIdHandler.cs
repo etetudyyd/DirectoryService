@@ -50,7 +50,15 @@ public class GetLocationByIdHandler : IQueryHandler<GetLocationByIdResponse, Get
         {
             Id = location.Id.Value,
             Name = location.Name.Value,
-            Address = location.Address.ToString(),
+            Address = new AddressDto
+            {
+                PostalCode = location.Address.PostalCode,
+                Region = location.Address.Region,
+                City = location.Address.City,
+                Street = location.Address.Street,
+                House = location.Address.House,
+                Apartment = location.Address.Apartment,
+            },
             TimeZone = location.Timezone.Value,
         });
     }
