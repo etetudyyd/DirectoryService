@@ -61,10 +61,10 @@ public class GetLocationsHandler : IQueryHandler<GetLocationsResponse, GetLocati
         string joinClause = joins.Count > 0 ? string.Join(" ", joins) : string.Empty;
         string whereClause = conditions.Count > 0 ? "WHERE " + string.Join(" AND ", conditions) : string.Empty;
 
-        long? totalCount = null;
+        int totalItems = 0;
 
-        var locations = await connection
-            .QueryAsync<LocationDto, AddressDto, long, LocationDto>(
+        var items = await connection
+            .QueryAsync<LocationDto, AddressDto, int, LocationDto>(
                 $"""
                  SELECT 
                      l.id,
@@ -81,7 +81,7 @@ public class GetLocationsHandler : IQueryHandler<GetLocationsResponse, GetLocati
                      l.house         AS House,
                      l.apartment     AS Apartment,
                      
-                     COUNT(*) OVER() as total_count
+                     CAST(COUNT(*) OVER() AS INT) AS total_count
                  FROM locations l
                  {joinClause}
                  {whereClause}
@@ -93,13 +93,17 @@ public class GetLocationsHandler : IQueryHandler<GetLocationsResponse, GetLocati
                 {
                     location.Address = address;
 
-                    totalCount = count;
+                    totalItems = count;
                     return location;
                 },
                 param: parameters);
 
-        _logger.LogInformation("Found {totalCount} locations", totalCount);
+        _logger.LogInformation("Found {totalItems} locations", totalItems);
 
-        return new GetLocationsResponse(locations.ToList(), totalCount ?? 0);
+        return new GetLocationsResponse(
+            items.ToList(),
+            totalItems,
+            query.Page,
+            query.PageSize);
     }
 }

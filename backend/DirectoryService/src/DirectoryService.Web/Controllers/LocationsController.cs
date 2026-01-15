@@ -2,6 +2,7 @@
 using DirectoryService.Features.Locations.Commands.CreateLocation;
 using DirectoryService.Features.Locations.Queries.GetLocationById;
 using DirectoryService.Features.Locations.Queries.GetLocations;
+using DirectoryService.Locations.Dtos;
 using DirectoryService.Locations.Requests;
 using DirectoryService.Locations.Responses;
 using Framework.Endpoints;
@@ -16,10 +17,15 @@ public class LocationsController : ControllerBase
     [HttpPost("create")]
     public async Task<EndpointResult<Guid>> Create(
         [FromServices] ICommandHandler<Guid, CreateLocationCommand> handler,
-        [FromBody] CreateLocationRequest request,
+        [FromBody] LocationDto request,
         CancellationToken cancellationToken)
     {
-        var command = new CreateLocationCommand(request);
+        var command = new CreateLocationCommand(
+            new CreateLocationRequest(
+                new NameDto(request.Name),
+                request.Address,
+                new TimezoneDto(request.TimeZone),
+                request.DepartmentIds));
 
         return await handler.Handle(command, cancellationToken);
     }
