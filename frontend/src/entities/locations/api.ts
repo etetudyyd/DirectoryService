@@ -1,10 +1,11 @@
-import { apiCLient } from "@/shared/api/axios-instance";
-import { Location } from "./types";
+import { apiClient } from "@/shared/api/axios-instance";
+import { Address, Location } from "./types";
+import { PaginationResponse } from "@/shared/api/types";
 
 export type CreateLocationRequest = {
     name: string;
-    address: string;
-    timezone: string;
+    address: Address;
+    timeZone: string;
     departmentsIds: string[];
 };
 
@@ -44,14 +45,14 @@ export type ErrorType =
     | "authorization";
 
 export const locationsApi = {
-    getLocations: async (request: GetLocationsRequest): Promise<Location[]> => {
-        const response = await apiCLient.get<Envelope<{locations: Location[]}>>("/locations", { params: request });
+    getLocations: async (request: GetLocationsRequest) => {
+        const response = await apiClient.get<Envelope<PaginationResponse<Location>>>("/locations", { params: request });
 
-        return response.data.result?.locations || [];
+        return response.data.result;
     },
     createLocation: async (request: CreateLocationRequest) => {
-        const response = await apiCLient.post("/locations", request);
+        const response = await apiClient.post<Envelope<Location>>("/locations/create", request);
 
-        return response.data;
+        return response.data.result;
     },
 };

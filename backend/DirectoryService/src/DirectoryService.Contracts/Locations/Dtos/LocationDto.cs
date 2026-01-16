@@ -10,4 +10,6 @@ public record LocationDto
 
     public required AddressDto Address { get; set; }
 
+    public Guid[] DepartmentIds { get; init; } = [];
+
 }

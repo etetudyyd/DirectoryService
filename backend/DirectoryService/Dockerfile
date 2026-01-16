@@ -8,7 +8,7 @@ ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 
 ARG GITHUB_TOKEN
-ENV NUGET_GITHUB_TOKEN=$GITHUB_TOKEN
+ENV GITHUB_TOKEN=$GITHUB_TOKEN
 COPY nuget.config /src/nuget.config
 
 COPY ["src/DirectoryService.Web/DirectoryService.Web.csproj", "src/DirectoryService.Web/"]
@@ -19,6 +19,8 @@ COPY ["src/DirectoryService.Infrastructure.Postgresql/DirectoryService.Infrastru
 
 COPY ["Directory.Build.props", "./"]
 COPY ["Directory.Packages.props", "./"]
+
+RUN echo "GITHUB_TOKEN=$GITHUB_TOKEN"
 
 RUN dotnet restore "src/DirectoryService.Web/DirectoryService.Web.csproj" \
     --configfile /src/nuget.config
