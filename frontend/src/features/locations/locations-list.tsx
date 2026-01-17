@@ -1,15 +1,14 @@
 'use client';
-import { useMutation, useQuery } from '@tanstack/react-query';
+
 import { Input } from '@/shared/components/ui/input';
 import LocationCard from '@/features/locations/location-card';
-import { locationsApi } from '@/entities/locations/api';
 import { useState } from 'react';
 import { Spinner } from '@/shared/components/ui/spinner';
 import LocationsPagination from './location-pagination';
 import { Button } from '@/shared/components/ui/button';
-import { queryClient } from '@/shared/api/query-client';
 import { CreateLocationDialog } from './create-location-dialog';
 import { useLocationsList } from './model/use-locations-list';
+import { useCreateLocation } from './model/use-create-location';
 
 export default function LocationsList() {
 
@@ -19,34 +18,8 @@ const [page, setPage] = useState(1);
 
 const {locations, totalPages, totalItems, isLoading, error} = useLocationsList({ page });
 
-const {
-    mutate: createLocation,
-     isPending,
-    error: createError} = useMutation({
-    mutationFn: () => 
-        locationsApi.createLocation({ 
-            name: "location1",
-            address: {
-                country: "Country 1",
-                region: "Region 1",
-                city: "City 1",
-                street: "Street 1",
-                house: "House 1",
-                postalCode: "123456",
-                apartment: "1A" 
-            },
-            timeZone: "timezone1",
-            departmentsIds: ["c37d25da-3d1c-4973-9b8a-b7611ebce5bb"]}),
-    onSettled: () => queryClient.invalidateQueries({ queryKey: ["locations"] }),
-    onSuccess: () => {
-        console.log("Location created successfully");
-    },
-    onError: (error) => {
-        console.error("Error creating location:", error);
-    },
-});
-    
-    console.log(locations);
+const { isPending, error: createError } = useCreateLocation();
+
 
     if (isLoading) {
         return <div className="flex justify-center min-h-screen"><Spinner/></div>;
