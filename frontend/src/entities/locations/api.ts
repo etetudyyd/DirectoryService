@@ -1,6 +1,7 @@
 import { apiClient } from "@/shared/api/axios-instance";
 import { Address, Location } from "./types";
 import { PaginationResponse } from "@/shared/api/types";
+import { queryOptions } from "@tanstack/react-query";
 
 export type CreateLocationRequest = {
     name: string;
@@ -54,5 +55,22 @@ export const locationsApi = {
         const response = await apiClient.post<Envelope<Location>>("/locations/create", request);
 
         return response.data.result;
+    },
+};
+
+export const locationsQueryOptions = {
+    baseKey: "locations",
+
+    getLocationsOptions: ({
+        page,
+        pageSize
+    } : {
+        page: number,
+        pageSize: number
+    }) => {
+        return queryOptions({
+            queryKey: [locationsQueryOptions.baseKey, {page}],
+            queryFn: () => locationsApi.getLocations({ page: page, pageSize: pageSize }),
+        });
     },
 };
