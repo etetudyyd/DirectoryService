@@ -7,7 +7,7 @@ export type Location = {
   createdAt: Date;
   updatedAt: Date;
   deletedAt: Date | null;
-  
+  departmentsIds: string[];
 }
 
 export type Address = {

@@ -1,4 +1,5 @@
 import { locationsApi, locationsQueryOptions } from "@/entities/locations/api";
+import { EnvelopeError } from "@/shared/api/errors";
 import { queryClient } from "@/shared/api/query-client";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
@@ -12,13 +13,19 @@ const mutation = useMutation({
         toast.success("Location created successfully");
     },
     onError: (error) => {
-        toast.error(`Error creating location: ${error instanceof Error ? error.message : 'Unknown error'}`);
+        if(error instanceof EnvelopeError) {
+            toast.error(error.firstMessage);
+            return;
+        }
+
+        toast.error("An unexpected error occurred");
     },
 });
 
 return {
     createLocation: mutation.mutate,
     isPending: mutation.isPending,
-    error: mutation.error, 
+    error: mutation.error instanceof EnvelopeError ? mutation.error : undefined,
+    isError: mutation.isError, 
 };
 }

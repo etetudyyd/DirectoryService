@@ -12,6 +12,8 @@ public interface ILocationsRepository
 
     Task<Result<Location, Error>> GetByIdAsync(Guid id, CancellationToken cancellationToken);
 
+    Task<bool> IsNameUniqueAsync(LocationName name, CancellationToken cancellationToken);
+
     Task<bool> IsAddressExistsAsync(Address address, CancellationToken cancellationToken);
 
     Task<UnitResult<Error>> IsLocationActiveAsync(LocationId[] locationIds, CancellationToken cancellationToken);

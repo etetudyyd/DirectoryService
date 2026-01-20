@@ -1,5 +1,5 @@
-'use client';
-import React from 'react';
+"use client";
+
 import {
   Pagination,
   PaginationContent,
@@ -8,7 +8,7 @@ import {
   PaginationLink,
   PaginationNext,
   PaginationPrevious,
-} from '@/shared/components/ui/pagination';
+} from "@/shared/components/ui/pagination";
 
 type Props = {
   page: number;
@@ -16,7 +16,11 @@ type Props = {
   onPageChange: (p: number) => void;
 };
 
-export default function LocationsPagination({ page, totalPages, onPageChange }: Props) {
+export default function LocationsPagination({
+  page,
+  totalPages,
+  onPageChange,
+}: Props) {
   if (totalPages <= 1) return null;
 
   return (
@@ -30,50 +34,52 @@ export default function LocationsPagination({ page, totalPages, onPageChange }: 
                 e.preventDefault();
                 if (page > 1) onPageChange(page - 1);
               }}
-              className={page === 1 ? 'pointer-events-none opacity-50' : ''}
+              className={page === 1 ? "pointer-events-none opacity-50" : ""}
             />
           </PaginationItem>
 
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((pageNum) => {
-            const isCurrentPage = pageNum === page;
-            const isNearCurrent = Math.abs(pageNum - page) <= 1;
-            const isFirst = pageNum === 1;
-            const isLast = pageNum === totalPages;
-            const shouldShow = isFirst || isLast || isNearCurrent;
+          {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+            (pageNum) => {
+              const isCurrentPage = pageNum === page;
+              const isNearCurrent = Math.abs(pageNum - page) <= 1;
+              const isFirst = pageNum === 1;
+              const isLast = pageNum === totalPages;
+              const shouldShow = isFirst || isLast || isNearCurrent;
 
-            if (!shouldShow && pageNum === 2) {
+              if (!shouldShow && pageNum === 2) {
+                return (
+                  <PaginationItem key="ellipsis-start">
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                );
+              }
+
+              if (!shouldShow && pageNum === totalPages - 1) {
+                return (
+                  <PaginationItem key="ellipsis-end">
+                    <PaginationEllipsis />
+                  </PaginationItem>
+                );
+              }
+
+              if (!shouldShow) return null;
+
               return (
-                <PaginationItem key="ellipsis-start">
-                  <PaginationEllipsis />
+                <PaginationItem key={pageNum}>
+                  <PaginationLink
+                    href="#"
+                    isActive={isCurrentPage}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      onPageChange(pageNum);
+                    }}
+                  >
+                    {pageNum}
+                  </PaginationLink>
                 </PaginationItem>
               );
-            }
-
-            if (!shouldShow && pageNum === totalPages - 1) {
-              return (
-                <PaginationItem key="ellipsis-end">
-                  <PaginationEllipsis />
-                </PaginationItem>
-              );
-            }
-
-            if (!shouldShow) return null;
-
-            return (
-              <PaginationItem key={pageNum}>
-                <PaginationLink
-                  href="#"
-                  isActive={isCurrentPage}
-                  onClick={(e) => {
-                    e.preventDefault();
-                    onPageChange(pageNum);
-                  }}
-                >
-                  {pageNum}
-                </PaginationLink>
-              </PaginationItem>
-            );
-          })}
+            },
+          )}
 
           <PaginationItem>
             <PaginationNext
@@ -82,7 +88,9 @@ export default function LocationsPagination({ page, totalPages, onPageChange }: 
                 e.preventDefault();
                 if (page < totalPages) onPageChange(page + 1);
               }}
-              className={page === totalPages ? 'pointer-events-none opacity-50' : ''}
+              className={
+                page === totalPages ? "pointer-events-none opacity-50" : ""
+              }
             />
           </PaginationItem>
         </PaginationContent>
