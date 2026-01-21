@@ -13,7 +13,6 @@ import { useCreateLocation } from "./model/use-create-location";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
-import { get } from "http";
 
 type Props = {
   open: boolean;
@@ -41,10 +40,7 @@ const createLocationSchema = z.object({
   ),
 });
 
-
-
 type CreateLocationData = z.infer<typeof createLocationSchema>;
-
 
 export function CreateLocationDialog({ open, onOpenChange }: Props) {
   const initalData: CreateLocationData = {

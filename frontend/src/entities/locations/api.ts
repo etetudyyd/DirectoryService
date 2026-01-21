@@ -72,7 +72,7 @@ export const locationsQueryOptions = {
           pageSize: data.pages[0]?.pageSize ?? pageSize,
           totalPages: data.pages[0]?.totalPages ?? 0,
         };
-      }
+      },
     });
   },
 };
