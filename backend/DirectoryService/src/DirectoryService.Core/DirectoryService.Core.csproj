@@ -16,7 +16,6 @@
     </ItemGroup>
   
     <ItemGroup>
-      <Folder Include="Features\Locations\Commands\" />
       <Folder Include="Features\Positions\Commands\" />
       <Folder Include="Features\Positions\Queries\" />
     </ItemGroup>

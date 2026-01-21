@@ -23,15 +23,22 @@ export const locationsApi = {
   getLocations: async (request: GetLocationsRequest) => {
     const response = await apiClient.get<
       Envelope<PaginationResponse<Location>>
-    >("/locations", { params: request });
+    >(`/locations`, { params: request });
 
     return response.data.result;
   },
 
   createLocation: async (request: CreateLocationRequest) => {
     const response = await apiClient.post<Envelope<Location>>(
-      "/locations",
+      `/locations`,
       request,
+    );
+    return response.data;
+  },
+
+  deleteLocation: async (locationId: string) => {
+    const response = await apiClient.delete<Envelope<Location>>(
+      `/locations/${locationId}`,
     );
     return response.data;
   },

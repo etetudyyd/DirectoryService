@@ -1,5 +1,6 @@
 ﻿using Core.Abstractions;
 using DirectoryService.Features.Locations.Commands.CreateLocation;
+using DirectoryService.Features.Locations.Commands.DeactivateLocation;
 using DirectoryService.Features.Locations.Queries.GetLocationById;
 using DirectoryService.Features.Locations.Queries.GetLocations;
 using DirectoryService.Locations.Dtos;
@@ -49,5 +50,16 @@ public class LocationsController : ControllerBase
     {
         GetLocationsQuery query = new(request);
         return await handler.Handle(query, cancellationToken);
+    }
+
+    [Route("{locationId:Guid}")]
+    [HttpDelete]
+    public async Task<EndpointResult<Guid>> Deactivate(
+        [FromServices] ICommandHandler<Guid, DeactivateLocationCommand> handler,
+        [FromRoute] Guid locationId,
+        CancellationToken cancellationToken)
+    {
+        var command = new DeactivateLocationCommand(locationId);
+        return await handler.Handle(command, cancellationToken);
     }
 }

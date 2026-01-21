@@ -1,11 +1,25 @@
 import { Card } from "@/shared/components/ui/card";
 import { Location } from "@/entities/locations/types";
+import { Button } from "@/shared/components/ui/button";
+import { Trash } from "lucide-react";
+import { useDeleteLocation } from "./model/use-delete-location";
 
 type Props = {
   location: Location;
 };
 
 export default function LocationCard({ location }: Props) {
+  const { deleteLocation, isPending } = useDeleteLocation();
+
+  const handleDelete = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if (confirm("Are you sure you want to delete this location?")) {
+      deleteLocation(location.id);
+    }
+  };
+
   return (
     <Card key={location.id} className="bg-slate-900/40 border-slate-700 px-4">
       <div className="flex justify-between items-start">
@@ -32,8 +46,16 @@ export default function LocationCard({ location }: Props) {
         </div>
       </div>
 
-      <div className="mt-4 text-sm text-slate-300">
-        Часовой пояс: {location.timeZone}
+      <div className="flex justify-end items-center mt-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 w-8 text-destructive hover:text-white! hover:bg-red-500! transition-colors"
+          onClick={handleDelete}
+          disabled={isPending}
+        >
+          <Trash className="h-4 w-4" />
+        </Button>
       </div>
     </Card>
   );

@@ -92,6 +92,36 @@ public class LocationsRepository : ILocationsRepository
         return UnitResult.Success<Error>();
     }
 
+    public async Task<Result<Location, Error>> GetByIdWithLockAsync(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var location = await _dbContext.Locations
+            .FromSqlRaw(
+                $@"SELECT id,
+                        name,
+                        timezone,
+                        is_active,
+                        created_at,
+                        updated_at,
+                        deleted_at,
+                        apartment    AS ""Address_Apartment"",
+                        city         AS ""Address_City"",
+                        house        AS ""Address_House"",
+                        postal_code  AS ""Address_PostalCode"",
+                        region       AS ""Address_Region"",
+                        street       AS ""Address_Street""
+                   FROM {Constants.LOCATION_TABLE_ROUTE} 
+                   WHERE id = {{0}}
+                   AND is_active = true
+                   FOR UPDATE", id)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (location == null)
+            return Error.Failure("department.not.found", "Department not found");
+
+        return location;
+    }
 
     public async Task<UnitResult<Error>> DeleteInactiveAsync(CancellationToken cancellationToken)
     {
