@@ -2,9 +2,8 @@
 
 import { Input } from "@/shared/components/ui/input";
 import LocationCard from "@/features/locations/location-card";
-import { useState } from "react";
+import { RefCallback, useCallback, useState } from "react";
 import { Spinner } from "@/shared/components/ui/spinner";
-import LocationsPagination from "./location-pagination";
 import { Button } from "@/shared/components/ui/button";
 import { CreateLocationDialog } from "./create-location-dialog";
 import { useLocationsList } from "./model/use-locations-list";
@@ -13,16 +12,21 @@ import { useCreateLocation } from "./model/use-create-location";
 export default function LocationsList() {
   const [open, setOpen] = useState(false);
 
-  const [page, setPage] = useState(1);
-
-  const { locations, totalPages, totalItems, isLoading, error, isError} =
-    useLocationsList({ page });
+  const {
+    locations,
+    totalItems,
+    isLoading,
+    error,
+    isError,
+    cursorRef,
+    isFetchingNextPage,
+  } = useLocationsList();
 
   const { isPending, error: createError } = useCreateLocation();
 
   if (isLoading) {
     return (
-      <div className="flex justify-center min-h-screen">
+      <div className="flex justify-center container mx-auto py-8 px-4">
         <Spinner />
       </div>
     );
@@ -72,15 +76,19 @@ export default function LocationsList() {
         ))}
       </section>
 
-      {totalPages && (
+      {/* {totalPages && (
         <LocationsPagination
           page={page}
           totalPages={totalPages}
           onPageChange={(p) => setPage(p)}
         />
-      )}
+      )} */}
 
       <CreateLocationDialog open={open} onOpenChange={setOpen} />
+
+      <div ref={cursorRef} className="flex justify-center py-4">
+        {isFetchingNextPage && <Spinner />}
+      </div>
     </main>
   );
 }
