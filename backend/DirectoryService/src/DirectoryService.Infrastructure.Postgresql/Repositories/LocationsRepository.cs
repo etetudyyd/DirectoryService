@@ -119,4 +119,12 @@ public class LocationsRepository : ILocationsRepository
 
         return location;
     }
+
+    public async Task<bool> IsNameUniqueAsync(LocationName name, CancellationToken cancellationToken)
+    {
+        bool location = await _dbContext.Locations
+            .AnyAsync(l => l.Name == name, cancellationToken);
+
+        return location;
+    }
 }

@@ -6,7 +6,6 @@ type Props = {
 };
 
 export default function LocationCard({ location }: Props) {
-
   return (
     <Card key={location.id} className="bg-slate-900/40 border-slate-700 px-4">
       <div className="flex justify-between items-start">
@@ -18,16 +17,18 @@ export default function LocationCard({ location }: Props) {
           </div>
         </div>
         <div>
-          {<span
-            className={
-              "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium " +
-              (location.isActive
-                ? "bg-emerald-100 text-emerald-800"
-                : "bg-amber-100 text-amber-800")
-            }
-          >
-            {location.isActive ? "Active" : "Deactived"}
-          </span>}
+          {
+            <span
+              className={
+                "inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium " +
+                (location.isActive
+                  ? "bg-emerald-100 text-emerald-800"
+                  : "bg-amber-100 text-amber-800")
+              }
+            >
+              {location.isActive ? "Active" : "Deactived"}
+            </span>
+          }
         </div>
       </div>
 

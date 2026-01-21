@@ -1,4 +1,4 @@
-﻿using Core.Abstractions;
+using Core.Abstractions;
 using Core.Validation;
 using CSharpFunctionalExtensions;
 using DirectoryService.Database.IRepositories;
@@ -59,18 +59,26 @@ public class CreateLocationHandler : ICommandHandler<Guid, CreateLocationCommand
             house: command.LocationRequest.Address.House,
             apartment: command.LocationRequest.Address.Apartment);
 
+        if (address.IsFailure)
+        {
+            _logger.LogError("Invalid LocationDto.Address");
+            return address.Error.ToErrors();
+        }
+
+        bool isNameExists = await _locationsRepository.IsNameUniqueAsync(name.Value, cancellationToken);
+
+        if (isNameExists)
+        {
+            _logger.LogError("Name already exists");
+            return GeneralErrors.General.ValueAlreadyExists("Name").ToErrors();
+        }
+
         bool isAddressExists = await _locationsRepository.IsAddressExistsAsync(address.Value, cancellationToken);
 
         if (isAddressExists)
         {
             _logger.LogError("Address already exists");
             return GeneralErrors.General.ValueAlreadyExists("Address").ToErrors();
-        }
-
-        if (address.IsFailure)
-        {
-            _logger.LogError("Invalid LocationDto.Address");
-            return address.Error.ToErrors();
         }
 
         var timeZone = Timezone.Create(

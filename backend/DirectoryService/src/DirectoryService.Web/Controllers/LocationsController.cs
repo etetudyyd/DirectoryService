@@ -14,7 +14,7 @@ namespace DirectoryService.Controllers;
 [Route("api/locations")]
 public class LocationsController : ControllerBase
 {
-    [HttpPost("create")]
+    [HttpPost]
     public async Task<EndpointResult<Guid>> Create(
         [FromServices] ICommandHandler<Guid, CreateLocationCommand> handler,
         [FromBody] LocationDto request,
