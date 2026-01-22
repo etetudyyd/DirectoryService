@@ -1,14 +1,15 @@
 import { Card } from "@/shared/components/ui/card";
 import { Location } from "@/entities/locations/types";
 import { Button } from "@/shared/components/ui/button";
-import { Trash } from "lucide-react";
+import { EditIcon, Trash } from "lucide-react";
 import { useDeleteLocation } from "./model/use-delete-location";
 
 type Props = {
   location: Location;
+  onEdit: () => void;
 };
 
-export default function LocationCard({ location }: Props) {
+export default function LocationCard({ location, onEdit }: Props) {
   const { deleteLocation, isPending } = useDeleteLocation();
 
   const handleDelete = (e: React.MouseEvent) => {
@@ -18,6 +19,13 @@ export default function LocationCard({ location }: Props) {
     if (confirm("Are you sure you want to delete this location?")) {
       deleteLocation(location.id);
     }
+  };
+
+  const handleEdit = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    onEdit();
   };
 
   return (
@@ -47,6 +55,15 @@ export default function LocationCard({ location }: Props) {
       </div>
 
       <div className="flex justify-end items-center mt-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          className="h-8 w-8 text-primary hover:text-white! hover:bg-dark! transition-colors"
+          onClick={handleEdit}
+          disabled={isPending}
+        >
+          <EditIcon className="h-4 w-4" />
+        </Button>
         <Button
           variant="ghost"
           size="sm"

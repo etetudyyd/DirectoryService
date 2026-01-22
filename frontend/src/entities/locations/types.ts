@@ -11,7 +11,6 @@ export type Location = {
 }
 
 export type Address = {
-  country: string;
   region: string;
   city: string;
   street: string;

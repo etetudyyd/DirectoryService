@@ -41,6 +41,7 @@ public readonly struct Constants
 
     }
 
+    public const int LENGTH_ADDRESS_POSTAL_CODE = 6;
     public const int MAX_LENGTH_POSITION_NAME = 100;
     public const int MIN_LENGTH_POSITION_NAME = 3;
 

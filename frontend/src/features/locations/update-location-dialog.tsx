@@ -1,25 +1,21 @@
 import { Button } from "@/shared/components/ui/button";
 import {
-  DialogFooter,
-  DialogHeader,
   Dialog,
   DialogContent,
   DialogDescription,
+  DialogFooter,
+  DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
 import { Input } from "@/shared/components/ui/input";
-import { Label } from "@radix-ui/react-label";
-import { useCreateLocation } from "./model/use-create-location";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import { Label } from "@/shared/components/ui/label";
 import { z } from "zod";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { Location } from "@/entities/locations/types";
+import { useUpdateLocation } from "./model/use-update-location";
 
-type Props = {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-};
-
-const createLocationSchema = z.object({
+const updateLocationSchema = z.object({
   name: z
     .string()
     .nonempty("Name is cannot be empty")
@@ -39,42 +35,40 @@ const createLocationSchema = z.object({
   ),
 });
 
-type CreateLocationData = z.infer<typeof createLocationSchema>;
+type Props = {
+  location: Location;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+};
 
-export function CreateLocationDialog({ open, onOpenChange }: Props) {
-  const initalData: CreateLocationData = {
-    name: "",
-    address: {
-      region: "",
-      city: "",
-      street: "",
-      house: "",
-      postalCode: "",
-      apartment: "",
-    },
-    timeZone: "",
-    departmentsIds: [] as string[],
-  };
+type UpdateLocationData = z.infer<typeof updateLocationSchema>;
 
+export function UpdateLocationDialog({ location, open, onOpenChange }: Props) {
   const {
     register,
     handleSubmit,
-    reset,
-    formState: { errors },
-  } = useForm<CreateLocationData>({
-    defaultValues: initalData,
-    resolver: zodResolver(createLocationSchema),
+    formState: { errors, isValid },
+  } = useForm<UpdateLocationData>({
+    defaultValues: {
+      name: location.name,
+      address: location.address,
+      timeZone: location.timeZone,
+      departmentsIds: location.departmentsIds,
+    },
+    resolver: zodResolver(updateLocationSchema),
   });
 
-  const { createLocation, isPending, error, isError } = useCreateLocation();
+  const { updateLocation, isPending, error, isError } = useUpdateLocation();
 
-  const onSubmit = async (data: CreateLocationData) => {
-    createLocation(data, {
-      onSuccess: () => {
-        reset(initalData);
-        onOpenChange(false);
+  const onSubmit = (data: UpdateLocationData) => {
+    updateLocation(
+      { locationId: location.id, ...data },
+      {
+        onSuccess: () => {
+          onOpenChange(false);
+        },
       },
-    });
+    );
   };
 
   const getErrorMessage = (): string => {
@@ -87,16 +81,14 @@ export function CreateLocationDialog({ open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className=" max-h-[80vh] overflow-y-auto p-4">
+      <DialogContent className=" max-h-[80vh] overflow-y-auto p-6">
         <DialogHeader>
-          <DialogTitle>Create Location</DialogTitle>
-          <DialogDescription>
-            Location creation form goes here.
-          </DialogDescription>
+          <DialogTitle>Update Location</DialogTitle>
+          <DialogDescription>Location update form goes here.</DialogDescription>
         </DialogHeader>
 
         <form
-          id="createLocation"
+          id="updateLocation"
           className="grid gap-3 py-4"
           onSubmit={handleSubmit(onSubmit)}
         >
@@ -277,13 +269,13 @@ export function CreateLocationDialog({ open, onOpenChange }: Props) {
           </div>
 
           <DialogFooter className="pt-2">
-            {isError && error && (
-              <div className="text-destructive text-sm">
+            {error && (
+              <div className="text-sm text-red-500 mt-2 mr-auto">
                 {getErrorMessage()}
               </div>
             )}
 
-            <Button disabled={isPending} type="submit">
+            <Button disabled={isPending || !isValid} type="submit">
               {isPending ? "Saving..." : "Save"}
             </Button>
           </DialogFooter>

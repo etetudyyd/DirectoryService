@@ -1,6 +1,6 @@
 import { locationsQueryOptions } from "@/entities/locations/api";
 import { EnvelopeError } from "@/shared/api/errors";
-import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery} from "@tanstack/react-query";
 import { RefCallback, useCallback } from "react";
 
 const PAGE_SIZE = 3;

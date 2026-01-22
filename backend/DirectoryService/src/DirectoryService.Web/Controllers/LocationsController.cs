@@ -1,6 +1,8 @@
 ﻿using Core.Abstractions;
+using DirectoryService.Entities;
 using DirectoryService.Features.Locations.Commands.CreateLocation;
 using DirectoryService.Features.Locations.Commands.DeactivateLocation;
+using DirectoryService.Features.Locations.Commands.UpdateLocation;
 using DirectoryService.Features.Locations.Queries.GetLocationById;
 using DirectoryService.Features.Locations.Queries.GetLocations;
 using DirectoryService.Locations.Dtos;
@@ -52,6 +54,24 @@ public class LocationsController : ControllerBase
         return await handler.Handle(query, cancellationToken);
     }
 
+    [HttpPatch("{locationId}")]
+    public async Task<EndpointResult<Location>> Update(
+        [FromServices] ICommandHandler<Location, UpdateLocationCommand> handler,
+        [FromRoute] Guid locationId,
+        [FromBody] LocationDto request,
+        CancellationToken cancellationToken)
+    {
+        var command = new UpdateLocationCommand(
+            locationId,
+            new UpdateLocationRequest(
+                new NameDto(request.Name),
+                request.Address,
+                new TimezoneDto(request.TimeZone),
+                request.DepartmentIds));
+
+        return await handler.Handle(command, cancellationToken);
+    }
+
     [Route("{locationId:Guid}")]
     [HttpDelete]
     public async Task<EndpointResult<Guid>> Deactivate(
@@ -62,4 +82,5 @@ public class LocationsController : ControllerBase
         var command = new DeactivateLocationCommand(locationId);
         return await handler.Handle(command, cancellationToken);
     }
+
 }

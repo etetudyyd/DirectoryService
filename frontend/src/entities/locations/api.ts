@@ -4,6 +4,14 @@ import { PaginationResponse } from "@/shared/api/types";
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { Envelope } from "@/shared/api/envelope";
 
+export type UpdateLocationRequest = {
+  locationId: string;
+  name: string;
+  address: Address;
+  timeZone: string;
+  departmentsIds: string[];
+};
+
 export type CreateLocationRequest = {
   name: string;
   address: Address;
@@ -32,6 +40,20 @@ export const locationsApi = {
     const response = await apiClient.post<Envelope<Location>>(
       `/locations`,
       request,
+    );
+    return response.data;
+  },
+
+  updateLocation: async ({
+    locationId,
+    name,
+    address,
+    timeZone,
+    departmentsIds
+  }: UpdateLocationRequest): Promise<Envelope<Location>> => {
+    const response = await apiClient.patch<Envelope<Location>>(
+      `/locations/${locationId}`,
+      { name, address, timeZone, departmentsIds},
     );
     return response.data;
   },

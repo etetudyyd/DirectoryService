@@ -1,3 +1,10 @@
-﻿namespace DirectoryService.Locations.Requests;
+﻿using DirectoryService.Locations.Dtos;
 
-public record UpdateLocationRequest;
+namespace DirectoryService.Locations.Requests;
+
+public record UpdateLocationRequest(
+    NameDto Name,
+    AddressDto Address,
+    TimezoneDto Timezone,
+    Guid[] DepartmentsIds
+    );
