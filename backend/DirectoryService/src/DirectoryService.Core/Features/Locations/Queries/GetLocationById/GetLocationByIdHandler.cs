@@ -2,7 +2,7 @@
 using Core.Validation;
 using CSharpFunctionalExtensions;
 using DirectoryService.Database.IQueries;
-using DirectoryService.Locations.Dtos;
+using DirectoryService.Locations;
 using DirectoryService.Locations.Responses;
 using DirectoryService.ValueObjects.Location;
 using FluentValidation;

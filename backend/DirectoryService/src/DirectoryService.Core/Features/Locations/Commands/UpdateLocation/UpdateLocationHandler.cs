@@ -66,7 +66,7 @@ public class UpdateLocationHandler : ICommandHandler<Location, UpdateLocationCom
 
         // starting preparing data to update
         var updatedName = LocationName.Create(
-            command.LocationRequest.Name.Value);
+            command.LocationRequest.Name);
         if (updatedName.IsFailure)
         {
             transaction.Rollback(cancellationToken);
@@ -90,7 +90,7 @@ public class UpdateLocationHandler : ICommandHandler<Location, UpdateLocationCom
         }
 
         var updatedTimezone = Timezone.Create(
-            command.LocationRequest.Timezone.Value);
+            command.LocationRequest.Timezone);
 
         if(updatedTimezone.IsFailure)
         {

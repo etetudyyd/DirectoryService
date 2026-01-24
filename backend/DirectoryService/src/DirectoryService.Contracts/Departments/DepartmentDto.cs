@@ -1,6 +1,6 @@
-﻿namespace DirectoryService.Departments.Responses;
+﻿namespace DirectoryService.Departments;
 
-public record DepartmentResponse
+public record DepartmentDto
 {
     public Guid Id { get; init; }
 

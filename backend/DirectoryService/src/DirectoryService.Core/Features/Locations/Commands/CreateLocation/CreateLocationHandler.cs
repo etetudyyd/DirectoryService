@@ -49,7 +49,7 @@ public class CreateLocationHandler : ICommandHandler<Guid, CreateLocationCommand
         }
 
         // create entity
-        var name = LocationName.Create(command.LocationRequest.Name.Value);
+        var name = LocationName.Create(command.LocationRequest.Name);
         if (name.IsFailure)
         {
             _logger.LogError("Invalid LocationDto.Name");
@@ -87,7 +87,7 @@ public class CreateLocationHandler : ICommandHandler<Guid, CreateLocationCommand
         }
 
         var timeZone = Timezone.Create(
-            command.LocationRequest.Timezone.Value);
+            command.LocationRequest.Timezone);
 
         if (timeZone.IsFailure)
         {

@@ -1,4 +1,4 @@
-﻿using DirectoryService.Locations.Dtos;
+﻿using DirectoryService.Locations;
 using FluentValidation;
 
 namespace DirectoryService.Features.Locations.Commands.CreateLocation;
@@ -7,9 +7,13 @@ public class CreateLocationCommandValidator : AbstractValidator<CreateLocationCo
 {
     public CreateLocationCommandValidator()
     {
-        RuleFor(x => x.LocationRequest.Name).SetValidator(new NameValidator());
+        RuleFor(x => x.LocationRequest.Name)
+            .MinimumLength(Constants.MIN_LENGTH_LOCATION_NAME).WithMessage("Name is has to be at least 3 characters long")
+            .MaximumLength(Constants.MAX_LENGTH_LOCATION_NAME).WithMessage("Name is has to be at most 100 characters long")
+            .NotEmpty().WithMessage("Name is has to be not empty");
         RuleFor(x => x.LocationRequest.Address).SetValidator(new AddressValidator());
-        RuleFor(x => x.LocationRequest.Timezone).SetValidator(new TimezoneValidator());
+        RuleFor(x => x.LocationRequest.Timezone)
+            .NotEmpty().WithMessage("Timezone is has to be not empty");
         RuleForEach(x => x.LocationRequest.DepartmentsIds).NotEmpty().WithMessage("Department locations should not be empty");
     }
 }
@@ -31,25 +35,5 @@ public class AddressValidator : AbstractValidator<AddressDto>
             .NotEmpty().WithMessage("House is has to be not empty");
         RuleFor(x => x.Apartment)
             .NotEmpty().WithMessage("Apartment is has to be not empty");
-    }
-}
-
-public class NameValidator : AbstractValidator<NameDto>
-{
-    public NameValidator()
-    {
-        RuleFor(x => x.Value)
-            .MinimumLength(Constants.MIN_LENGTH_LOCATION_NAME).WithMessage("Name is has to be at least 3 characters long")
-            .MaximumLength(Constants.MAX_LENGTH_LOCATION_NAME).WithMessage("Name is has to be at most 100 characters long")
-            .NotEmpty().WithMessage("Name is has to be not empty");
-    }
-}
-
-public class TimezoneValidator : AbstractValidator<TimezoneDto>
-{
-    public TimezoneValidator()
-    {
-        RuleFor(x => x.Value)
-            .NotEmpty().WithMessage("Timezone is has to be not empty");
     }
 }

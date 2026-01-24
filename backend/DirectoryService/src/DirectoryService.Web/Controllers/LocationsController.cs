@@ -5,7 +5,6 @@ using DirectoryService.Features.Locations.Commands.DeactivateLocation;
 using DirectoryService.Features.Locations.Commands.UpdateLocation;
 using DirectoryService.Features.Locations.Queries.GetLocationById;
 using DirectoryService.Features.Locations.Queries.GetLocations;
-using DirectoryService.Locations.Dtos;
 using DirectoryService.Locations.Requests;
 using DirectoryService.Locations.Responses;
 using Framework.Endpoints;
@@ -20,15 +19,10 @@ public class LocationsController : ControllerBase
     [HttpPost]
     public async Task<EndpointResult<Guid>> Create(
         [FromServices] ICommandHandler<Guid, CreateLocationCommand> handler,
-        [FromBody] LocationDto request,
+        [FromBody] CreateLocationRequest request,
         CancellationToken cancellationToken)
     {
-        var command = new CreateLocationCommand(
-            new CreateLocationRequest(
-                new NameDto(request.Name),
-                request.Address,
-                new TimezoneDto(request.TimeZone),
-                request.DepartmentIds));
+        var command = new CreateLocationCommand(request);
 
         return await handler.Handle(command, cancellationToken);
     }
@@ -58,16 +52,10 @@ public class LocationsController : ControllerBase
     public async Task<EndpointResult<Location>> Update(
         [FromServices] ICommandHandler<Location, UpdateLocationCommand> handler,
         [FromRoute] Guid locationId,
-        [FromBody] LocationDto request,
+        [FromBody] UpdateLocationRequest request,
         CancellationToken cancellationToken)
     {
-        var command = new UpdateLocationCommand(
-            locationId,
-            new UpdateLocationRequest(
-                new NameDto(request.Name),
-                request.Address,
-                new TimezoneDto(request.TimeZone),
-                request.DepartmentIds));
+        var command = new UpdateLocationCommand(locationId, request);
 
         return await handler.Handle(command, cancellationToken);
     }

@@ -4,7 +4,7 @@ using Core.Validation;
 using CSharpFunctionalExtensions;
 using Dapper;
 using DirectoryService.Database.IQueries;
-using DirectoryService.Locations.Dtos;
+using DirectoryService.Locations;
 using DirectoryService.Locations.Responses;
 using FluentValidation;
 using Microsoft.Extensions.Logging;

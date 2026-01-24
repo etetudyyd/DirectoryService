@@ -1,9 +1,7 @@
-﻿using DirectoryService.Locations.Dtos;
-
-namespace DirectoryService.Locations.Requests;
+﻿namespace DirectoryService.Locations.Requests;
 
 public record CreateLocationRequest(
-    NameDto Name,
+    string Name,
     AddressDto Address,
-    TimezoneDto Timezone,
+    string Timezone,
     Guid[] DepartmentsIds);

@@ -1,3 +1,3 @@
 ﻿namespace DirectoryService.Departments.Responses;
 
-public record GetTopDepartmentsByPositionsResponse(IEnumerable<DepartmentResponse> Departments);
+public record GetTopDepartmentsByPositionsResponse(IEnumerable<DepartmentDto> Departments);

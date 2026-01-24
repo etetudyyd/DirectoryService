@@ -3,6 +3,7 @@ using Core.Validation;
 using CSharpFunctionalExtensions;
 using Dapper;
 using DirectoryService.Database.IQueries;
+using DirectoryService.Departments;
 using DirectoryService.Departments.Responses;
 using FluentValidation;
 using Microsoft.Extensions.Caching.Hybrid;
@@ -65,10 +66,10 @@ public class GetTopDepartmentsByPositionsHandler : IQueryHandler<GetTopDepartmen
             Expiration = TimeSpan.FromMinutes(Constants.TTL_CACHE),
         };
 
-        var departments = await _cache.GetOrCreateAsync<IEnumerable<DepartmentResponse>>(
+        var departments = await _cache.GetOrCreateAsync<IEnumerable<DepartmentDto>>(
             cacheKey,
             async _ => await connection
-                .QueryAsync<DepartmentResponse>(dapperSql),
+                .QueryAsync<DepartmentDto>(dapperSql),
             options,
             cancellationToken : cancellationToken);
 
