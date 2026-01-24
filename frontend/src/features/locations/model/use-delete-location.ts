@@ -4,15 +4,15 @@ import { queryClient } from "@/shared/api/query-client";
 import { useMutation } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-export function useCreateLocation() {
+export function useDeleteLocation() {
   const mutation = useMutation({
-    mutationFn: locationsApi.createLocation,
+    mutationFn: locationsApi.deleteLocation,
     onSettled: () =>
       queryClient.invalidateQueries({
         queryKey: [locationsQueryOptions.baseKey],
       }),
     onSuccess: () => {
-      toast.success("Location created successfully");
+      toast.success("Location deleted successfully");
     },
     onError: (error) => {
       if (error instanceof EnvelopeError) {
@@ -25,7 +25,7 @@ export function useCreateLocation() {
   });
 
   return {
-    createLocation: mutation.mutate,
+    deleteLocation: mutation.mutate,
     isPending: mutation.isPending,
     error: mutation.error instanceof EnvelopeError ? mutation.error : undefined,
     isError: mutation.isError,

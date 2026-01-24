@@ -73,6 +73,17 @@ public sealed class Location : ISoftDeletable
             departmentLocationsList);
     }
 
+    public UnitResult<Error> Update(LocationName name, Address address, Timezone timezone)
+    {
+        Name = name;
+        Address = address;
+        Timezone = timezone;
+
+        UpdatedAt = DateTime.UtcNow;
+
+        return UnitResult.Success<Error>();
+    }
+
     public UnitResult<Error> Deactivate()
     {
         if(!IsActive)

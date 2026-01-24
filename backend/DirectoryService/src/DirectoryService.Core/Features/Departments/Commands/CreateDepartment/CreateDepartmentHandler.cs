@@ -20,7 +20,7 @@ public class CreateDepartmentHandler : ICommandHandler<Guid, CreateDepartmentCom
     private readonly ILogger<CreateDepartmentHandler> _logger;
 
     private readonly IValidator<CreateDepartmentCommand> _validator;
-    
+
     private readonly HybridCache _cache;
 
     public CreateDepartmentHandler(

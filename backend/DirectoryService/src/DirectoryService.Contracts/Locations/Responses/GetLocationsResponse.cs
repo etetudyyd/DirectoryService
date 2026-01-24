@@ -1,6 +1,4 @@
-﻿using DirectoryService.Locations.Dtos;
-
-namespace DirectoryService.Locations.Responses;
+﻿namespace DirectoryService.Locations.Responses;
 
 public record GetLocationsResponse(
     List<LocationDto> Items,

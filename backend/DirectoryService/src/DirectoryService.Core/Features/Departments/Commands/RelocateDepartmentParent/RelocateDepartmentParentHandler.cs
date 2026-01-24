@@ -113,7 +113,7 @@ public class RelocateDepartmentParentHandler : ICommandHandler<Guid, RelocateDep
         var commitResult = transaction.Commit(cancellationToken);
         if (commitResult.IsFailure)
             return commitResult.Error.ToErrors();
-        
+
         await _cache.RemoveByTagAsync(Constants.DEPARTMENT_CACHE_PREFIX, cancellationToken);
 
         _logger.LogInformation(

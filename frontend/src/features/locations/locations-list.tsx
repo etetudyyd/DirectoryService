@@ -4,25 +4,36 @@ import { Input } from "@/shared/components/ui/input";
 import LocationCard from "@/features/locations/location-card";
 import { useState } from "react";
 import { Spinner } from "@/shared/components/ui/spinner";
-import LocationsPagination from "./location-pagination";
 import { Button } from "@/shared/components/ui/button";
 import { CreateLocationDialog } from "./create-location-dialog";
 import { useLocationsList } from "./model/use-locations-list";
 import { useCreateLocation } from "./model/use-create-location";
+import { Location } from "@/entities/locations/types";
+import { UpdateLocationDialog } from "./update-location-dialog";
 
 export default function LocationsList() {
-  const [open, setOpen] = useState(false);
+  const [createOpen, setCreateOpen] = useState(false);
+  const [updateOpen, setUpdateOpen] = useState(false);
 
-  const [page, setPage] = useState(1);
+  const [selectedLocation, setSelectedLocation] = useState<Location>(
+    {} as Location,
+  );
 
-  const { locations, totalPages, totalItems, isLoading, error, isError} =
-    useLocationsList({ page });
+  const {
+    locations,
+    totalItems,
+    isLoading,
+    error,
+    isError,
+    cursorRef,
+    isFetchingNextPage,
+  } = useLocationsList();
 
   const { isPending, error: createError } = useCreateLocation();
 
   if (isLoading) {
     return (
-      <div className="flex justify-center min-h-screen">
+      <div className="flex justify-center container mx-auto py-8 px-4">
         <Spinner />
       </div>
     );
@@ -54,7 +65,7 @@ export default function LocationsList() {
             className="min-w-65 bg-slate-800/50"
           />
           <Button
-            onClick={() => setOpen(true)}
+            onClick={() => setCreateOpen(true)}
             disabled={isPending}
             variant="default"
           >
@@ -68,19 +79,31 @@ export default function LocationsList() {
 
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {locations.map((location) => (
-          <LocationCard key={location.id} location={location} />
+          <LocationCard
+            key={location.id}
+            location={location}
+            onEdit={() => {
+              setSelectedLocation(location);
+              setUpdateOpen(true);
+            }}
+          />
         ))}
       </section>
 
-      {totalPages && (
-        <LocationsPagination
-          page={page}
-          totalPages={totalPages}
-          onPageChange={(p) => setPage(p)}
+      <CreateLocationDialog open={createOpen} onOpenChange={setCreateOpen} />
+
+      {selectedLocation && (
+        <UpdateLocationDialog
+          key={selectedLocation.id}
+          location={selectedLocation}
+          open={updateOpen}
+          onOpenChange={setUpdateOpen}
         />
       )}
 
-      <CreateLocationDialog open={open} onOpenChange={setOpen} />
+      <div ref={cursorRef} className="flex justify-center py-4">
+        {isFetchingNextPage && <Spinner />}
+      </div>
     </main>
   );
 }

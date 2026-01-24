@@ -7,6 +7,7 @@ using DirectoryService.ValueObjects.ConnectionEntities;
 using DirectoryService.ValueObjects.Department;
 using DirectoryService.ValueObjects.Location;
 using FluentValidation;
+using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Logging;
 using Shared.SharedKernel;
 using Guid = System.Guid;
@@ -21,14 +22,18 @@ public class CreateLocationHandler : ICommandHandler<Guid, CreateLocationCommand
 
     private readonly IValidator<CreateLocationCommand> _validator;
 
+    private HybridCache _cache;
+
     public CreateLocationHandler(
         ILocationsRepository locationsRepository,
         ILogger<CreateLocationHandler> logger,
-        IValidator<CreateLocationCommand> validator)
+        IValidator<CreateLocationCommand> validator, 
+        HybridCache cache)
     {
         _locationsRepository = locationsRepository;
         _logger = logger;
         _validator = validator;
+        _cache = cache;
     }
 
     public async Task<Result<Guid, Errors>> Handle(
@@ -44,7 +49,7 @@ public class CreateLocationHandler : ICommandHandler<Guid, CreateLocationCommand
         }
 
         // create entity
-        var name = LocationName.Create(command.LocationRequest.Name.Value);
+        var name = LocationName.Create(command.LocationRequest.Name);
         if (name.IsFailure)
         {
             _logger.LogError("Invalid LocationDto.Name");
@@ -82,7 +87,7 @@ public class CreateLocationHandler : ICommandHandler<Guid, CreateLocationCommand
         }
 
         var timeZone = Timezone.Create(
-            command.LocationRequest.Timezone.Value);
+            command.LocationRequest.Timezone);
 
         if (timeZone.IsFailure)
         {
@@ -114,6 +119,8 @@ public class CreateLocationHandler : ICommandHandler<Guid, CreateLocationCommand
 
         // save to db
         await _locationsRepository.AddAsync(location.Value, cancellationToken);
+
+        await _cache.RemoveByTagAsync(Constants.LOCATION_CACHE_PREFIX, cancellationToken);
 
         // log result
         _logger.LogInformation($"Location created successfully with id {locationId}", locationId);

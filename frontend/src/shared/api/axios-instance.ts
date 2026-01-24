@@ -12,7 +12,11 @@ apiClient.interceptors.response.use(
   (response) => {
     const data = response.data;
 
-    if (data?.isError && Array.isArray(data.errorList) && data.errorList.length) {
+    if (
+      data?.isError &&
+      Array.isArray(data.errorList) &&
+      data.errorList.length
+    ) {
       throw new EnvelopeError({
         type: data.errorList[0].type as ErrorType,
         messages: data.errorList.map((e: any) => ({
@@ -29,7 +33,11 @@ apiClient.interceptors.response.use(
     if (error.response?.data) {
       const data = error.response.data;
 
-      if (data?.isError && Array.isArray(data.errorList) && data.errorList.length) {
+      if (
+        data?.isError &&
+        Array.isArray(data.errorList) &&
+        data.errorList.length
+      ) {
         throw new EnvelopeError({
           type: data.errorList[0].type as ErrorType,
           messages: data.errorList.map((e: any) => ({
@@ -42,5 +50,5 @@ apiClient.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
