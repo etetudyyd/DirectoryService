@@ -48,6 +48,13 @@ public class GetLocationsHandler : IQueryHandler<GetLocationsResponse, GetLocati
             parameters.Add("search", $"%{query.Search}%");
         }
 
+        if (query.IsActive.HasValue)
+        {
+            conditions.Add("l.is_active = @isActive");
+            parameters.Add("isActive", query.IsActive.Value);
+        }
+
+
         if (query.Ids is { Count: > 0 })
         {
             joins.Add("JOIN department_locations dl ON dl.location_id = l.id");

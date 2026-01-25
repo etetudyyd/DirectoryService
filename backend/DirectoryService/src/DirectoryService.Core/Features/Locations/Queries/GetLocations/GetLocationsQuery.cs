@@ -9,7 +9,7 @@ public record GetLocationsQuery : IQuery
 
     public string? Search { get; }
 
-    public bool IsActive { get; }
+    public bool? IsActive { get; }
 
     public int Page { get; } = PaginationConstants.DEFAULT_PAGE_INDEX;
 
@@ -19,7 +19,7 @@ public record GetLocationsQuery : IQuery
     {
         Ids = request.Ids ?? [];
         Search = request.Search;
-        IsActive = request.IsActive ?? true;
+        IsActive = request.IsActive;
         Page = request.Page ?? PaginationConstants.DEFAULT_PAGE_INDEX;
         PageSize = request.PageSize ?? PaginationConstants.DEFAULT_PAGE_SIZE;
     }

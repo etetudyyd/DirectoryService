@@ -1,11 +1,12 @@
 import { locationsQueryOptions } from "@/entities/locations/api";
 import { EnvelopeError } from "@/shared/api/errors";
-import { useInfiniteQuery} from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { RefCallback, useCallback } from "react";
+import { LocationsFilter } from "../locations-list";
 
-const PAGE_SIZE = 3;
+export const PAGE_SIZE = 5;
 
-export function useLocationsList({search}: {search?: string} = {}) {
+export function useLocationsList({ search, pageSize, isActive }: LocationsFilter) {
   const {
     data,
     isPending,
@@ -17,7 +18,8 @@ export function useLocationsList({search}: {search?: string} = {}) {
   } = useInfiniteQuery({
     ...locationsQueryOptions.getLocationsInfinityOptions({
       search,
-      pageSize: PAGE_SIZE,
+      isActive,
+      pageSize: pageSize,
     }),
   });
 
@@ -46,6 +48,7 @@ export function useLocationsList({search}: {search?: string} = {}) {
     totalPages: data?.totalPages,
     totalItems: data?.totalItems,
     isPending,
+    isActive,
     error: error instanceof EnvelopeError ? error : undefined,
     isError,
     cursorRef,

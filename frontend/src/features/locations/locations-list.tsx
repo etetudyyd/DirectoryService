@@ -6,12 +6,25 @@ import { useState } from "react";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { Button } from "@/shared/components/ui/button";
 import { CreateLocationDialog } from "./create-location-dialog";
-import { useLocationsList } from "./model/use-locations-list";
+import { PAGE_SIZE, useLocationsList } from "./model/use-locations-list";
 import { useCreateLocation } from "./model/use-create-location";
 import { Location } from "@/entities/locations/types";
 import { UpdateLocationDialog } from "./update-location-dialog";
 import { PlusIcon, Search } from "lucide-react";
 import { useDebounce } from "use-debounce";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/shared/components/ui/select";
+
+export type LocationsFilter = {
+  search?: string;
+  isActive?: boolean;
+  pageSize: number;
+};
 
 export default function LocationsList() {
   const [search, setSearch] = useState("");
@@ -22,6 +35,7 @@ export default function LocationsList() {
   );
 
   const [debouncedSearch] = useDebounce(search, 300);
+  const [isActive, setIsActive] = useState<boolean | undefined>(undefined);
 
   const {
     locations = [],
@@ -30,7 +44,7 @@ export default function LocationsList() {
     isError,
     cursorRef,
     isFetchingNextPage,
-  } = useLocationsList({ search: debouncedSearch });
+  } = useLocationsList({ search: debouncedSearch, isActive, pageSize: PAGE_SIZE });
 
   const { error: createError } = useCreateLocation();
 
@@ -45,6 +59,29 @@ export default function LocationsList() {
         </div>
 
         <div className="flex items-center gap-3">
+          <Select
+            value={
+              isActive === undefined ? "all" : isActive ? "active" : "inactive"
+            }
+            onValueChange={(value) => {
+              if (value === "all") {
+                setIsActive(undefined);
+              } else if (value === "active") {
+                setIsActive(true);
+              } else {
+                setIsActive(false);
+              }
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Filter" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="inactive">Inactive</SelectItem>
+            </SelectContent>
+          </Select>
           <div className="relative flex-1 min-w-75 max-w-75">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
             <Input
@@ -54,7 +91,6 @@ export default function LocationsList() {
               className="pl-9"
             />
           </div>
-
           <Button
             onClick={() => setCreateOpen(true)}
             disabled={isPending}
@@ -80,7 +116,7 @@ export default function LocationsList() {
           <div className="col-span-full flex justify-center py-10">
             <Spinner />
           </div>
-        ) : locations.length === 0 ? (
+        ) : locations.length === 0 && !isError ? (
           <div className="col-span-full text-center text-gray-400 py-10">
             No locations found.
           </div>

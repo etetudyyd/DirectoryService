@@ -3,6 +3,7 @@ import { Address, Location } from "./types";
 import { PaginationResponse } from "@/shared/api/types";
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { Envelope } from "@/shared/api/envelope";
+import { LocationsFilter } from "@/features/locations/locations-list";
 
 export type UpdateLocationRequest = {
   locationId: string;
@@ -82,11 +83,14 @@ export const locationsQueryOptions = {
         locationsApi.getLocations({ page: page, pageSize: pageSize }),
     });
   },
-  getLocationsInfinityOptions: ({ search, pageSize }: { search?: string, pageSize: number }) => {
+  getLocationsInfinityOptions: (filter: LocationsFilter) => {
     return infiniteQueryOptions({
-      queryKey: [locationsQueryOptions.baseKey, { search }],
+      queryKey: [locationsQueryOptions.baseKey, filter],
       queryFn: ({ pageParam }) => {
-        return locationsApi.getLocations({ search: search, page: pageParam ?? 1, pageSize });
+        return locationsApi.getLocations({
+          ...filter,
+          page: pageParam,
+        });
       },
       initialPageParam: 1,
       getNextPageParam: (response) => {
@@ -98,7 +102,7 @@ export const locationsQueryOptions = {
           items: data.pages.flatMap((page) => page?.items ?? []),
           totalItems: data.pages[0]?.totalItems ?? 0,
           page: data.pages[0]?.page ?? 1,
-          pageSize: data.pages[0]?.pageSize ?? pageSize,
+          pageSize: data.pages[0]?.pageSize ?? 0,
           totalPages: data.pages[0]?.totalPages ?? 0,
         };
       },
