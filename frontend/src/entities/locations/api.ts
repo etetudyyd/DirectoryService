@@ -49,11 +49,11 @@ export const locationsApi = {
     name,
     address,
     timeZone,
-    departmentsIds
+    departmentsIds,
   }: UpdateLocationRequest): Promise<Envelope<Location>> => {
     const response = await apiClient.patch<Envelope<Location>>(
       `/locations/${locationId}`,
-      { name, address, timeZone, departmentsIds},
+      { name, address, timeZone, departmentsIds },
     );
     return response.data;
   },
@@ -82,11 +82,11 @@ export const locationsQueryOptions = {
         locationsApi.getLocations({ page: page, pageSize: pageSize }),
     });
   },
-  getLocationsInfinityOptions: ({ pageSize }: { pageSize: number }) => {
+  getLocationsInfinityOptions: ({ search, pageSize }: { search?: string, pageSize: number }) => {
     return infiniteQueryOptions({
-      queryKey: [locationsQueryOptions.baseKey],
+      queryKey: [locationsQueryOptions.baseKey, { search }],
       queryFn: ({ pageParam }) => {
-        return locationsApi.getLocations({ page: pageParam ?? 1, pageSize });
+        return locationsApi.getLocations({ search: search, page: pageParam ?? 1, pageSize });
       },
       initialPageParam: 1,
       getNextPageParam: (response) => {

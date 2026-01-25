@@ -5,10 +5,10 @@ import { RefCallback, useCallback } from "react";
 
 const PAGE_SIZE = 3;
 
-export function useLocationsList() {
+export function useLocationsList({search}: {search?: string} = {}) {
   const {
     data,
-    isLoading,
+    isPending,
     error,
     isError,
     fetchNextPage,
@@ -16,6 +16,7 @@ export function useLocationsList() {
     isFetchingNextPage,
   } = useInfiniteQuery({
     ...locationsQueryOptions.getLocationsInfinityOptions({
+      search,
       pageSize: PAGE_SIZE,
     }),
   });
@@ -44,7 +45,7 @@ export function useLocationsList() {
     locations: data?.items,
     totalPages: data?.totalPages,
     totalItems: data?.totalItems,
-    isLoading,
+    isPending,
     error: error instanceof EnvelopeError ? error : undefined,
     isError,
     cursorRef,

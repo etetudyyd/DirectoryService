@@ -10,44 +10,29 @@ import { useLocationsList } from "./model/use-locations-list";
 import { useCreateLocation } from "./model/use-create-location";
 import { Location } from "@/entities/locations/types";
 import { UpdateLocationDialog } from "./update-location-dialog";
+import { PlusIcon, Search } from "lucide-react";
+import { useDebounce } from "use-debounce";
 
 export default function LocationsList() {
+  const [search, setSearch] = useState("");
   const [createOpen, setCreateOpen] = useState(false);
   const [updateOpen, setUpdateOpen] = useState(false);
-
-  const [selectedLocation, setSelectedLocation] = useState<Location>(
-    {} as Location,
+  const [selectedLocation, setSelectedLocation] = useState<Location | null>(
+    null,
   );
 
+  const [debouncedSearch] = useDebounce(search, 300);
+
   const {
-    locations,
-    totalItems,
-    isLoading,
+    locations = [],
+    isPending,
     error,
     isError,
     cursorRef,
     isFetchingNextPage,
-  } = useLocationsList();
+  } = useLocationsList({ search: debouncedSearch });
 
-  const { isPending, error: createError } = useCreateLocation();
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center container mx-auto py-8 px-4">
-        <Spinner />
-      </div>
-    );
-  }
-
-  if (isError) {
-    return <div>Error: {error ? error.message : "Undefined error"}</div>;
-  }
-
-  if (!locations || totalItems === 0) {
-    return (
-      <div className="text-center mt-20 text-gray-400">No locations found.</div>
-    );
-  }
+  const { error: createError } = useCreateLocation();
 
   return (
     <main className="max-w-6xl mx-auto p-6">
@@ -60,34 +45,57 @@ export default function LocationsList() {
         </div>
 
         <div className="flex items-center gap-3">
-          <Input
-            placeholder="Поиск по названию или адресу"
-            className="min-w-65 bg-slate-800/50"
-          />
+          <div className="relative flex-1 min-w-75 max-w-75">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+            <Input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Search by name..."
+              className="pl-9"
+            />
+          </div>
+
           <Button
             onClick={() => setCreateOpen(true)}
             disabled={isPending}
-            variant="default"
+            className="hover:bg-gray-400"
           >
-            Добавить локацию
+            <PlusIcon className="h-4 w-4" />
           </Button>
-          {createError && (
-            <div className="text-red-500 text-sm">{createError.message}</div>
-          )}
         </div>
       </div>
 
+      {isError && (
+        <div className="text-red-500 mb-4">
+          Error: {error?.message ?? "Undefined error"}
+        </div>
+      )}
+
+      {createError && (
+        <div className="text-red-500 mb-4">{createError.message}</div>
+      )}
+
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {locations.map((location) => (
-          <LocationCard
-            key={location.id}
-            location={location}
-            onEdit={() => {
-              setSelectedLocation(location);
-              setUpdateOpen(true);
-            }}
-          />
-        ))}
+        {isPending ? (
+          <div className="col-span-full flex justify-center py-10">
+            <Spinner />
+          </div>
+        ) : locations.length === 0 ? (
+          <div className="col-span-full text-center text-gray-400 py-10">
+            No locations found.
+          </div>
+        ) : (
+          locations.map((location) => (
+            <LocationCard
+              key={location.id}
+              location={location}
+              onEdit={() => {
+                setSelectedLocation(location);
+                setUpdateOpen(true);
+              }}
+            />
+          ))
+        )}
       </section>
 
       <CreateLocationDialog open={createOpen} onOpenChange={setCreateOpen} />

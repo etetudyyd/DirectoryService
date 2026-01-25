@@ -1,7 +1,7 @@
 import { Card } from "@/shared/components/ui/card";
 import { Location } from "@/entities/locations/types";
 import { Button } from "@/shared/components/ui/button";
-import { EditIcon, Trash } from "lucide-react";
+import { Edit2, Edit2Icon, Edit3, EditIcon, Trash } from "lucide-react";
 import { useDeleteLocation } from "./model/use-delete-location";
 
 type Props = {
@@ -62,7 +62,7 @@ export default function LocationCard({ location, onEdit }: Props) {
           onClick={handleEdit}
           disabled={isPending}
         >
-          <EditIcon className="h-4 w-4" />
+          <Edit2Icon className="h-4 w-4" />
         </Button>
         <Button
           variant="ghost"
