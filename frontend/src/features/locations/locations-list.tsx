@@ -9,7 +9,7 @@ import { useLocationsList } from "./model/use-locations-list";
 import { useCreateLocation } from "./model/use-create-location";
 import { Location } from "@/entities/locations/types";
 import { UpdateLocationDialog } from "./update-location-dialog";
-import { PlusIcon } from "lucide-react";
+import { AlertCircleIcon, MapPinIcon, PlusIcon } from "lucide-react";
 import { useGetLocationsFilter } from "./model/location-filters-store";
 import { LocationsFilter } from "./locations-filter";
 
@@ -38,75 +38,131 @@ export default function LocationsList() {
   const { error: createError } = useCreateLocation();
 
   return (
-    <main className="max-w-6xl mx-auto p-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  {/* Header Section */}
+  <header className="mb-8">
+    <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+      <div>
+        <h1 className="text-3xl font-bold text-white tracking-tight">
+          Locations
+        </h1>
+        <p className="text-gray-400 mt-2">
+          Manage all your locations in one place
+        </p>
+      </div>
+
+      <div className="flex items-center gap-3">
+        <LocationsFilter />
+        
+        <Button
+          onClick={() => setCreateOpen(true)}
+          disabled={isPending}
+          className="bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200"
+          size="default"
+        >
+          <PlusIcon className="h-5 w-5" />
+          Add
+        </Button>
+      </div>
+    </div>
+  </header>
+
+  {/* Error Messages */}
+  {isError && (
+    <div className="mb-6 p-4 bg-red-900/20 border border-red-800 rounded-lg">
+      <div className="flex items-center">
+        <AlertCircleIcon className="h-5 w-5 text-red-400 mr-3" />
         <div>
-          <h1 className="text-2xl font-semibold text-white">Локации</h1>
-          <p className="text-sm text-slate-400 mt-1">
-            Список всех локаций организации
+          <p className="text-red-300 font-medium">Error loading locations</p>
+          <p className="text-red-400 text-sm mt-1">
+            {error?.message ?? "Unable to fetch locations. Please try again."}
           </p>
         </div>
+      </div>
+    </div>
+  )}
 
-        <div className="flex items-center gap-3">
-          <LocationsFilter />
+  {createError && (
+    <div className="mb-6 p-4 bg-red-900/20 border border-red-800 rounded-lg">
+      <div className="flex items-center">
+        <AlertCircleIcon className="h-5 w-5 text-red-400 mr-3" />
+        <p className="text-red-300">{createError.message}</p>
+      </div>
+    </div>
+  )}
 
+  {/* Locations Grid */}
+  <section className="mb-10">
+    {isPending ? (
+      <div className="flex justify-center items-center min-h-[400px]">
+        <div className="text-center">
+          <div className="inline-block">
+            <Spinner className="h-12 w-12 text-blue-500" />
+          </div>
+          <p className="text-gray-400 mt-4">Loading locations...</p>
+        </div>
+      </div>
+    ) : locations.length === 0 && !isError ? (
+      <div className="text-center py-16 px-4 border-2 border-dashed border-gray-700 rounded-2xl bg-gray-900/50">
+        <div className="max-w-md mx-auto">
+          <MapPinIcon className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+          <h3 className="text-xl font-semibold text-white mb-2">
+            No locations found
+          </h3>
+          <p className="text-gray-400 mb-6">
+            Get started by adding your first location
+          </p>
           <Button
             onClick={() => setCreateOpen(true)}
-            disabled={isPending}
-            className="hover:bg-gray-400"
+            className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
           >
-            <PlusIcon className="h-4 w-4" />
+            <PlusIcon className="h-5 w-5 mr-2" />
+            Add First Location
           </Button>
         </div>
       </div>
-
-      {isError && (
-        <div className="text-red-500 mb-4">
-          Error: {error?.message ?? "Undefined error"}
-        </div>
-      )}
-
-      {createError && (
-        <div className="text-red-500 mb-4">{createError.message}</div>
-      )}
-
-      <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {isPending ? (
-          <div className="col-span-full flex justify-center py-10">
-            <Spinner />
-          </div>
-        ) : locations.length === 0 && !isError ? (
-          <div className="col-span-full text-center text-gray-400 py-10">
-            No locations found.
-          </div>
-        ) : (
-          locations.map((location) => (
-            <LocationCard
-              key={location.id}
-              location={location}
-              onEdit={() => {
-                setSelectedLocation(location);
-                setUpdateOpen(true);
-              }}
-            />
-          ))
-        )}
-      </section>
-
-      <CreateLocationDialog open={createOpen} onOpenChange={setCreateOpen} />
-
-      {selectedLocation && (
-        <UpdateLocationDialog
-          key={selectedLocation.id}
-          location={selectedLocation}
-          open={updateOpen}
-          onOpenChange={setUpdateOpen}
-        />
-      )}
-
-      <div ref={cursorRef} className="flex justify-center py-4">
-        {isFetchingNextPage && <Spinner />}
+    ) : (
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 3xl:grid-cols-5 gap-6">
+        {locations.map((location) => (
+          <LocationCard
+            key={location.id}
+            location={location}
+            onEdit={() => {
+              setSelectedLocation(location);
+              setUpdateOpen(true);
+            }}
+          />
+        ))}
       </div>
-    </main>
+    )}
+  </section>
+
+  {/* Dialogs */}
+  <CreateLocationDialog 
+    open={createOpen} 
+    onOpenChange={setCreateOpen} 
+  />
+
+  {selectedLocation && (
+    <UpdateLocationDialog
+      key={selectedLocation.id}
+      location={selectedLocation}
+      open={updateOpen}
+      onOpenChange={setUpdateOpen}
+    />
+  )}
+
+  {/* Infinite Scroll Loader */}
+  <div ref={cursorRef} className="py-6">
+    {isFetchingNextPage && (
+      <div className="flex justify-center">
+        <div className="inline-flex items-center gap-3 px-6 py-3 bg-gray-800/50 rounded-full">
+          <Spinner className="h-5 w-5 text-blue-500" />
+          <span className="text-gray-400 text-sm">Loading more locations...</span>
+        </div>
+      </div>
+    )}
+  </div>
+</main>
   );
 }

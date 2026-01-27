@@ -14,6 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Location } from "@/entities/locations/types";
 import { useUpdateLocation } from "./model/use-update-location";
+import { BuildingIcon, MapPinIcon, ClockIcon, UsersIcon, AlertCircleIcon } from "lucide-react";
 
 const updateLocationSchema = z.object({
   name: z
@@ -30,9 +31,7 @@ const updateLocationSchema = z.object({
     apartment: z.string().nonempty("Apartment has to be not empty"),
   }),
   timeZone: z.string().nonempty("Timezone has to be not empty"),
-  departmentsIds: z.array(
-    z.string().nonempty("Department has to be not empty"),
-  ),
+  departmentsIds: z.array(z.string().nonempty("Department has to be not empty")),
 });
 
 type Props = {
@@ -71,212 +70,306 @@ export function UpdateLocationDialog({ location, open, onOpenChange }: Props) {
     );
   };
 
-  const getErrorMessage = (): string => {
-    if (isError) {
-      return error ? error.message : "Undefined error";
-    }
-
-    return "";
-  };
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className=" max-h-[80vh] overflow-y-auto p-6">
-        <DialogHeader>
-          <DialogTitle>Update Location</DialogTitle>
-          <DialogDescription>Location update form goes here.</DialogDescription>
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0 bg-gradient-to-b from-gray-900 to-black border-gray-800">
+        {/* Header */}
+        <DialogHeader className="p-6 pb-4 border-b border-gray-800 bg-gray-900/50">
+          <div className="flex items-center gap-3">
+            <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center">
+              <BuildingIcon className="h-5 w-5 text-white" />
+            </div>
+            <div>
+              <DialogTitle className="text-xl font-bold text-white">
+                Update Location
+              </DialogTitle>
+              <DialogDescription className="text-gray-400">
+                Edit location information
+              </DialogDescription>
+            </div>
+          </div>
         </DialogHeader>
 
         <form
           id="updateLocation"
-          className="grid gap-3 py-4"
+          className="p-6 space-y-6"
           onSubmit={handleSubmit(onSubmit)}
         >
-          <div className="grid gap-2">
-            <Label htmlFor="name">
-              <p>Name</p>
-            </Label>
-            <Input
-              id="name"
-              type="text"
-              placeholder="Введите название локации"
-              className={`w-full ${
-                errors.name
-                  ? "border-destructive focus-visible:ring-destructive"
-                  : ""
-              }`}
-              {...register("name")}
-            />
-            {errors.name && (
-              <div className="text-destructive text-sm">
-                {errors.name.message}
+          {/* Error message */}
+          {isError && (
+            <div className="p-4 bg-red-900/20 border border-red-800 rounded-lg">
+              <div className="flex items-center gap-3">
+                <AlertCircleIcon className="h-5 w-5 text-red-400" />
+                <div>
+                  <p className="text-red-300 font-medium">Update failed</p>
+                  <p className="text-red-400 text-sm mt-1">
+                    {error?.message || "An error occurred. Please try again."}
+                  </p>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* Basic Information */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <BuildingIcon className="h-5 w-5 text-blue-400" />
+              <h3 className="text-lg font-semibold text-white">Basic Information</h3>
+            </div>
+            
+            <div className="grid gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="name" className="text-gray-300">
+                  Location Name
+                </Label>
+                <Input
+                  id="name"
+                  type="text"
+                  placeholder="Enter location name"
+                  className={`bg-gray-900 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500/20 ${
+                    errors.name ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""
+                  }`}
+                  {...register("name")}
+                />
+                {errors.name && (
+                  <p className="text-red-400 text-sm flex items-center gap-1">
+                    <AlertCircleIcon className="h-4 w-4" />
+                    {errors.name.message}
+                  </p>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="timeZone" className="text-gray-300 flex items-center gap-2">
+                  <ClockIcon className="h-4 w-4" />
+                  Timezone
+                </Label>
+                <Input
+                  id="timeZone"
+                  type="text"
+                  placeholder="e.g., Europe/London, America/New_York"
+                  className={`bg-gray-900 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500/20 ${
+                    errors.timeZone ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""
+                  }`}
+                  {...register("timeZone")}
+                />
+                {errors.timeZone && (
+                  <p className="text-red-400 text-sm flex items-center gap-1">
+                    <AlertCircleIcon className="h-4 w-4" />
+                    {errors.timeZone.message}
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Address Information */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <MapPinIcon className="h-5 w-5 text-green-400" />
+              <h3 className="text-lg font-semibold text-white">Address Details</h3>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="region" className="text-gray-300 text-sm">
+                  Region
+                </Label>
+                <Input
+                  id="region"
+                  type="text"
+                  placeholder="Region/State"
+                  className={`bg-gray-900 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500/20 ${
+                    errors.address?.region ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""
+                  }`}
+                  {...register("address.region")}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="city" className="text-gray-300 text-sm">
+                  City
+                </Label>
+                <Input
+                  id="city"
+                  type="text"
+                  placeholder="City"
+                  className={`bg-gray-900 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500/20 ${
+                    errors.address?.city ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""
+                  }`}
+                  {...register("address.city")}
+                />
+              </div>
+
+              <div className="space-y-2 md:col-span-2">
+                <Label htmlFor="street" className="text-gray-300 text-sm">
+                  Street
+                </Label>
+                <Input
+                  id="street"
+                  type="text"
+                  placeholder="Street address"
+                  className={`bg-gray-900 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500/20 ${
+                    errors.address?.street ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""
+                  }`}
+                  {...register("address.street")}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="house" className="text-gray-300 text-sm">
+                  House
+                </Label>
+                <Input
+                  id="house"
+                  type="text"
+                  placeholder="House number"
+                  className={`bg-gray-900 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500/20 ${
+                    errors.address?.house ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""
+                  }`}
+                  {...register("address.house")}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="postalCode" className="text-gray-300 text-sm">
+                  Postal Code
+                </Label>
+                <Input
+                  id="postalCode"
+                  type="text"
+                  placeholder="ZIP/Postal code"
+                  className={`bg-gray-900 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500/20 ${
+                    errors.address?.postalCode ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""
+                  }`}
+                  {...register("address.postalCode")}
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="apartment" className="text-gray-300 text-sm">
+                  Apartment
+                </Label>
+                <Input
+                  id="apartment"
+                  type="text"
+                  placeholder="Apartment/Unit"
+                  className={`bg-gray-900 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500/20 ${
+                    errors.address?.apartment ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""
+                  }`}
+                  {...register("address.apartment")}
+                />
+              </div>
+            </div>
+
+            {/* Address errors */}
+            {errors.address && (
+              <div className="p-3 bg-red-900/20 border border-red-800 rounded-lg">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                  {errors.address.region && (
+                    <p className="text-red-400 flex items-center gap-1">
+                      <AlertCircleIcon className="h-3 w-3" />
+                      Region: {errors.address.region.message}
+                    </p>
+                  )}
+                  {errors.address.city && (
+                    <p className="text-red-400 flex items-center gap-1">
+                      <AlertCircleIcon className="h-3 w-3" />
+                      City: {errors.address.city.message}
+                    </p>
+                  )}
+                  {errors.address.street && (
+                    <p className="text-red-400 flex items-center gap-1">
+                      <AlertCircleIcon className="h-3 w-3" />
+                      Street: {errors.address.street.message}
+                    </p>
+                  )}
+                  {errors.address.house && (
+                    <p className="text-red-400 flex items-center gap-1">
+                      <AlertCircleIcon className="h-3 w-3" />
+                      House: {errors.address.house.message}
+                    </p>
+                  )}
+                  {errors.address.postalCode && (
+                    <p className="text-red-400 flex items-center gap-1">
+                      <AlertCircleIcon className="h-3 w-3" />
+                      Postal Code: {errors.address.postalCode.message}
+                    </p>
+                  )}
+                  {errors.address.apartment && (
+                    <p className="text-red-400 flex items-center gap-1">
+                      <AlertCircleIcon className="h-3 w-3" />
+                      Apartment: {errors.address.apartment.message}
+                    </p>
+                  )}
+                </div>
               </div>
             )}
           </div>
 
-          <div className="grid gap-2">
-            <Label htmlFor="address">
-              <p>Address</p>
-            </Label>
-            <div className="grid grid-cols-3 gap-2">
+          {/* Departments */}
+          <div className="space-y-4">
+            <div className="flex items-center gap-2">
+              <UsersIcon className="h-5 w-5 text-purple-400" />
+              <h3 className="text-lg font-semibold text-white">Departments</h3>
+            </div>
+            
+            <div className="space-y-2">
+              <Label htmlFor="departmentsIds" className="text-gray-300">
+                Department IDs (comma-separated)
+              </Label>
               <Input
-                id="region"
+                id="departmentsIds"
                 type="text"
-                placeholder="Область/регион"
-                className={`w-full ${
-                  errors.address?.region
-                    ? "border-destructive focus-visible:ring-destructive"
-                    : ""
+                placeholder="e.g., dept-001, dept-002, dept-003"
+                className={`bg-gray-900 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500/20 ${
+                  errors.departmentsIds ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""
                 }`}
-                {...register("address.region")}
+                {...register("departmentsIds", {
+                  setValueAs: (value) => {
+                    if (typeof value !== "string") return [];
+                    return value
+                      .split(",")
+                      .map((id) => id.trim())
+                      .filter(Boolean);
+                  },
+                })}
               />
-
-              <Input
-                id="city"
-                type="text"
-                placeholder="Город"
-                className={`w-full ${
-                  errors.address?.city
-                    ? "border-destructive focus-visible:ring-destructive"
-                    : ""
-                }`}
-                {...register("address.city")}
-              />
-
-              <Input
-                id="street"
-                type="text"
-                placeholder="Улица"
-                className={`w-full ${
-                  errors.address?.street
-                    ? "border-destructive focus-visible:ring-destructive"
-                    : ""
-                }`}
-                {...register("address.street")}
-              />
-
-              <Input
-                id="house"
-                type="text"
-                placeholder="Дом"
-                className={`w-full ${
-                  errors.address?.house
-                    ? "border-destructive focus-visible:ring-destructive"
-                    : ""
-                }`}
-                {...register("address.house")}
-              />
-
-              <Input
-                id="postalCode"
-                type="text"
-                placeholder="Почтовый индекс"
-                className={`w-full ${
-                  errors.address?.postalCode
-                    ? "border-destructive focus-visible:ring-destructive"
-                    : ""
-                }`}
-                {...register("address.postalCode")}
-              />
-
-              <Input
-                id="apartment"
-                type="text"
-                placeholder="Квартира"
-                className={`w-full ${
-                  errors.address?.apartment
-                    ? "border-destructive focus-visible:ring-destructive"
-                    : ""
-                }`}
-                {...register("address.apartment")}
-              />
-
-              {errors.address && (
-                <div className="text-destructive text-sm col-span-3">
-                  {errors.address.region && (
-                    <div>{errors.address.region.message}</div>
-                  )}
-                  {errors.address.city && (
-                    <div>{errors.address.city.message}</div>
-                  )}
-                  {errors.address.street && (
-                    <div>{errors.address.street.message}</div>
-                  )}
-                  {errors.address.house && (
-                    <div>{errors.address.house.message}</div>
-                  )}
-                  {errors.address.postalCode && (
-                    <div>{errors.address.postalCode.message}</div>
-                  )}
-                  {errors.address.apartment && (
-                    <div>{errors.address.apartment.message}</div>
-                  )}
-                </div>
+              <p className="text-gray-500 text-sm">
+                Enter department IDs separated by commas
+              </p>
+              {errors.departmentsIds && (
+                <p className="text-red-400 text-sm flex items-center gap-1">
+                  <AlertCircleIcon className="h-4 w-4" />
+                  {errors.departmentsIds.message}
+                </p>
               )}
             </div>
           </div>
 
-          <div className="grid gap-2">
-            <Label htmlFor="timeZone">
-              <p>Timezone</p>
-            </Label>
-            <Input
-              id="timeZone"
-              type="text"
-              placeholder="Введите таймзону локации"
-              className={`w-full ${
-                errors.timeZone
-                  ? "border-destructive focus-visible:ring-destructive"
-                  : ""
-              }`}
-              {...register("timeZone")}
-            />
-            {errors.timeZone && (
-              <div className="text-destructive text-sm">
-                {errors.timeZone.message}
-              </div>
-            )}
-          </div>
-
-          <div className="grid gap-2">
-            <Label htmlFor="departmentsIds">
-              <p>Departments</p>
-            </Label>
-            <Input
-              id="departmentsIds"
-              type="text"
-              placeholder="Введите ID департаментов через запятую"
-              className={`w-full ${
-                errors.departmentsIds
-                  ? "border-destructive focus-visible:ring-destructive"
-                  : ""
-              }`}
-              {...register("departmentsIds", {
-                setValueAs: (value) => {
-                  if (typeof value !== "string") return [];
-                  return value
-                    .split(",")
-                    .map((id) => id.trim())
-                    .filter(Boolean);
-                },
-              })}
-            />
-            {errors.departmentsIds && (
-              <div className="text-destructive text-sm">
-                {errors.departmentsIds.message}
-              </div>
-            )}
-          </div>
-
-          <DialogFooter className="pt-2">
-            {error && (
-              <div className="text-sm text-red-500 mt-2 mr-auto">
-                {getErrorMessage()}
-              </div>
-            )}
-
-            <Button disabled={isPending || !isValid} type="submit">
-              {isPending ? "Saving..." : "Save"}
+          {/* Footer */}
+          <DialogFooter className="pt-6 border-t border-gray-800">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => onOpenChange(false)}
+              className="border-gray-700 text-gray-300 hover:bg-gray-800 hover:text-white"
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={isPending || !isValid}
+              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {isPending ? (
+                <>
+                  <div className="h-4 w-4 border-2 border-white/30 border-t-white rounded-full animate-spin mr-2" />
+                  Updating...
+                </>
+              ) : (
+                "Update Location"
+              )}
             </Button>
           </DialogFooter>
         </form>
