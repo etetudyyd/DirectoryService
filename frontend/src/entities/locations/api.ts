@@ -3,7 +3,7 @@ import { Address, Location } from "./types";
 import { PaginationResponse } from "@/shared/api/types";
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { Envelope } from "@/shared/api/envelope";
-import { LocationsFilter } from "@/features/locations/locations-list";
+import { LocationsFilterState } from "@/features/locations/model/location-filters-store";
 
 export type UpdateLocationRequest = {
   locationId: string;
@@ -83,7 +83,7 @@ export const locationsQueryOptions = {
         locationsApi.getLocations({ page: page, pageSize: pageSize }),
     });
   },
-  getLocationsInfinityOptions: (filter: LocationsFilter) => {
+  getLocationsInfinityOptions: (filter: LocationsFilterState) => {
     return infiniteQueryOptions({
       queryKey: [locationsQueryOptions.baseKey, filter],
       queryFn: ({ pageParam }) => {

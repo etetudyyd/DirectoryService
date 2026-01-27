@@ -1,41 +1,26 @@
 "use client";
 
-import { Input } from "@/shared/components/ui/input";
 import LocationCard from "@/features/locations/location-card";
 import { useState } from "react";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { Button } from "@/shared/components/ui/button";
 import { CreateLocationDialog } from "./create-location-dialog";
-import { PAGE_SIZE, useLocationsList } from "./model/use-locations-list";
+import { useLocationsList } from "./model/use-locations-list";
 import { useCreateLocation } from "./model/use-create-location";
 import { Location } from "@/entities/locations/types";
 import { UpdateLocationDialog } from "./update-location-dialog";
-import { PlusIcon, Search } from "lucide-react";
-import { useDebounce } from "use-debounce";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/components/ui/select";
-
-export type LocationsFilter = {
-  search?: string;
-  isActive?: boolean;
-  pageSize: number;
-};
+import { PlusIcon } from "lucide-react";
+import { useGetLocationsFilter } from "./model/location-filters-store";
+import { LocationsFilter } from "./locations-filter";
 
 export default function LocationsList() {
-  const [search, setSearch] = useState("");
+  const { search, isActive, pageSize } = useGetLocationsFilter();
+
   const [createOpen, setCreateOpen] = useState(false);
   const [updateOpen, setUpdateOpen] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState<Location | null>(
     null,
   );
-
-  const [debouncedSearch] = useDebounce(search, 300);
-  const [isActive, setIsActive] = useState<boolean | undefined>(undefined);
 
   const {
     locations = [],
@@ -44,7 +29,11 @@ export default function LocationsList() {
     isError,
     cursorRef,
     isFetchingNextPage,
-  } = useLocationsList({ search: debouncedSearch, isActive, pageSize: PAGE_SIZE });
+  } = useLocationsList({
+    search,
+    isActive,
+    pageSize,
+  });
 
   const { error: createError } = useCreateLocation();
 
@@ -59,38 +48,8 @@ export default function LocationsList() {
         </div>
 
         <div className="flex items-center gap-3">
-          <Select
-            value={
-              isActive === undefined ? "all" : isActive ? "active" : "inactive"
-            }
-            onValueChange={(value) => {
-              if (value === "all") {
-                setIsActive(undefined);
-              } else if (value === "active") {
-                setIsActive(true);
-              } else {
-                setIsActive(false);
-              }
-            }}
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Filter" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All</SelectItem>
-              <SelectItem value="active">Active</SelectItem>
-              <SelectItem value="inactive">Inactive</SelectItem>
-            </SelectContent>
-          </Select>
-          <div className="relative flex-1 min-w-75 max-w-75">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-            <Input
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder="Search by name..."
-              className="pl-9"
-            />
-          </div>
+          <LocationsFilter />
+
           <Button
             onClick={() => setCreateOpen(true)}
             disabled={isPending}

@@ -2,11 +2,16 @@ import { locationsQueryOptions } from "@/entities/locations/api";
 import { EnvelopeError } from "@/shared/api/errors";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { RefCallback, useCallback } from "react";
-import { LocationsFilter } from "../locations-list";
+import { LocationsFilterState } from "./location-filters-store";
+import { useDebounce } from "use-debounce";
+
 
 export const PAGE_SIZE = 5;
 
-export function useLocationsList({ search, pageSize, isActive }: LocationsFilter) {
+export function useLocationsList({ search, pageSize, isActive }: LocationsFilterState) {
+  
+  const [debouncedSearch] = useDebounce(search, 300);
+
   const {
     data,
     isPending,
@@ -17,7 +22,7 @@ export function useLocationsList({ search, pageSize, isActive }: LocationsFilter
     isFetchingNextPage,
   } = useInfiniteQuery({
     ...locationsQueryOptions.getLocationsInfinityOptions({
-      search,
+      search: debouncedSearch,
       isActive,
       pageSize: pageSize,
     }),
