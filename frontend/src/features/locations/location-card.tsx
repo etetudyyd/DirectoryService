@@ -1,7 +1,7 @@
 import { Card } from "@/shared/components/ui/card";
 import { Location } from "@/entities/locations/types";
 import { Button } from "@/shared/components/ui/button";
-import { Edit2, Edit2Icon, Edit3, EditIcon, Trash } from "lucide-react";
+import { Edit2Icon, Trash } from "lucide-react";
 import { useDeleteLocation } from "./model/use-delete-location";
 
 type Props = {
