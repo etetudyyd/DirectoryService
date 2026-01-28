@@ -1,14 +1,20 @@
 import { locationsQueryOptions } from "@/entities/locations/api";
 import { EnvelopeError } from "@/shared/api/errors";
-import { useInfiniteQuery} from "@tanstack/react-query";
+import { useInfiniteQuery } from "@tanstack/react-query";
 import { RefCallback, useCallback } from "react";
+import { LocationsFilterState } from "./location-filters-store";
+import { useDebounce } from "use-debounce";
 
-const PAGE_SIZE = 3;
 
-export function useLocationsList() {
+export const PAGE_SIZE = 5;
+
+export function useLocationsList({ search, pageSize, isActive }: LocationsFilterState) {
+  
+  const [debouncedSearch] = useDebounce(search, 300);
+
   const {
     data,
-    isLoading,
+    isPending,
     error,
     isError,
     fetchNextPage,
@@ -16,7 +22,9 @@ export function useLocationsList() {
     isFetchingNextPage,
   } = useInfiniteQuery({
     ...locationsQueryOptions.getLocationsInfinityOptions({
-      pageSize: PAGE_SIZE,
+      search: debouncedSearch,
+      isActive,
+      pageSize: pageSize,
     }),
   });
 
@@ -44,7 +52,8 @@ export function useLocationsList() {
     locations: data?.items,
     totalPages: data?.totalPages,
     totalItems: data?.totalItems,
-    isLoading,
+    isPending,
+    isActive,
     error: error instanceof EnvelopeError ? error : undefined,
     isError,
     cursorRef,

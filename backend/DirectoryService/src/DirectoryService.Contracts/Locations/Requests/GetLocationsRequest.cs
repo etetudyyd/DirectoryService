@@ -6,7 +6,7 @@ public record GetLocationsRequest
 
     public string? Search { get; init; }
 
-    public bool? IsActive { get; init; } = true;
+    public bool? IsActive { get; init; }
 
     public int? Page { get; init; } = PaginationConstants.DEFAULT_PAGE_INDEX;
 
