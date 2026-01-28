@@ -1,15 +1,30 @@
-import { Card } from "@/shared/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/shared/components/ui/card";
 import { Location } from "@/entities/locations/types";
 import { Button } from "@/shared/components/ui/button";
-import { Edit2Icon, Trash, Clock, Users, Calendar, Globe } from "lucide-react";
+import {
+  Edit2Icon,
+  Trash,
+  Clock,
+  Users,
+  Calendar,
+  Globe,
+  MapPin,
+} from "lucide-react";
 import { useDeleteLocation } from "./model/use-delete-location";
+import { Separator } from "@/shared/components/ui/separator";
+import { Badge } from "@/shared/components/ui/badge";
 
 type Props = {
   location: Location;
   onEdit: () => void;
 };
 
-const formatedDateTime = (date: Date | string | null) => {
+const formatDateTime = (date: Date | string | null) => {
   if (!date) return "N/A";
 
   try {
@@ -32,12 +47,6 @@ const formatedDateTime = (date: Date | string | null) => {
 };
 
 export default function LocationCard({ location, onEdit }: Props) {
-  console.log("CreatedAt:", {
-    value: location.createdAt,
-    type: typeof location.createdAt,
-    isDate: location.createdAt instanceof Date,
-  });
-
   const { deleteLocation, isPending } = useDeleteLocation();
 
   const handleDelete = (e: React.MouseEvent) => {
@@ -55,120 +64,144 @@ export default function LocationCard({ location, onEdit }: Props) {
     onEdit();
   };
 
-  const formattedCreatedAt = formatedDateTime(location.createdAt);
-  const formattedUpdatedAt = formatedDateTime(location.updatedAt);
-  const formattedDeletedAt = formatedDateTime(location.deletedAt);
+  const formattedCreatedAt = formatDateTime(location.createdAt);
+  const formattedUpdatedAt = formatDateTime(location.updatedAt);
+  const formattedDeletedAt = formatDateTime(location.deletedAt);
+  const departmentCount = location.departmentsIds?.length || 0;
 
   return (
-    <Card
-      key={location.id}
-      className="group bg-linear-to-br
-       from-slate-900/50
-        to-slate-800/30
-         border-slate-700/60
-          hover:border-slate-600/80 hover:shadow-lg
-           transition-all
-            duration-300 hover:scale-[1.02] p-5"
-    >
-      {/* Header with name and status */}
-      <div className="flex justify-between items-start mb-4">
-        <div className="flex-1 min-w-0">
-          <h3 className="text-lg font-semibold text-white mb-2 truncate">
-            {location.name}
-          </h3>
+    <Card className="group relative overflow-hidden border-slate-700/50 bg-linear-to-br from-slate-900/50 to-slate-800/30 hover:shadow-xl transition-all duration-300 hover:border-slate-600/70 hover:scale-[1.02]">
+      {/* Active location glow effect */}
+      {location.isActive && (
+        <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-10 transition-opacity duration-300 bg-linear-to-br from-emerald-500/30 to-transparent" />
+      )}
 
-          {/* Address */}
-          <div className="flex items-center text-slate-400 text-sm mb-2">
-            <Globe className="w-4 h-4 mr-2 flex-shrink-0" />
-            <span className="truncate">
-              {location.address.city}, {location.address.street},{" "}
-              {location.address.house}
-            </span>
+      {/* Вместо бейджа в CardHeader */}
+      <CardHeader className="pb-3">
+        <div className="flex items-start justify-between">
+          <div className="flex-1 min-w-0 pr-3">
+            {" "}
+            {/* Добавили padding-right */}
+            <h3 className="text-lg font-semibold text-white truncate">
+              {location.name}
+            </h3>
+            <p className="text-sm text-slate-400 truncate">
+              {location.address.city}, {location.address.street}
+            </p>
           </div>
 
-          {/* Additional info grid */}
-          <div className="grid gap-2 text-sm">
-            {/* Timezone */}
-            <div className="flex items-center text-slate-400">
-              <Clock className="w-3.5 h-3.5 mr-2 flex-shrink-0" />
-              <span className="truncate text-slate-300">
-                {location.timeZone}
-              </span>
+          <div className="shrink-0">
+            <div className="flex flex-col items-end">
+              <div
+                className={`h-2.5 w-2.5 rounded-full mb-1 ${
+                  location.isActive ? "bg-emerald-500" : "bg-amber-500"
+                }`}
+              />
             </div>
-            
-            {/* Дата создания */}
-            <div className="flex items-center text-slate-400 col-span-2">
-              <Calendar className="w-3.5 h-3.5 mr-2 flex-shrink-0" />
-              <span className="text-slate-300">
-                Created: {formattedCreatedAt}
-              </span>
+          </div>
+        </div>
+      </CardHeader>
+
+      <CardContent className="pb-3">
+        <div className="space-y-3">
+          {/* Address */}
+          <div className="flex items-start gap-2">
+            <Globe className="h-4 w-4 text-slate-400 mt-0.5 shrink-0" />
+            <div>
+              <p className="text-sm text-slate-300">
+                {location.address.street}, {location.address.house}
+              </p>
+              <p className="text-xs text-slate-500">
+                {location.address.city}, {location.address.region}
+              </p>
+            </div>
+          </div>
+
+          <Separator className="bg-slate-800/50" />
+
+          {/* Info grid */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="flex items-center gap-2">
+              <Clock className="h-4 w-4 text-slate-400 shrink-0" />
+              <div className="min-w-0">
+                <p className="text-xs text-slate-500">Timezone</p>
+                <p className="text-sm text-slate-300 truncate">
+                  {location.timeZone || "Not set"}
+                </p>
+              </div>
             </div>
 
-            {/* Динамическая дата в зависимости от статуса */}
+            <div className="flex items-center gap-2">
+              <Users className="h-4 w-4 text-slate-400 shrink-0" />
+              <div className="min-w-0">
+                <p className="text-xs text-slate-500">Departments</p>
+                <p className="text-sm text-slate-300">
+                  {departmentCount} {departmentCount === 1 ? "dept" : "depts"}
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 col-span-2">
+              <Calendar className="h-4 w-4 text-slate-400 shrink-0" />
+              <div className="min-w-0">
+                <p className="text-xs text-slate-500">Created</p>
+                <p className="text-sm text-slate-300">{formattedCreatedAt}</p>
+              </div>
+            </div>
+
+            {/* Updated or Deleted */}
             {location.isActive
               ? location.updatedAt && (
-                  <div className="flex items-center text-slate-400 col-span-2">
-                    <Calendar className="w-3.5 h-3.5 mr-2 flex-shrink-0" />
-                    <span className="text-slate-300">
-                      Updated: {formattedUpdatedAt}
-                    </span>
+                  <div className="flex items-center gap-2 col-span-2">
+                    <Calendar className="h-4 w-4 text-blue-400 shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-xs text-blue-500">Updated</p>
+                      <p className="text-sm text-blue-300">
+                        {formattedUpdatedAt}
+                      </p>
+                    </div>
                   </div>
                 )
               : location.deletedAt && (
-                  <div className="flex items-center text-amber-400/80 col-span-2">
-                    <Calendar className="w-3.5 h-3.5 mr-2 flex-shrink-0" />
-                    <span className="text-amber-300/80">
-                      Deleted: {formattedDeletedAt}
-                    </span>
+                  <div className="flex items-center gap-2 col-span-2">
+                    <Calendar className="h-4 w-4 text-amber-400 shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-xs text-amber-500">Deleted</p>
+                      <p className="text-sm text-amber-300">
+                        {formattedDeletedAt}
+                      </p>
+                    </div>
                   </div>
                 )}
           </div>
         </div>
+      </CardContent>
 
-        {/* Status badge */}
-        <div className="ml-3 flex-shrink-0">
-          <span
-            className={
-              "inline-flex items-center px-3 py-1.5 rounded-full text-xs font-semibold transition-colors " +
-              (location.isActive
-                ? "bg-emerald-900/30 text-emerald-300 border border-emerald-700/40 hover:border-emerald-600/60"
-                : "bg-amber-900/30 text-amber-300 border border-amber-700/40 hover:border-amber-600/60")
-            }
+      <CardFooter className="pt-3 border-t border-slate-800/50 bg-slate-900/20">
+        <div className="flex w-full justify-end gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleEdit}
+            disabled={isPending}
+            className="gap-2 border-slate-700/50 text-slate-400 hover:text-blue-400 hover:border-blue-700/50 hover:bg-blue-900/20 transition-all duration-200"
           >
-            <span
-              className={
-                "h-2 w-2 rounded-full mr-2 " +
-                (location.isActive ? "bg-emerald-400" : "bg-amber-400")
-              }
-            />
-            {location.isActive ? "Active" : "Inactive"}
-          </span>
-        </div>
-      </div>
+            <Edit2Icon className="h-4 w-4" />
+            Edit
+          </Button>
 
-      {/* Action buttons */}
-      <div className="flex justify-end items-center gap-2 pt-4 border-t border-slate-800/50">
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-9 px-3 text-slate-400 hover:text-blue-400 hover:bg-blue-900/20 border border-slate-700/50 hover:border-blue-700/50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-          onClick={handleEdit}
-          disabled={isPending}
-        >
-          <Edit2Icon className="h-4 w-4 mr-2" />
-          Edit
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-9 px-3 text-slate-400 hover:text-red-400 hover:bg-red-900/20 border border-slate-700/50 hover:border-red-700/50 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-          onClick={handleDelete}
-          disabled={isPending}
-        >
-          <Trash className="h-4 w-4 mr-2" />
-          Delete
-        </Button>
-      </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleDelete}
+            disabled={isPending}
+            className="gap-2 border-slate-700/50 text-slate-400 hover:text-red-400 hover:border-red-700/50 hover:bg-red-900/20 transition-all duration-200"
+          >
+            <Trash className="h-4 w-4" />
+            Delete
+          </Button>
+        </div>
+      </CardFooter>
     </Card>
   );
 }

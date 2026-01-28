@@ -72,11 +72,11 @@ export function UpdateLocationDialog({ location, open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0 bg-gradient-to-b from-gray-900 to-black border-gray-800">
+      <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0 bg-linear-to-b from-gray-900 to-black border-gray-800">
         {/* Header */}
         <DialogHeader className="p-6 pb-4 border-b border-gray-800 bg-gray-900/50">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-600 to-blue-800 flex items-center justify-center">
+            <div className="h-10 w-10 rounded-lg bg-linear-to-br from-blue-600 to-blue-800 flex items-center justify-center">
               <BuildingIcon className="h-5 w-5 text-white" />
             </div>
             <div>
@@ -360,7 +360,7 @@ export function UpdateLocationDialog({ location, open, onOpenChange }: Props) {
             <Button
               type="submit"
               disabled={isPending || !isValid}
-              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isPending ? (
                 <>

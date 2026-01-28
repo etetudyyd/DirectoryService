@@ -12,9 +12,11 @@ import { UpdateLocationDialog } from "./update-location-dialog";
 import { AlertCircleIcon, MapPinIcon, PlusIcon } from "lucide-react";
 import { useGetLocationsFilter } from "./model/location-filters-store";
 import { LocationsFilter } from "./locations-filter";
+import { useGetGlobalSearch } from "@/shared/stored/global-search-store";
 
 export default function LocationsList() {
   const { search, isActive, pageSize } = useGetLocationsFilter();
+  const globalSearch = useGetGlobalSearch();
 
   const [createOpen, setCreateOpen] = useState(false);
   const [updateOpen, setUpdateOpen] = useState(false);
@@ -30,7 +32,7 @@ export default function LocationsList() {
     cursorRef,
     isFetchingNextPage,
   } = useLocationsList({
-    search,
+    search: search == "" ? globalSearch.search : search,
     isActive,
     pageSize,
   });
@@ -94,12 +96,12 @@ export default function LocationsList() {
   {/* Locations Grid */}
   <section className="mb-10">
     {isPending ? (
-      <div className="flex justify-center items-center min-h-[400px]">
+      <div className="flex justify-center items-center min-h-100">
         <div className="text-center">
           <div className="inline-block">
-            <Spinner className="h-12 w-12 text-blue-500" />
+            <Spinner className="h-10 w-10 text-blue-900" />
           </div>
-          <p className="text-gray-400 mt-4">Loading locations...</p>
+          <p className="text-gray-400">Loading...</p>
         </div>
       </div>
     ) : locations.length === 0 && !isError ? (
@@ -114,7 +116,7 @@ export default function LocationsList() {
           </p>
           <Button
             onClick={() => setCreateOpen(true)}
-            className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+            className="bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
           >
             <PlusIcon className="h-5 w-5 mr-2" />
             Add First Location
@@ -157,8 +159,7 @@ export default function LocationsList() {
     {isFetchingNextPage && (
       <div className="flex justify-center">
         <div className="inline-flex items-center gap-3 px-6 py-3 bg-gray-800/50 rounded-full">
-          <Spinner className="h-5 w-5 text-blue-500" />
-          <span className="text-gray-400 text-sm">Loading more locations...</span>
+          <Spinner className="h-6 w-6 text-blue-900" />
         </div>
       </div>
     )}
