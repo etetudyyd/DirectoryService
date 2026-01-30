@@ -15,7 +15,7 @@ public sealed class Position : ISoftDeletable
 
     public PositionName Name { get; private set; }
 
-    public Description Description { get; private set; }
+    public PositionDescription Description { get; private set; }
 
     public bool IsActive { get; private set; }
 
@@ -30,7 +30,7 @@ public sealed class Position : ISoftDeletable
     private Position(
         PositionId id,
         PositionName name,
-        Description description,
+        PositionDescription description,
         IEnumerable<DepartmentPosition> departmentPositions)
     {
         Id = id;
@@ -46,7 +46,7 @@ public sealed class Position : ISoftDeletable
     public static Result<Position, Error> Create(
         PositionId id,
         PositionName name,
-        Description description,
+        PositionDescription positionDescription,
         IEnumerable<DepartmentPosition> departmentPositions)
     {
         if (string.IsNullOrWhiteSpace(name.Value) || name.Value.Length > Constants.MAX_LENGTH_POSITION_NAME)
@@ -59,8 +59,30 @@ public sealed class Position : ISoftDeletable
         return new Position(
             id,
             name,
-            description,
+            positionDescription,
             departmentPositions);
+    }
+
+    public void AddDepartments(IEnumerable<DepartmentPosition> departmentPosition)
+    {
+        var departmentPositions = departmentPosition
+            .Select(p => DepartmentPosition.Create(p.PositionId, p.DepartmentId).Value);
+        _departmentPositions.AddRange(departmentPositions);
+    }
+
+    public void UpdateDepartments(IEnumerable<DepartmentPosition> departmentPositions)
+    {
+        _departmentPositions.Clear();
+        AddDepartments(departmentPositions);
+    }
+
+    public UnitResult<Error> Update(PositionName name, PositionDescription description)
+    {
+        Name = name;
+        Description = description;
+        UpdatedAt = DateTime.UtcNow;
+
+        return UnitResult.Success<Error>();
     }
 
     public UnitResult<Error> Deactivate()

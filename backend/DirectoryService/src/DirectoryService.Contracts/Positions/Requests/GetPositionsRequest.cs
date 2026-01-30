@@ -1,6 +1,6 @@
-﻿namespace DirectoryService.Locations.Requests;
+﻿namespace DirectoryService.Positions.Requests;
 
-public record GetLocationsRequest
+public record GetPositionsRequest
 {
     public List<Guid>? DepartmentIds { get; init; } = [];
 

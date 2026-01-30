@@ -14,10 +14,5 @@
       <ProjectReference Include="..\DirectoryService.Contracts\DirectoryService.Contracts.csproj" />
       <ProjectReference Include="..\DirectoryService.Domain\DirectoryService.Domain.csproj" />
     </ItemGroup>
-  
-    <ItemGroup>
-      <Folder Include="Features\Positions\Commands\" />
-      <Folder Include="Features\Positions\Queries\" />
-    </ItemGroup>
 
 </Project>

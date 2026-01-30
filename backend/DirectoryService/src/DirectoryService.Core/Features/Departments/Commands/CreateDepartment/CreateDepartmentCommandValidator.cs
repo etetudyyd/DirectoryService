@@ -7,8 +7,8 @@ public class CreateDepartmentCommandValidator : AbstractValidator<CreateDepartme
     public CreateDepartmentCommandValidator()
     {
         RuleFor(x => x.DepartmentRequest.Name)
-            .MinimumLength(Constants.MIN_LENGTH_DEPARTMENT_NAME).WithMessage("Name is has to be at least 3 characters long")
-            .MaximumLength(Constants.MAX_LENGTH_DEPARTMENT_NAME).WithMessage("Name is has to be at most 100 characters long")
+            .MinimumLength(Constants.MinLengthDepartmentName).WithMessage("Name is has to be at least 3 characters long")
+            .MaximumLength(Constants.MaxLengthDepartmentName).WithMessage("Name is has to be at most 100 characters long")
             .NotEmpty().WithMessage("Name is has to be not empty");
         RuleFor(x => x.DepartmentRequest.Identifier)
             .MinimumLength(Constants.MIN_LENGTH_DEPARTMENT_IDENTIFIER)

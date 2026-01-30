@@ -29,6 +29,32 @@ public class PositionsRepository : IPositionsRepository
         return position.Id.Value;
     }
 
+    public async Task<Result<Position, Error>> GetByIdWithLockAsync(
+        Guid id,
+        CancellationToken cancellationToken)
+    {
+        var position = await _dbContext.Positions
+            .FromSqlRaw(
+                $@"SELECT id,
+                        name,
+                        description,
+                        is_active,
+                        created_at,
+                        updated_at,
+                        deleted_at
+
+                   FROM {Constants.POSITION_TABLE_ROUTE} 
+                   WHERE id = {{0}}
+                   AND is_active = true
+                   FOR UPDATE", id)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (position == null)
+            return Error.Failure("department.not.found", "Department not found");
+
+        return position;
+    }
+
     public async Task<UnitResult<Error>> BulkDeleteInactivePositionsAsync(
         List<DepartmentId> departmentIds,
         CancellationToken cancellationToken)

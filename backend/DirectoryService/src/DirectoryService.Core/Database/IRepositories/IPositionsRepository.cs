@@ -9,5 +9,7 @@ public interface IPositionsRepository
 {
     Task<Guid> AddAsync(Position position, CancellationToken cancellationToken);
 
+    Task<Result<Position, Error>> GetByIdWithLockAsync(Guid id, CancellationToken cancellationToken);
+
     Task<UnitResult<Error>> BulkDeleteInactivePositionsAsync(List<DepartmentId> departmentIds, CancellationToken cancellationToken);
 }

@@ -43,7 +43,7 @@ public class DeactivateLocationHandler : ICommandHandler<Guid, DeactivateLocatio
       var validationResult = await _validator.ValidateAsync(command, cancellationToken);
       if (!validationResult.IsValid)
       {
-          _logger.LogError("Invalid DepartmentDto");
+          _logger.LogError("Invalid LocationDto");
           return validationResult.ToErrors();
       }
 

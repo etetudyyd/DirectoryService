@@ -37,10 +37,10 @@ public class PositionConfiguration : IEntityTypeConfiguration<Position>
         builder.Property(p => p.Description)
             .HasColumnName("description")
             .IsRequired()
-            .HasMaxLength(Constants.MAX_LENGTH_DESCRIPTION)
+            .HasMaxLength(Constants.MAX_LENGTH_POSITION_DESCRIPTION)
             .HasConversion(
                 name => name.Value,
-                value => Description.Create(value).Value);
+                value => PositionDescription.Create(value).Value);
 
         builder.Property(p => p.IsActive)
             .HasColumnName("is_active")

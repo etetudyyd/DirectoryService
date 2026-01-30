@@ -23,7 +23,7 @@ public class UpdateDepartmentLocationsHandler : ICommandHandler<Guid, UpdateDepa
     private readonly UpdateDepartmentLocationsCommandValidator _validator;
 
     private readonly ILogger<UpdateDepartmentLocationsHandler> _logger;
-    
+
     private readonly HybridCache _cache;
 
     public UpdateDepartmentLocationsHandler(
@@ -83,8 +83,7 @@ public class UpdateDepartmentLocationsHandler : ICommandHandler<Guid, UpdateDepa
             .ToArray();
 
         var departmentLocationsUpdateResult = await _locationsRepository
-            .IsLocationActiveAsync(updatedLocations, cancellationToken); 
-
+            .IsLocationActiveAsync(updatedLocations, cancellationToken);
 
         // Locations isExists, isActive, isUnique validation
         if (departmentLocationsResult.IsFailure)

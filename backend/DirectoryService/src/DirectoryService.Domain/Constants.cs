@@ -20,13 +20,14 @@ public readonly struct Constants
     // ttl
     public const int TTL_CACHE = 5;
 
-    // lenght constants
-    public static readonly int MAX_LENGTH_DEPARTMENT_NAME = 150;
-    public static readonly int MIN_LENGTH_DEPARTMENT_NAME = 3;
+    // DEPARTMENT
+    public static readonly int MaxLengthDepartmentName = 150;
+    public static readonly int MinLengthDepartmentName = 3;
     public const int MAX_LENGTH_DEPARTMENT_IDENTIFIER = 150;
     public const int MIN_LENGTH_DEPARTMENT_IDENTIFIER = 3;
     public const int MAX_LENGTH_DEPARTMENT_PATH = 9999;
 
+    // LOCATION
     public const int MAX_LENGTH_LOCATION_NAME = 120;
     public const int MIN_LENGTH_LOCATION_NAME = 3;
 
@@ -37,13 +38,15 @@ public readonly struct Constants
         public const int MAX_LENGTH_ADDRESS_CITY = 100;
         public const int MAX_LENGTH_ADDRESS_STREET = 100;
         public const int MAX_LENGTH_ADDRESS_HOUSE = 100;
-        public const int MAX_LENGTH_ADDRESS_APARTAMENT = 100;
+        public const int MAX_LENGTH_ADDRESS_APARTMENT = 100;
 
     }
 
     public const int LENGTH_ADDRESS_POSTAL_CODE = 6;
+
+    // POSITION
     public const int MAX_LENGTH_POSITION_NAME = 100;
     public const int MIN_LENGTH_POSITION_NAME = 3;
 
-    public const int MAX_LENGTH_DESCRIPTION = 1000;
+    public const int MAX_LENGTH_POSITION_DESCRIPTION = 1000;
 }

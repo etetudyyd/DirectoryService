@@ -56,11 +56,11 @@ public class GetLocationsHandler : IQueryHandler<GetLocationsResponse, GetLocati
         conditions.Add(query.IsActive.Value == false ? "l.deleted_at IS NOT NULL" : "l.deleted_at IS NULL");
     }
 
-    if (query.Ids is { Count: > 0 })
+    if (query.DepartmentIds is { Count: > 0 })
     {
         joins.Add("JOIN department_locations dl ON dl.location_id = l.id");
         conditions.Add("dl.department_id = ANY(@departmentIds)");
-        parameters.Add("departmentIds", query.Ids);
+        parameters.Add("departmentIds", query.DepartmentIds);
     }
 
     parameters.Add("offset", (query.Page - 1) * query.PageSize, DbType.Int32);

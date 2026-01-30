@@ -48,7 +48,7 @@ public class CreatePositionHandler: ICommandHandler<Guid, CreatePositionCommand>
             return name.Error.ToErrors();
         }
 
-        var description = Description.Create(command.PositionRequest.Description);
+        var description = PositionDescription.Create(command.PositionRequest.Description);
 
         var positionId = new PositionId(Guid.NewGuid());
 

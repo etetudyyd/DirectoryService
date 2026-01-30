@@ -1,9 +1,10 @@
 ﻿using Core.Abstractions;
-using DirectoryService.Locations.Requests;
+using DirectoryService.Positions.Requests;
 
-namespace DirectoryService.Features.Locations.Queries.GetLocations;
+namespace DirectoryService.Features.Positions.Queries.GetPositions;
 
-public record GetLocationsQuery : IQuery
+
+public record GetPositionsQuery : IQuery
 {
     public IReadOnlyList<Guid> DepartmentIds { get; }
 
@@ -15,7 +16,7 @@ public record GetLocationsQuery : IQuery
 
     public int PageSize { get; } = PaginationConstants.DEFAULT_PAGE_SIZE;
 
-    public GetLocationsQuery(GetLocationsRequest request)
+    public GetPositionsQuery(GetPositionsRequest request)
     {
         DepartmentIds = request.DepartmentIds ?? [];
         Search = request.Search;

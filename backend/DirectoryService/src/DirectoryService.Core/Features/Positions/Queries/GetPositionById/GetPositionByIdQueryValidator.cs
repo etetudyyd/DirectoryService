@@ -1,10 +1,10 @@
 ﻿using FluentValidation;
 
-namespace DirectoryService.Features.Locations.Queries.GetLocationById;
+namespace DirectoryService.Features.Positions.Queries.GetPositionById;
 
-public class GetLocationByIdQueryValidator : AbstractValidator<GetLocationByIdQuery>
+public class GetPositionByIdQueryValidator : AbstractValidator<GetPositionByIdQuery>
 {
-    public GetLocationByIdQueryValidator()
+    public GetPositionByIdQueryValidator()
     {
         RuleFor(x => x.Id)
             .NotEmpty().WithMessage("Id is has to be not empty.")
