@@ -6,7 +6,7 @@ public record PositionDto
 
     public string Name { get; init; } = string.Empty;
 
-    public string Description { get; init; } = string.Empty;
+    public string? Description { get; init; } = string.Empty;
 
     public bool IsActive { get; init; }
 

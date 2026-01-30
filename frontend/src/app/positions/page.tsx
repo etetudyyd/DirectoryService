@@ -1,3 +1,7 @@
+import PositionsList from "@/features/positions/positions-list";
+
 export default function Positions() {
-    return <div>Positions Page</div>;
+    return (
+        <PositionsList />
+    );
 }

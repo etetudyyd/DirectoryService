@@ -1,24 +1,17 @@
+import { Position } from "@/entities/positions/types";
+import { useDeletePosition } from "./model/use-delete-position";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
 } from "@/shared/components/ui/card";
-import { Location } from "@/entities/locations/types";
-import { Button } from "@/shared/components/ui/button";
-import {
-  Edit2Icon,
-  Trash,
-  Clock,
-  Users,
-  Calendar,
-  Globe,
-} from "lucide-react";
-import { useDeleteLocation } from "./model/use-delete-location";
+import { Calendar, Edit2Icon, Globe, LetterText, Trash, Users } from "lucide-react";
 import { Separator } from "@/shared/components/ui/separator";
+import { Button } from "@/shared/components/ui/button";
 
 type Props = {
-  location: Location;
+  position: Position;
   onEdit: () => void;
 };
 
@@ -44,15 +37,15 @@ const formatDateTime = (date: Date | string | null) => {
   }
 };
 
-export default function LocationCard({ location, onEdit }: Props) {
-  const { deleteLocation, isPending } = useDeleteLocation();
+export default function PositionCard({ position, onEdit }: Props) {
+  const { deletePosition, isPending } = useDeletePosition();
 
   const handleDelete = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
-    if (confirm("Are you sure you want to delete this location?")) {
-      deleteLocation(location.id);
+    if (confirm("Are you sure you want to delete this position?")) {
+      deletePosition(position.id);
     }
   };
 
@@ -62,15 +55,15 @@ export default function LocationCard({ location, onEdit }: Props) {
     onEdit();
   };
 
-  const formattedCreatedAt = formatDateTime(location.createdAt);
-  const formattedUpdatedAt = formatDateTime(location.updatedAt);
-  const formattedDeletedAt = formatDateTime(location.deletedAt);
-  const departmentCount = location.departmentsIds?.length || 0;
+  const formattedCreatedAt = formatDateTime(position.createdAt);
+  const formattedUpdatedAt = formatDateTime(position.updatedAt);
+  const formattedDeletedAt = formatDateTime(position.deletedAt);
+  const departmentCount = position.departmentsIds?.length || 0;
 
   return (
     <Card className="group relative overflow-hidden border-slate-700/50 bg-linear-to-br from-slate-900/50 to-slate-800/30 hover:shadow-xl transition-all duration-300 hover:border-slate-600/70 hover:scale-[1.02]">
       {/* Active location glow effect */}
-      {location.isActive && (
+      {position.isActive && (
         <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-10 transition-opacity duration-300 bg-linear-to-br from-emerald-500/30 to-transparent" />
       )}
 
@@ -81,18 +74,15 @@ export default function LocationCard({ location, onEdit }: Props) {
             {" "}
             {/* Добавили padding-right */}
             <h3 className="text-lg font-semibold text-white truncate">
-              {location.name}
+              {position.name}
             </h3>
-            <p className="text-sm text-slate-400 truncate">
-              {location.address.city}, {location.address.street}
-            </p>
           </div>
 
           <div className="shrink-0">
             <div className="flex flex-col items-end">
               <div
                 className={`h-2.5 w-2.5 rounded-full mb-1 ${
-                  location.isActive ? "bg-emerald-500" : "bg-amber-500"
+                  position.isActive ? "bg-emerald-500" : "bg-amber-500"
                 }`}
               />
             </div>
@@ -104,31 +94,14 @@ export default function LocationCard({ location, onEdit }: Props) {
         <div className="space-y-3">
           {/* Address */}
           <div className="flex items-start gap-2">
-            <Globe className="h-4 w-4 text-slate-400 mt-0.5 shrink-0" />
-            <div>
-              <p className="text-sm text-slate-300">
-                {location.address.street}, {location.address.house}
-              </p>
-              <p className="text-xs text-slate-500">
-                {location.address.city}, {location.address.region}
-              </p>
-            </div>
+            <LetterText className="h-4 w-4 text-slate-400 mt-0.5 shrink-0" />
+            <p className="text-sm text-slate-300">{position.description}</p>
           </div>
 
           <Separator className="bg-slate-800/50" />
 
           {/* Info grid */}
           <div className="grid grid-cols-2 gap-3">
-            <div className="flex items-center gap-2">
-              <Clock className="h-4 w-4 text-slate-400 shrink-0" />
-              <div className="min-w-0">
-                <p className="text-xs text-slate-500">Timezone</p>
-                <p className="text-sm text-slate-300 truncate">
-                  {location.timeZone || "Not set"}
-                </p>
-              </div>
-            </div>
-
             <div className="flex items-center gap-2">
               <Users className="h-4 w-4 text-slate-400 shrink-0" />
               <div className="min-w-0">
@@ -148,8 +121,8 @@ export default function LocationCard({ location, onEdit }: Props) {
             </div>
 
             {/* Updated or Deleted */}
-            {location.isActive
-              ? location.updatedAt && (
+            {position.isActive
+              ? position.updatedAt && (
                   <div className="flex items-center gap-2 col-span-2">
                     <Calendar className="h-4 w-4 text-blue-400 shrink-0" />
                     <div className="min-w-0">
@@ -160,7 +133,7 @@ export default function LocationCard({ location, onEdit }: Props) {
                     </div>
                   </div>
                 )
-              : location.deletedAt && (
+              : position.deletedAt && (
                   <div className="flex items-center gap-2 col-span-2">
                     <Calendar className="h-4 w-4 text-amber-400 shrink-0" />
                     <div className="min-w-0">
