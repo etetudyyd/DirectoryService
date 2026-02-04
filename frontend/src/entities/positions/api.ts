@@ -36,6 +36,13 @@ export const positionsApi = {
     return response.data.result;
   },
 
+  getPositionById: async (positionId: string) => {
+    const response = await apiClient.get<Envelope<Position>>(
+      `${routes.positions}/${positionId}`,
+    );
+    return response.data.result;
+  },
+
   createPosition: async (request: CreatePositionRequest) => {
     const response = await apiClient.post<Envelope<Position>>(
       routes.positions,
@@ -67,6 +74,13 @@ export const positionsApi = {
 
 export const positionsQueryOptions = {
   baseKey: "positions",
+
+  getPositionOptions: (positionId: string) => {
+    return queryOptions({
+      queryKey: [positionsQueryOptions.baseKey, positionId],
+      queryFn: () => positionsApi.getPositionById(positionId),
+    });
+  },
 
   getPositionsOptions: ({
     page,

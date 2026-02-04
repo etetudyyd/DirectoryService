@@ -1,26 +1,19 @@
 ﻿using Core.Abstractions;
-using DirectoryService.Positions.Requests;
+using DirectoryService.Departments.Requests;
 
-namespace DirectoryService.Features.Positions.Queries.GetPositions;
+namespace DirectoryService.Features.Departments.Queries.GetDepartmentsDictionary;
 
-
-public record GetPositionsQuery : IQuery
+public record GetDepartmentsDictionaryQuery : IQuery
 {
-    public IReadOnlyList<Guid> DepartmentsIds { get; }
-
     public string? Search { get; }
-
-    public bool? IsActive { get; }
 
     public int Page { get; } = PaginationConstants.DEFAULT_PAGE_INDEX;
 
     public int PageSize { get; } = PaginationConstants.DEFAULT_PAGE_SIZE;
 
-    public GetPositionsQuery(GetPositionsRequest request)
+    public GetDepartmentsDictionaryQuery(GetDepartmentsDictionaryRequest request)
     {
-        DepartmentsIds = request.DepartmentsIds ?? [];
         Search = request.Search;
-        IsActive = request.IsActive;
         Page = request.Page ?? PaginationConstants.DEFAULT_PAGE_INDEX;
         PageSize = request.PageSize ?? PaginationConstants.DEFAULT_PAGE_SIZE;
     }

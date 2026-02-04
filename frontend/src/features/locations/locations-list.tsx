@@ -1,6 +1,6 @@
 "use client";
 
-import LocationCard from "@/features/locations/location-card";
+
 import { useState } from "react";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { Button } from "@/shared/components/ui/button";
@@ -13,6 +13,7 @@ import { AlertCircleIcon, MapPinIcon, PlusIcon } from "lucide-react";
 import { useGetLocationsFilter } from "./model/location-filters-store";
 import { LocationsFilter } from "./locations-filter";
 import { useGetGlobalSearch } from "@/shared/stored/global-search-store";
+import LocationCard from "@/widgets/locations/location-card";
 
 export default function LocationsList() {
   const { search, isActive, pageSize } = useGetLocationsFilter();

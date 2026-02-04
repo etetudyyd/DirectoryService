@@ -6,16 +6,11 @@ import {
 } from "@/shared/components/ui/card";
 import { Location } from "@/entities/locations/types";
 import { Button } from "@/shared/components/ui/button";
-import {
-  Edit2Icon,
-  Trash,
-  Clock,
-  Users,
-  Calendar,
-  Globe,
-} from "lucide-react";
-import { useDeleteLocation } from "./model/use-delete-location";
+import { Edit2Icon, Trash, Clock, Users, Calendar, Globe } from "lucide-react";
 import { Separator } from "@/shared/components/ui/separator";
+import { useDeleteLocation } from "@/features/locations/model/use-delete-location";
+import { DeleteConfirmationDialog } from "@/features/delete-confirmation-dialog";
+import { useState } from "react";
 
 type Props = {
   location: Location;
@@ -46,14 +41,22 @@ const formatDateTime = (date: Date | string | null) => {
 
 export default function LocationCard({ location, onEdit }: Props) {
   const { deleteLocation, isPending } = useDeleteLocation();
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const handleDelete = async () => {
+    setLoading(true);
+    try {
+      await deleteLocation(location.id);
+    } finally {
+      setLoading(false);
+      setDeleteOpen(false);
+    }
+  };
 
-  const handleDelete = (e: React.MouseEvent) => {
+  const handleDeleteClick = (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
-
-    if (confirm("Are you sure you want to delete this location?")) {
-      deleteLocation(location.id);
-    }
+    setDeleteOpen(true);
   };
 
   const handleEdit = (e: React.MouseEvent) => {
@@ -191,13 +194,22 @@ export default function LocationCard({ location, onEdit }: Props) {
           <Button
             variant="outline"
             size="sm"
-            onClick={handleDelete}
+            onClick={handleDeleteClick}
             disabled={isPending}
             className="gap-2 border-slate-700/50 text-slate-400 hover:text-red-400 hover:border-red-700/50 hover:bg-red-900/20 transition-all duration-200"
           >
             <Trash className="h-4 w-4" />
             Delete
           </Button>
+
+          <DeleteConfirmationDialog
+            open={deleteOpen}
+            onOpenChange={setDeleteOpen}
+            onConfirm={handleDelete}
+            loading={loading}
+            title={`Delete "${location.name}"?`}
+            description="Are you sure you want to delete this location? This action cannot be undone."
+          />
         </div>
       </CardFooter>
     </Card>

@@ -51,6 +51,9 @@ public class GetPositionByIdHandler : IQueryHandler<GetPositionByIdResponse, Get
                 Name = position.Name.Value,
                 Description = position.Description.Value,
                 IsActive = position.IsActive,
+                CreatedAt = position.CreatedAt,
+                UpdatedAt = position.UpdatedAt,
+                DeletedAt = position.DeletedAt,
             });
     }
 }
