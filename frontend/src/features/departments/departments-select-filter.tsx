@@ -39,12 +39,10 @@ export default function DepartmentsSelectFilter({
     pageSize: PAGE_SIZE,
   });
 
-  // Объединяем загруженные департаменты
   const combinedDepartments = React.useMemo(() => {
     const allDeptMap = new Map<string, boolean>();
     const result: DictionaryItemResponse[] = [];
 
-    // Добавляем сначала выбранные департаменты, чтобы они были доступны
     if (selectedDepartments) {
       selectedDepartments.forEach((dept) => {
         if (!allDeptMap.has(dept.id)) {
@@ -54,7 +52,6 @@ export default function DepartmentsSelectFilter({
       });
     }
 
-    // Затем добавляем остальные департаменты
     if (allDepartments) {
       allDepartments.forEach((dept) => {
         if (!allDeptMap.has(dept.id)) {
@@ -64,7 +61,6 @@ export default function DepartmentsSelectFilter({
       });
     }
 
-    // Фильтруем результат по excludeDepartmentIds
     let filteredResult = result;
     if (excludeDepartmentIds && excludeDepartmentIds.length > 0) {
       filteredResult = result.filter((dept) => !excludeDepartmentIds.includes(dept.id));

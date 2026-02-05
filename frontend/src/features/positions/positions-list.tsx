@@ -26,6 +26,7 @@ import {
   setFilterPositionsDepartmentIds,
   setFilterSearch,
 } from "./model/position-filters-store";
+import { UpdatePositionDialog } from "./update-position-dialog";
 
 export default function PositionsList() {
   const { departmentsIds, search, isActive, pageSize } =
@@ -243,7 +244,7 @@ export default function PositionsList() {
             </p>
             <Button
               onClick={() => setCreateOpen(true)}
-              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+              className="bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
             >
               <PlusIcon className="h-5 w-5 mr-2" />
               {search || departmentsIds?.length || isActive !== undefined
@@ -265,7 +266,7 @@ export default function PositionsList() {
             </div>
 
             {/* Grid */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 2xl:grid-cols-5 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-5 gap-6">
               {positions.map((position) => (
                 <PositionCard
                   key={position.id}
@@ -284,6 +285,14 @@ export default function PositionsList() {
       {/* Dialogs */}
       <CreatePositionDialog open={createOpen} onOpenChange={setCreateOpen} />
 
+      {selectedPosition && (
+        <UpdatePositionDialog
+          key={selectedPosition.id}
+          position={selectedPosition}
+          open={updateOpen}
+          onOpenChange={setUpdateOpen}
+        />
+      )}
       {/* Infinite Scroll Loader */}
       <div ref={cursorRef} className="py-6">
         {isFetchingNextPage && (

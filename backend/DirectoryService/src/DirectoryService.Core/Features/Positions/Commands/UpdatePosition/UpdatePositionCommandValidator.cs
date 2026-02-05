@@ -12,8 +12,6 @@ public class UpdatePositionCommandValidator : AbstractValidator<UpdatePositionCo
             .NotEmpty().WithMessage("Name is has to be not empty");
         RuleFor(x => x.PositionRequest.Description)
             .MaximumLength(Constants.MAX_LENGTH_POSITION_DESCRIPTION).WithMessage($"Description is has to be at most {Constants.MAX_LENGTH_POSITION_DESCRIPTION} characters long");
-        RuleForEach(x => x.PositionRequest.DepartmentsIds)
-            .NotEmpty().WithMessage("Department position should not be empty");
     }
 
 }

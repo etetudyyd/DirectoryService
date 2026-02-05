@@ -10,11 +10,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/shared/components/ui/dialog";
-import { AlertCircleIcon, BuildingIcon, PlusIcon } from "lucide-react";
+import {
+  AlertCircleIcon,
+  Building,
+  BuildingIcon,
+  PlusIcon,
+} from "lucide-react";
 import { Label } from "@/shared/components/ui/label";
 import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
-import { DepartmentsMultiSelectItem } from "@/widgets/departments/multi-select/departments-multi-select-item";
+import DepartmentsSelectFilter from "../departments/departments-select-filter";
 
 type Props = {
   open: boolean;
@@ -57,14 +62,21 @@ export function CreatePositionDialog({ open, onOpenChange }: Props) {
   });
 
   const { createPosition, isPending, error, isError } = useCreatePosition();
-  
-  const departmentIds = watch("departmentsIds") || [];
+
+  const departmentsIds = watch("departmentsIds") || [];
+
+  const handleDepartmentsChange = (newDepartmentsIds: string[]) => {
+    setValue("departmentsIds", newDepartmentsIds, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  };
 
   const onSubmit = async (data: CreatePositionData) => {
     createPosition(
       {
         ...data,
-        departmentsIds: departmentIds,
+        departmentsIds: departmentsIds,
       },
       {
         onSuccess: () => {
@@ -176,20 +188,26 @@ export function CreatePositionDialog({ open, onOpenChange }: Props) {
                   requirements
                 </p>
               </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="departmentsIds" className="text-gray-300">
+                  Departments
+                </Label>
+                <div className="relative group">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10">
+                    <Building className="h-4 w-4 text-gray-400 group-hover:text-gray-300 transition-colors" />
+                  </div>
+                  <div className="pl-10">
+                    <DepartmentsSelectFilter
+                      selectedDepartmentIds={departmentsIds}
+                      onDepartmentChange={handleDepartmentsChange}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
-
-          {/* Departments */}
-          {/* <DepartmentsMultiSelectItem
-            departmentIds={departmentIds}
-            onDepartmentChange={(ids) => {
-              setValue("departmentsIds", ids);
-            }}
-            errors={{ departmentsIds: errors.departmentsIds }}
-            placeholder="Choose departments..."
-            className="my-4"
-          /> */}
-
+          
           {/* Footer */}
           <DialogFooter className="pt-6 border-t border-gray-800">
             <Button

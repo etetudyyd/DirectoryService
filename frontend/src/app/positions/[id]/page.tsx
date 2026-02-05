@@ -7,11 +7,11 @@ import {
   Clock,
   Edit,
   FileText,
-  MoreVertical,
   Trash2,
   CheckCircle,
   XCircle,
   AlertCircle,
+  Copy,
 } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -23,15 +23,6 @@ import {
 } from "@/shared/components/ui/card";
 import { Badge } from "@/shared/components/ui/badge";
 import { Separator } from "@/shared/components/ui/separator";
-import { Skeleton } from "@/shared/components/ui/skeleton";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/shared/components/ui/dropdown-menu";
 import {
   Alert,
   AlertDescription,
@@ -39,40 +30,8 @@ import {
 } from "@/shared/components/ui/alert";
 import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import { useGetPosition } from "@/features/positions/model/use-get-position";
-
-function PositionLoadingSkeleton() {
-  return (
-    <div className="container mx-auto py-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <Skeleton className="h-10 w-10 rounded-full" />
-          <div>
-            <Skeleton className="h-7 w-48 mb-2" />
-            <Skeleton className="h-4 w-32" />
-          </div>
-        </div>
-        <Skeleton className="h-10 w-24" />
-      </div>
-
-      <Card>
-        <CardHeader>
-          <Skeleton className="h-6 w-64 mb-2" />
-          <Skeleton className="h-4 w-full" />
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="space-y-2">
-                <Skeleton className="h-4 w-24" />
-                <Skeleton className="h-6 w-full" />
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-    </div>
-  );
-}
+import { DetailsLoadingSkeleton } from "@/widgets/details-loading-skeleton";
+import { toast } from "sonner";
 
 // Error state
 function PositionError({
@@ -117,7 +76,7 @@ export default function PositionDetailPage() {
     useGetPosition(positionId);
 
   if (isPending) {
-    return <PositionLoadingSkeleton />;
+    return <DetailsLoadingSkeleton />;
   }
 
   if (isError && error) {
@@ -159,18 +118,6 @@ export default function PositionDetailPage() {
     }
   };
 
-  const formatDateOnly = (date: Date) => {
-    try {
-      return new Intl.DateTimeFormat("en-US", {
-        year: "numeric",
-        month: "long",
-        day: "numeric",
-      }).format(new Date(date));
-    } catch {
-      return "Invalid date";
-    }
-  };
-
   // Get initials for avatar
   const getInitials = (name: string) => {
     if (!name) return "??";
@@ -180,6 +127,11 @@ export default function PositionDetailPage() {
       .join("")
       .toUpperCase()
       .slice(0, 2);
+  };
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(position.id);
+    toast.success("Copied");
   };
 
   // Handle delete
@@ -194,6 +146,7 @@ export default function PositionDetailPage() {
 
   // Handle edit
   const handleEdit = () => {
+    // updatePosition(position.id);
     router.push(`/positions/${position.id}/edit`);
   };
 
@@ -244,47 +197,26 @@ export default function PositionDetailPage() {
                   )}
                 </Badge>
               </div>
-              <p className="text-sm text-muted-foreground mt-1">
-                ID: {position.id}
-              </p>
+              <div className="flex items-center gap-1">
+                <p className="text-sm text-muted-foreground mt-1">
+                  {position.id}
+                </p>
+                <Button
+                  onClick={handleCopy}
+                  className="h-6 w-6 text-white bg-transparent hover:bg-transparent hover:text-gray-500"
+                >
+                  <Copy className="h-3 w-3" />
+                </Button>
+              </div>
             </div>
           </div>
         </div>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center">
           <Button variant="default" onClick={handleEdit}>
             <Edit className="h-4 w-4 mr-2" />
             Edit
           </Button>
-
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon">
-                <MoreVertical className="h-5 w-5" />
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Actions</DropdownMenuLabel>
-              <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(position.id)}
-              >
-                Copy Position ID
-              </DropdownMenuItem>
-              <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(position.name)}
-              >
-                Copy Position Name
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                className="text-destructive focus:text-destructive"
-                onClick={handleDelete}
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete Position
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
         </div>
       </div>
 
@@ -401,16 +333,18 @@ export default function PositionDetailPage() {
                             {position.departmentsIds.length !== 1 ? "s" : ""}
                           </Badge>
                         </div>
-                        {/* <div className="flex flex-wrap gap-2">
-                          {position.departmentsIds.map((deptId) => (
-                            <div 
-                              key={deptId} 
-                              className="px-2 py-1 bg-background border rounded text-xs font-mono"
-                            >
-                              {deptId}
-                            </div>
-                          ))}
-                        </div> */}
+                        {
+                          <div className="flex flex-wrap gap-2">
+                            {position.departmentsIds.map((deptId) => (
+                              <div
+                                key={deptId}
+                                className="px-2 py-1 bg-background border rounded text-xs font-mono"
+                              >
+                                {deptId}
+                              </div>
+                            ))}
+                          </div>
+                        }
                       </div>
                     ) : (
                       <div className="text-center py-4 text-muted-foreground">

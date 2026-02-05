@@ -14,7 +14,13 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { Location } from "@/entities/locations/types";
 import { useUpdateLocation } from "./model/use-update-location";
-import { BuildingIcon, MapPinIcon, ClockIcon, UsersIcon, AlertCircleIcon } from "lucide-react";
+import {
+  BuildingIcon,
+  MapPinIcon,
+  ClockIcon,
+  UsersIcon,
+  AlertCircleIcon,
+} from "lucide-react";
 
 const updateLocationSchema = z.object({
   name: z
@@ -31,7 +37,9 @@ const updateLocationSchema = z.object({
     apartment: z.string().nonempty("Apartment has to be not empty"),
   }),
   timeZone: z.string().nonempty("Timezone has to be not empty"),
-  departmentsIds: z.array(z.string().nonempty("Department has to be not empty")),
+  departmentsIds: z.array(
+    z.string().nonempty("Department has to be not empty"),
+  ),
 });
 
 type Props = {
@@ -61,7 +69,9 @@ export function UpdateLocationDialog({ location, open, onOpenChange }: Props) {
 
   const onSubmit = (data: UpdateLocationData) => {
     updateLocation(
-      { locationId: location.id, ...data },
+      { 
+        locationId: location.id,
+        ...data },
       {
         onSuccess: () => {
           onOpenChange(false);
@@ -114,9 +124,11 @@ export function UpdateLocationDialog({ location, open, onOpenChange }: Props) {
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <BuildingIcon className="h-5 w-5 text-blue-400" />
-              <h3 className="text-lg font-semibold text-white">Basic Information</h3>
+              <h3 className="text-lg font-semibold text-white">
+                Basic Information
+              </h3>
             </div>
-            
+
             <div className="grid gap-4">
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-gray-300">
@@ -127,7 +139,9 @@ export function UpdateLocationDialog({ location, open, onOpenChange }: Props) {
                   type="text"
                   placeholder="Enter location name"
                   className={`bg-gray-900 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500/20 ${
-                    errors.name ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""
+                    errors.name
+                      ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                      : ""
                   }`}
                   {...register("name")}
                 />
@@ -140,7 +154,10 @@ export function UpdateLocationDialog({ location, open, onOpenChange }: Props) {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="timeZone" className="text-gray-300 flex items-center gap-2">
+                <Label
+                  htmlFor="timeZone"
+                  className="text-gray-300 flex items-center gap-2"
+                >
                   <ClockIcon className="h-4 w-4" />
                   Timezone
                 </Label>
@@ -149,7 +166,9 @@ export function UpdateLocationDialog({ location, open, onOpenChange }: Props) {
                   type="text"
                   placeholder="e.g., Europe/London, America/New_York"
                   className={`bg-gray-900 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500/20 ${
-                    errors.timeZone ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""
+                    errors.timeZone
+                      ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                      : ""
                   }`}
                   {...register("timeZone")}
                 />
@@ -167,9 +186,11 @@ export function UpdateLocationDialog({ location, open, onOpenChange }: Props) {
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <MapPinIcon className="h-5 w-5 text-green-400" />
-              <h3 className="text-lg font-semibold text-white">Address Details</h3>
+              <h3 className="text-lg font-semibold text-white">
+                Address Details
+              </h3>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="region" className="text-gray-300 text-sm">
@@ -180,7 +201,9 @@ export function UpdateLocationDialog({ location, open, onOpenChange }: Props) {
                   type="text"
                   placeholder="Region/State"
                   className={`bg-gray-900 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500/20 ${
-                    errors.address?.region ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""
+                    errors.address?.region
+                      ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                      : ""
                   }`}
                   {...register("address.region")}
                 />
@@ -195,7 +218,9 @@ export function UpdateLocationDialog({ location, open, onOpenChange }: Props) {
                   type="text"
                   placeholder="City"
                   className={`bg-gray-900 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500/20 ${
-                    errors.address?.city ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""
+                    errors.address?.city
+                      ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                      : ""
                   }`}
                   {...register("address.city")}
                 />
@@ -210,7 +235,9 @@ export function UpdateLocationDialog({ location, open, onOpenChange }: Props) {
                   type="text"
                   placeholder="Street address"
                   className={`bg-gray-900 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500/20 ${
-                    errors.address?.street ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""
+                    errors.address?.street
+                      ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                      : ""
                   }`}
                   {...register("address.street")}
                 />
@@ -225,7 +252,9 @@ export function UpdateLocationDialog({ location, open, onOpenChange }: Props) {
                   type="text"
                   placeholder="House number"
                   className={`bg-gray-900 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500/20 ${
-                    errors.address?.house ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""
+                    errors.address?.house
+                      ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                      : ""
                   }`}
                   {...register("address.house")}
                 />
@@ -240,7 +269,9 @@ export function UpdateLocationDialog({ location, open, onOpenChange }: Props) {
                   type="text"
                   placeholder="ZIP/Postal code"
                   className={`bg-gray-900 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500/20 ${
-                    errors.address?.postalCode ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""
+                    errors.address?.postalCode
+                      ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                      : ""
                   }`}
                   {...register("address.postalCode")}
                 />
@@ -255,7 +286,9 @@ export function UpdateLocationDialog({ location, open, onOpenChange }: Props) {
                   type="text"
                   placeholder="Apartment/Unit"
                   className={`bg-gray-900 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500/20 ${
-                    errors.address?.apartment ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""
+                    errors.address?.apartment
+                      ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                      : ""
                   }`}
                   {...register("address.apartment")}
                 />
@@ -313,7 +346,7 @@ export function UpdateLocationDialog({ location, open, onOpenChange }: Props) {
               <UsersIcon className="h-5 w-5 text-purple-400" />
               <h3 className="text-lg font-semibold text-white">Departments</h3>
             </div>
-            
+
             <div className="space-y-2">
               <Label htmlFor="departmentsIds" className="text-gray-300">
                 Department IDs (comma-separated)
@@ -323,7 +356,9 @@ export function UpdateLocationDialog({ location, open, onOpenChange }: Props) {
                 type="text"
                 placeholder="e.g., dept-001, dept-002, dept-003"
                 className={`bg-gray-900 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500/20 ${
-                  errors.departmentsIds ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""
+                  errors.departmentsIds
+                    ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
+                    : ""
                 }`}
                 {...register("departmentsIds", {
                   setValueAs: (value) => {

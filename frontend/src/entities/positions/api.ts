@@ -10,7 +10,6 @@ export type UpdatePositionRequest = {
   positionId: string;
   name: string;
   description: string;
-  departmentsIds: string[];
 };
 
 export type CreatePositionRequest = {
@@ -55,11 +54,10 @@ export const positionsApi = {
     positionId,
     name,
     description,
-    departmentsIds,
   }: UpdatePositionRequest): Promise<Envelope<Position>> => {
     const response = await apiClient.patch<Envelope<Position>>(
-      `${routes.positions}${positionId}`,
-      { name, description, departmentsIds },
+      `${routes.positions}/${positionId}`,
+      { name, description },
     );
     return response.data;
   },

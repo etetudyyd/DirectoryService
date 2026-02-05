@@ -34,6 +34,7 @@ public class GetPositionByIdHandler : IQueryHandler<GetPositionByIdResponse, Get
             return validationResult.ToErrors();
 
         var position = await _readDbContext.PositionsRead
+            .Include(l => l.DepartmentPositions)
             .FirstOrDefaultAsync(l => l.Id == new PositionId(query.Id), cancellationToken);
 
         if (position is null)
@@ -54,6 +55,7 @@ public class GetPositionByIdHandler : IQueryHandler<GetPositionByIdResponse, Get
                 CreatedAt = position.CreatedAt,
                 UpdatedAt = position.UpdatedAt,
                 DeletedAt = position.DeletedAt,
+                DepartmentsIds = position.DepartmentPositions.Select(dp => dp.DepartmentId.Value).ToArray(),
             });
     }
 }
