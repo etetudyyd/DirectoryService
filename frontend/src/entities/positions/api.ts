@@ -1,5 +1,5 @@
 import { apiClient } from "@/shared/api/axios-instance";
-import { Position } from "./types";
+import { Position, PositionDetails } from "./types";
 import { Envelope } from "@/shared/api/envelope";
 import { PaginationResponse } from "@/shared/api/types";
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
@@ -36,7 +36,7 @@ export const positionsApi = {
   },
 
   getPositionById: async (positionId: string) => {
-    const response = await apiClient.get<Envelope<Position>>(
+    const response = await apiClient.get<Envelope<PositionDetails>>(
       `${routes.positions}/${positionId}`,
     );
     return response.data.result;

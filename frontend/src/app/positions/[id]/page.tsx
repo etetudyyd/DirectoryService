@@ -1,6 +1,7 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
+import { useState } from "react";
 import {
   ArrowLeft,
   Calendar,
@@ -28,48 +29,18 @@ import {
   AlertDescription,
   AlertTitle,
 } from "@/shared/components/ui/alert";
+import { DetailsErrorPage } from "@/pages/details-error-page";
 import { Avatar, AvatarFallback } from "@/shared/components/ui/avatar";
 import { useGetPosition } from "@/features/positions/model/use-get-position";
 import { DetailsLoadingSkeleton } from "@/widgets/details-loading-skeleton";
+import { UpdatePositionDialog } from "@/features/positions/update-position-dialog";
 import { toast } from "sonner";
 
-// Error state
-function PositionError({
-  error,
-  onRetry,
-}: {
-  error: Error;
-  onRetry: () => void;
-}) {
-  return (
-    <div className="container mx-auto py-6">
-      <Alert variant="destructive">
-        <AlertCircle className="h-4 w-4" />
-        <AlertTitle>Error loading position</AlertTitle>
-        <AlertDescription className="space-y-4">
-          <p>{error.message}</p>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={onRetry}>
-              Try Again
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => window.history.back()}
-            >
-              Go Back
-            </Button>
-          </div>
-        </AlertDescription>
-      </Alert>
-    </div>
-  );
-}
-
 // Main component
-export default function PositionDetailPage() {
+export default function PositionDetailsPage() {
   const params = useParams();
   const router = useRouter();
+  const [updateOpen, setUpdateOpen] = useState(false);
   const positionId = params.id as string;
 
   const { position, isPending, error, isError, refetch } =
@@ -80,7 +51,7 @@ export default function PositionDetailPage() {
   }
 
   if (isError && error) {
-    return <PositionError error={error} onRetry={refetch} />;
+    return <DetailsErrorPage error={error} onRetry={refetch} />;
   }
 
   if (!position) {
@@ -151,7 +122,7 @@ export default function PositionDetailPage() {
   };
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
+    <main className="container mx-auto py-6 space-y-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div className="flex items-start gap-4">
@@ -181,7 +152,7 @@ export default function PositionDetailPage() {
                                 ${
                                   position.isActive
                                     ? "bg-emerald-500 hover:bg-emerald-600"
-                                    : "bg-amber-500 hover:bg-amber-600"
+                                    : "bg-red-400 hover:bg-red-400"
                                 }`}
                 >
                   {position.isActive ? (
@@ -211,13 +182,6 @@ export default function PositionDetailPage() {
             </div>
           </div>
         </div>
-
-        <div className="flex items-center">
-          <Button variant="default" onClick={handleEdit}>
-            <Edit className="h-4 w-4 mr-2" />
-            Edit
-          </Button>
-        </div>
       </div>
 
       {/* Alert if position is deleted */}
@@ -234,7 +198,6 @@ export default function PositionDetailPage() {
 
       {/* Main content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Left column - Description and Details */}
         <div className="lg:col-span-2 space-y-6">
           {/* Description Card */}
           <Card>
@@ -287,7 +250,17 @@ export default function PositionDetailPage() {
                   </div>
                   <div className="p-3 bg-muted/50 rounded-md flex items-center gap-2">
                     <span className={`font-medium`}>
-                      {position.isActive ? "Active" : "Inactive"}
+                      {position.isActive ? (
+                        <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 animate-pulse">
+                          <CheckCircle className="h-4 w-4" />
+                          <span className="font-medium">Active</span>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-2 text-red-400 animate-pulse">
+                          <XCircle className="h-4 w-4" />
+                          <span className="font-medium">Inactive</span>
+                        </div>
+                      )}
                     </span>
                   </div>
                 </div>
@@ -317,42 +290,6 @@ export default function PositionDetailPage() {
                     </p>
                   </div>
                 </div>
-
-                {/* Departments */}
-                <div className="md:col-span-2 space-y-2">
-                  <div className="text-sm font-medium text-muted-foreground">
-                    Department IDs
-                  </div>
-                  <div className="p-3 bg-muted/50 rounded-md">
-                    {position.departmentsIds &&
-                    position.departmentsIds.length > 0 ? (
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <Badge variant="outline" className="font-normal">
-                            {position.departmentsIds.length} department
-                            {position.departmentsIds.length !== 1 ? "s" : ""}
-                          </Badge>
-                        </div>
-                        {
-                          <div className="flex flex-wrap gap-2">
-                            {position.departmentsIds.map((deptId) => (
-                              <div
-                                key={deptId}
-                                className="px-2 py-1 bg-background border rounded text-xs font-mono"
-                              >
-                                {deptId}
-                              </div>
-                            ))}
-                          </div>
-                        }
-                      </div>
-                    ) : (
-                      <div className="text-center py-4 text-muted-foreground">
-                        <p>No departments assigned</p>
-                      </div>
-                    )}
-                  </div>
-                </div>
               </div>
             </CardContent>
           </Card>
@@ -363,51 +300,40 @@ export default function PositionDetailPage() {
           {/* Info Card */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Information</CardTitle>
+              <CardTitle className="text-lg">Departments</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">Position ID</p>
-                <div className="p-2 bg-muted rounded text-xs font-mono break-all">
-                  {position.id}
-                </div>
-              </div>
-
               <Separator />
-
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">Active Status</p>
-                <div className="flex items-center gap-2">
-                  {position.isActive ? (
-                    <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 animate-pulse">
-                      <CheckCircle className="h-4 w-4" />
-                      <span className="font-medium">Active</span>
+              <div className="p-3 bg-muted/50 rounded-md">
+                {position.departments && position.departments.length > 0 ? (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline" className="font-normal">
+                        {position.departments.length} department
+                        {position.departments.length !== 1 ? "s" : ""}
+                      </Badge>
                     </div>
-                  ) : (
-                    <div className="flex items-center gap-2 text-amber-600 dark:text-amber-400 animate-pulse">
-                      <XCircle className="h-4 w-4" />
-                      <span className="font-medium">Inactive</span>
+                    <div className="grid grid-cols-1 gap-3">
+                      {position.departments.map((department) => (
+                        <div
+                          key={department.id}
+                          className="p-3 bg-card border rounded-lg hover:bg-accent/50 transition-colors group"
+                        >
+                          <div className="font-medium text-sm truncate">
+                            {department.name}
+                          </div>
+                          <div className="text-xs text-muted-foreground font-mono truncate mt-1 opacity-70">
+                            {department.id}
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  )}
-                </div>
-              </div>
-
-              <Separator />
-
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">Created</p>
-                <div className="flex items-center gap-2 text-sm">
-                  <Calendar className="h-4 w-4 text-muted-foreground" />
-                  <span>{formatDate(new Date(position.createdAt))}</span>
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <p className="text-sm text-muted-foreground">Last Updated</p>
-                <div className="flex items-center gap-2 text-sm">
-                  <Clock className="h-4 w-4 text-muted-foreground" />
-                  <span>{formatDate(new Date(position.updatedAt))}</span>
-                </div>
+                  </div>
+                ) : (
+                  <div className="text-center py-4 text-muted-foreground">
+                    <p>No departments assigned</p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
@@ -421,47 +347,40 @@ export default function PositionDetailPage() {
               <Button
                 variant="default"
                 className="w-full justify-start"
-                onClick={handleEdit}
+                onClick={() => setUpdateOpen(true)}
               >
                 <Edit className="h-4 w-4 mr-2" />
                 Edit Position
               </Button>
 
-              <Button
-                variant="outline"
-                className="w-full justify-start"
-                onClick={() => {
-                  // Toggle active status
-                  // togglePositionStatus(position.id, !position.isActive);
-                }}
-              >
-                {position.isActive ? (
-                  <>
-                    <XCircle className="h-4 w-4 mr-2" />
-                    Deactivate
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    Activate
-                  </>
-                )}
-              </Button>
-
-              <Separator />
-
-              <Button
-                variant="destructive"
-                className="w-full justify-start"
-                onClick={handleDelete}
-              >
-                <Trash2 className="h-4 w-4 mr-2" />
-                Delete Position
-              </Button>
+              {position.isActive ? (
+                <Button
+                  className="w-full justify-start bg-red-400 hover:bg-red-600 text-white transition-colors"
+                  onClick={() => {}}
+                >
+                  <XCircle className="h-4 w-4 mr-2" />
+                  Deactivate
+                </Button>
+              ) : (
+                <Button
+                  className="w-full justify-start bg-green-600 hover:bg-green-700 text-white transition-colors"
+                  onClick={() => {}}
+                >
+                  <CheckCircle className="h-4 w-4 mr-2" />
+                  Activate
+                </Button>
+              )}
             </CardContent>
           </Card>
         </div>
       </div>
-    </div>
+
+      <UpdatePositionDialog
+        key={positionId}
+        position={position}
+        open={updateOpen}
+        onOpenChange={setUpdateOpen}
+      />
+    </main>
   );
 }

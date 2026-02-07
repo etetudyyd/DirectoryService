@@ -11,7 +11,6 @@ import {
 } from "@/shared/components/ui/dialog";
 import {
   AlertCircleIcon,
-  Building,
   BuildingIcon,
   PlusIcon,
 } from "lucide-react";
@@ -19,7 +18,7 @@ import { Label } from "@/shared/components/ui/label";
 import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
 import { useUpdatePosition } from "./model/use-update-position";
-import { Position } from "@/entities/positions/types";
+import { Position, PositionDetails } from "@/entities/positions/types";
 
 
 
@@ -35,7 +34,7 @@ const updatePositionSchema = z.object({
 });
 
 type Props = {
-  position: Position;
+  position: Position | PositionDetails;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
@@ -83,7 +82,7 @@ export function UpdatePositionDialog({ position, open, onOpenChange }: Props) {
             </div>
             <div>
               <DialogTitle className="text-xl font-bold text-white">
-                Update New Position
+                Update Position
               </DialogTitle>
               <DialogDescription className="text-gray-400">
                 Update position in the system

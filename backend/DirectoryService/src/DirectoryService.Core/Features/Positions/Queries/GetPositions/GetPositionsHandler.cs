@@ -72,7 +72,7 @@ public class GetPositionsHandler : IQueryHandler<GetPositionsResponse, GetPositi
         int totalItems = 0;
 
         var items = await connection
-            .QueryAsync<PositionDto, int, PositionDto>(
+            .QueryAsync<PositionDto, int, int, PositionDto>(
                 $"""
                  SELECT 
                      p.id,
@@ -82,18 +82,28 @@ public class GetPositionsHandler : IQueryHandler<GetPositionsResponse, GetPositi
                      p.created_at as CreatedAt,
                      p.updated_at as UpdatedAt,
                      p.deleted_at as DeletedAt,
-                 
+                     
+                     -- Количество департаментов
+                     COUNT(DISTINCT dp.department_id)::INTEGER as departmentCount,
+
                      CAST(COUNT(*) OVER() AS INT) AS total_count
                  FROM positions p
+
+                 -- LEFT JOIN чтобы получить все позиции, даже без департаментов
+                 LEFT JOIN department_positions dp ON dp.position_id = p.id
+
                  {joinClause}
                  {whereClause}
+
+                 GROUP BY p.id, p.name, p.description, p.is_active, p.created_at, p.updated_at, p.deleted_at
                  ORDER BY p.created_at DESC
                  LIMIT @page_size OFFSET @offset;
                  """,
-                splitOn: "total_count",
-                map: (position, count) =>
+                splitOn: "departmentCount,total_count",
+                map: (position, departmentCount, totalCount) =>
                 {
-                    totalItems = count;
+                    position.DepartmentCount = departmentCount; // Добавьте это поле в DTO
+                    totalItems = totalCount;
                     return position;
                 },
                 param: parameters);

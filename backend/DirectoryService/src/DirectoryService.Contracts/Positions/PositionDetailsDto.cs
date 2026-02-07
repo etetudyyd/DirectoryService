@@ -1,7 +1,13 @@
 ﻿namespace DirectoryService.Positions;
 
-public record PositionDto
+public record PositionDetailsDto
 {
+
+    public PositionDetailsDto()
+    {
+        Departments = [];
+    }
+
     public Guid Id { get; init; }
 
     public string Name { get; init; } = string.Empty;
@@ -18,5 +24,5 @@ public record PositionDto
 
     public DateTime? DeletedAt { get; init; }
 
-    public Guid[] DepartmentsIds { get; init; } = [];
+    public List<DictionaryItemResponse> Departments { get; init; } = [];
 }

@@ -95,7 +95,7 @@ export default function LocationCard({ location, onEdit }: Props) {
             <div className="flex flex-col items-end">
               <div
                 className={`h-2.5 w-2.5 rounded-full mb-1 ${
-                  location.isActive ? "bg-emerald-500" : "bg-amber-500"
+                  location.isActive ? "bg-emerald-500" : "bg-red-400"
                 }`}
               />
             </div>

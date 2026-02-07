@@ -33,29 +33,37 @@ public class GetPositionByIdHandler : IQueryHandler<GetPositionByIdResponse, Get
         if (!validationResult.IsValid)
             return validationResult.ToErrors();
 
-        var position = await _readDbContext.PositionsRead
-            .Include(l => l.DepartmentPositions)
-            .FirstOrDefaultAsync(l => l.Id == new PositionId(query.Id), cancellationToken);
+        var positionDto = await _readDbContext.PositionsRead
+            .Where(p => p.Id == new PositionId(query.Id))
+            .Select(p => new PositionDetailsDto
+            {
+                Id = p.Id.Value,
+                Name = p.Name.Value,
+                Description = p.Description.Value,
+                IsActive = p.IsActive,
+                CreatedAt = p.CreatedAt,
+                UpdatedAt = p.UpdatedAt,
+                DeletedAt = p.DeletedAt,
+                DepartmentCount = p.DepartmentPositions.Count,
+                Departments = p.DepartmentPositions
+                    .Where(dp => dp.Department.DeletedAt == null) // Проверка на soft delete
+                    .Select(dp => new DictionaryItemResponse
+                    {
+                        Id = dp.DepartmentId.Value,
+                        Name = dp.Department!.Name.Value,
+                    })
+                    .ToList(),
+            })
+            .FirstOrDefaultAsync(cancellationToken);
 
-        if (position is null)
+        if (positionDto is null)
         {
-            return Error.NotFound("location.not.found", "Location not found")
+            return Error.NotFound("position.not.found", "Position not found")
                 .ToErrors();
         }
 
-        _logger.LogInformation("Get location by id: {Id}", position.Id);
+        _logger.LogInformation("Get position by id: {Id}", query.Id);
 
-        return new GetPositionByIdResponse(
-            new PositionDto
-            {
-                Id = position.Id.Value,
-                Name = position.Name.Value,
-                Description = position.Description.Value,
-                IsActive = position.IsActive,
-                CreatedAt = position.CreatedAt,
-                UpdatedAt = position.UpdatedAt,
-                DeletedAt = position.DeletedAt,
-                DepartmentsIds = position.DepartmentPositions.Select(dp => dp.DepartmentId.Value).ToArray(),
-            });
+        return new GetPositionByIdResponse(positionDto);
     }
 }

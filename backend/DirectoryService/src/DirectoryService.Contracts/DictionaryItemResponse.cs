@@ -1,3 +1,7 @@
 ﻿namespace DirectoryService;
 
-public record DictionaryItemResponse(Guid Id, string Name);
+public record DictionaryItemResponse{
+    public Guid Id { get; init; }
+
+    public string Name { get; init; } = string.Empty;
+}

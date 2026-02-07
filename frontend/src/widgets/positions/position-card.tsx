@@ -72,7 +72,6 @@ export default function PositionCard({ position, onEdit }: Props) {
   const formattedCreatedAt = formatDateTime(position.createdAt);
   const formattedUpdatedAt = formatDateTime(position.updatedAt);
   const formattedDeletedAt = formatDateTime(position.deletedAt);
-  const departmentCount = position.departmentsIds?.length || 0;
 
   return (
     <Link href={`${routes.positions}/${position.id}`}>
@@ -97,7 +96,7 @@ export default function PositionCard({ position, onEdit }: Props) {
               <div className="flex flex-col items-end">
                 <div
                   className={`h-2.5 w-2.5 rounded-full mb-1 ${
-                    position.isActive ? "bg-emerald-500" : "bg-amber-500"
+                    position.isActive ? "bg-emerald-500" : "bg-red-400"
                   }`}
                 />
               </div>
@@ -122,7 +121,7 @@ export default function PositionCard({ position, onEdit }: Props) {
                 <div className="min-w-0">
                   <p className="text-xs text-slate-500">Departments</p>
                   <p className="text-sm text-slate-300">
-                    {departmentCount} {departmentCount === 1 ? "dept" : "depts"}
+                    {position.departmentCount} {position.departmentCount === 1 ? "dept" : "depts"}
                   </p>
                 </div>
               </div>

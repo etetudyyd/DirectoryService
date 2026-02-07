@@ -48,6 +48,14 @@ public class CreatePositionHandler: ICommandHandler<Guid, CreatePositionCommand>
             return name.Error.ToErrors();
         }
 
+        bool isNameExists = await _positionsRepository.IsNameUniqueAsync(name.Value, cancellationToken);
+
+        if (isNameExists)
+        {
+            _logger.LogError("Name already exists");
+            return GeneralErrors.General.ValueAlreadyExists("Name").ToErrors();
+        }
+
         var description = PositionDescription.Create(command.PositionRequest.Description);
 
         var positionId = new PositionId(Guid.NewGuid());

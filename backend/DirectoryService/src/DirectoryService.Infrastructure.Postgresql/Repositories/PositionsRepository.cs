@@ -4,6 +4,7 @@ using DirectoryService.Database;
 using DirectoryService.Database.IRepositories;
 using DirectoryService.Entities;
 using DirectoryService.ValueObjects.Department;
+using DirectoryService.ValueObjects.Position;
 using Microsoft.EntityFrameworkCore;
 using Shared.SharedKernel;
 
@@ -50,7 +51,15 @@ public class PositionsRepository : IPositionsRepository
             .FirstOrDefaultAsync(cancellationToken);
 
         if (position == null)
-            return Error.Failure("department.not.found", "Department not found");
+            return Error.Failure("position.not.found", "Position not found or you can`t edit it now because it is deactivated");
+
+        return position;
+    }
+
+    public async Task<bool> IsNameUniqueAsync(PositionName name, CancellationToken cancellationToken)
+    {
+        bool position = await _dbContext.Positions
+            .AnyAsync(p => p.Name == name, cancellationToken);
 
         return position;
     }

@@ -1,3 +1,3 @@
 ﻿namespace DirectoryService.Positions.Responses;
 
-public record GetPositionByIdResponse(PositionDto Position);
+public record GetPositionByIdResponse(PositionDetailsDto Position);
