@@ -78,23 +78,21 @@ public class GetPositionsHandler : IQueryHandler<GetPositionsResponse, GetPositi
                      p.id,
                      p.name,
                      p.description,
-                     p.is_active as isActive,
+                     p.is_active as IsActive,
                      p.created_at as CreatedAt,
                      p.updated_at as UpdatedAt,
                      p.deleted_at as DeletedAt,
                      
-                     -- Количество департаментов
-                     COUNT(DISTINCT dp.department_id)::INTEGER as departmentCount,
+                     COALESCE((
+                         SELECT COUNT(DISTINCT department_id)
+                         FROM department_positions dp
+                         WHERE dp.position_id = p.id
+                     ), 0)::INTEGER as departmentCount,
 
                      CAST(COUNT(*) OVER() AS INT) AS total_count
                  FROM positions p
-
-                 -- LEFT JOIN чтобы получить все позиции, даже без департаментов
-                 LEFT JOIN department_positions dp ON dp.position_id = p.id
-
                  {joinClause}
                  {whereClause}
-
                  GROUP BY p.id, p.name, p.description, p.is_active, p.created_at, p.updated_at, p.deleted_at
                  ORDER BY p.created_at DESC
                  LIMIT @page_size OFFSET @offset;
@@ -102,7 +100,7 @@ public class GetPositionsHandler : IQueryHandler<GetPositionsResponse, GetPositi
                 splitOn: "departmentCount,total_count",
                 map: (position, departmentCount, totalCount) =>
                 {
-                    position.DepartmentCount = departmentCount; // Добавьте это поле в DTO
+                    position.DepartmentCount = departmentCount;
                     totalItems = totalCount;
                     return position;
                 },

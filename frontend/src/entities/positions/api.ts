@@ -12,6 +12,11 @@ export type UpdatePositionRequest = {
   description: string;
 };
 
+export type UpdatePositionDepartmentsRequest = {
+  positionId: string;
+  departmentsIds: string[];
+};
+
 export type CreatePositionRequest = {
   name: string;
   description: string;
@@ -58,6 +63,16 @@ export const positionsApi = {
     const response = await apiClient.patch<Envelope<Position>>(
       `${routes.positions}/${positionId}`,
       { name, description },
+    );
+    return response.data;
+  },
+
+  updatePositionDepartments: async (
+    request: UpdatePositionDepartmentsRequest,
+  ) => {
+    const response = await apiClient.put<Envelope<Position>>(
+      `${routes.positions}/${request.positionId}${routes.departments}`,
+      request,
     );
     return response.data;
   },

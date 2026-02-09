@@ -8,11 +8,11 @@ import {
   Clock,
   Edit,
   FileText,
-  Trash2,
   CheckCircle,
   XCircle,
   AlertCircle,
   Copy,
+  X,
 } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import {
@@ -35,16 +35,51 @@ import { useGetPosition } from "@/features/positions/model/use-get-position";
 import { DetailsLoadingSkeleton } from "@/widgets/details-loading-skeleton";
 import { UpdatePositionDialog } from "@/features/positions/update-position-dialog";
 import { toast } from "sonner";
+import DepartmentsSelectItem from "@/features/departments/departments-select-filter";
+import { setFilterPositionsDepartmentIds } from "@/features/positions/model/position-filters-store";
+import { useUpdatePositionDepartments } from "@/features/positions/model/update-position-departments";
+import { DeleteConfirmationDialog } from "@/features/delete-confirmation-dialog";
+import { useDeletePosition } from "@/features/positions/model/use-delete-position";
 
 // Main component
 export default function PositionDetailsPage() {
   const params = useParams();
   const router = useRouter();
   const [updateOpen, setUpdateOpen] = useState(false);
-  const positionId = params.id as string;
+  const [isUpdateDepts, setIsUpdateDepts] = useState(false);
+  const [selectedDeptIds, setSelectedDeptIds] = useState<string[]>([]);
+
+  const { deletePosition, isPending: isDeletePending } = useDeletePosition();
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const positionId = params!.id as string;
 
   const { position, isPending, error, isError, refetch } =
     useGetPosition(positionId);
+
+  const {
+    updatePositionDepartments,
+    isError: isUpdateError,
+    error: updateError,
+    isPending: isUpdatePending,
+  } = useUpdatePositionDepartments();
+
+  const handleDelete = async () => {
+    setLoading(true);
+    try {
+      await deletePosition(position!.id);
+    } finally {
+      setLoading(false);
+      setDeleteOpen(false);
+    }
+  };
+
+  const handleDeleteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDeleteOpen(true);
+  };
 
   if (isPending) {
     return <DetailsLoadingSkeleton />;
@@ -73,6 +108,45 @@ export default function PositionDetailsPage() {
       </div>
     );
   }
+
+  // Инициализируем selectedDeptIds при первом рендере и когда position загружен
+  const currentDeptIds = position.departments?.map((dept) => dept.id) || [];
+
+  // Инициализируем selectedDeptIds только один раз, когда position загружен и selectedDeptIds пустой
+  if (selectedDeptIds.length === 0 && currentDeptIds.length > 0) {
+    setSelectedDeptIds(currentDeptIds);
+  }
+
+  const handleEditClick = () => {
+    // При начале редактирования устанавливаем текущие значения
+    setSelectedDeptIds(currentDeptIds);
+    setIsUpdateDepts(true);
+  };
+
+  const handleSave = async () => {
+    try {
+      await updatePositionDepartments({
+        positionId: positionId,
+        departmentsIds: selectedDeptIds, // Отправляем выбранные ID
+      });
+
+      setIsUpdateDepts(false);
+      refetch(); // Обновляем данные позиции
+    } catch (error) {
+      // Ошибка обрабатывается в хуке
+    }
+  };
+
+  const handleCancel = () => {
+    // Сбрасываем к исходным значениям
+    setSelectedDeptIds(currentDeptIds);
+    setIsUpdateDepts(false);
+  };
+
+  // Обработчик изменений в селекторе
+  const handleDepartmentChange = (departmentIds: string[]) => {
+    setSelectedDeptIds(departmentIds);
+  };
 
   // Format dates
   const formatDate = (date: Date) => {
@@ -103,22 +177,6 @@ export default function PositionDetailsPage() {
   const handleCopy = () => {
     navigator.clipboard.writeText(position.id);
     toast.success("Copied");
-  };
-
-  // Handle delete
-  const handleDelete = () => {
-    if (
-      confirm(`Are you sure you want to delete position "${position.name}"?`)
-    ) {
-      // deletePosition(position.id);
-      router.push("/positions");
-    }
-  };
-
-  // Handle edit
-  const handleEdit = () => {
-    // updatePosition(position.id);
-    router.push(`/positions/${position.id}/edit`);
   };
 
   return (
@@ -192,6 +250,17 @@ export default function PositionDetailsPage() {
           <AlertDescription>
             This position was deleted on {formatDate(position.deletedAt)}. It
             may not be available for all operations.
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Alert if update error */}
+      {isUpdateError && (
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Update Failed</AlertTitle>
+          <AlertDescription>
+            {updateError?.message || "Failed to update departments"}
           </AlertDescription>
         </Alert>
       )}
@@ -297,43 +366,84 @@ export default function PositionDetailsPage() {
 
         {/* Right column - Info and Actions */}
         <div className="space-y-6">
-          {/* Info Card */}
+          {/* Departments Card */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-lg">Departments</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Separator />
-              <div className="p-3 bg-muted/50 rounded-md">
-                {position.departments && position.departments.length > 0 ? (
-                  <div className="space-y-2">
-                    <div className="flex items-center gap-2">
-                      <Badge variant="outline" className="font-normal">
-                        {position.departments.length} department
-                        {position.departments.length !== 1 ? "s" : ""}
-                      </Badge>
-                    </div>
-                    <div className="grid grid-cols-1 gap-3">
-                      {position.departments.map((department) => (
-                        <div
-                          key={department.id}
-                          className="p-3 bg-card border rounded-lg hover:bg-accent/50 transition-colors group"
-                        >
-                          <div className="font-medium text-sm truncate">
-                            {department.name}
-                          </div>
-                          <div className="text-xs text-muted-foreground font-mono truncate mt-1 opacity-70">
-                            {department.id}
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+              <div className="flex justify-between items-center gap-2">
+                <CardTitle className="text-lg">Departments</CardTitle>
+                {isUpdateDepts ? (
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleCancel}
+                      disabled={isUpdatePending}
+                    >
+                      <X className="h-4 w-4 mr-2" />
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={handleSave}
+                      disabled={isUpdatePending}
+                    >
+                      {isUpdatePending ? "Saving..." : "Save"}
+                    </Button>
                   </div>
                 ) : (
-                  <div className="text-center py-4 text-muted-foreground">
-                    <p>No departments assigned</p>
-                  </div>
+                  <Button variant="default" size="sm" onClick={handleEditClick}>
+                    <Edit className="h-4 w-4 mr-2" />
+                    Edit
+                  </Button>
                 )}
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {isUpdateDepts ? (
+                <>
+                  <DepartmentsSelectItem
+                    selectedDepartmentIds={selectedDeptIds}
+                    onDepartmentChange={handleDepartmentChange}
+                  />
+                </>
+              ) : (
+                <>
+                  <Separator />
+                </>
+              )}
+              <div className="space-y-4">
+                <div className="p-3 bg-muted/50 rounded-md">
+                  {position.departments && position.departments.length > 0 ? (
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="font-normal">
+                          {position.departments.length} department
+                          {position.departments.length !== 1 ? "s" : ""}
+                        </Badge>
+                      </div>
+                      <div className="grid grid-cols-1 gap-3">
+                        {position.departments.map((department) => (
+                          <div
+                            key={department.id}
+                            className="p-3 bg-card border rounded-lg hover:bg-accent/50 transition-colors"
+                          >
+                            <div className="font-medium text-sm truncate">
+                              {department.name}
+                            </div>
+                            <div className="text-xs text-muted-foreground font-mono truncate mt-1 opacity-70">
+                              {department.id}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="text-center py-4 text-muted-foreground">
+                      <p>No departments assigned</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </CardContent>
           </Card>
@@ -356,7 +466,8 @@ export default function PositionDetailsPage() {
               {position.isActive ? (
                 <Button
                   className="w-full justify-start bg-red-400 hover:bg-red-600 text-white transition-colors"
-                  onClick={() => {}}
+                  onClick={handleDeleteClick}
+                  disabled={isDeletePending}
                 >
                   <XCircle className="h-4 w-4 mr-2" />
                   Deactivate
@@ -380,6 +491,15 @@ export default function PositionDetailsPage() {
         position={position}
         open={updateOpen}
         onOpenChange={setUpdateOpen}
+      />
+
+      <DeleteConfirmationDialog
+        open={deleteOpen}
+        onOpenChange={setDeleteOpen}
+        onConfirm={handleDelete}
+        loading={loading}
+        title={`Delete "${position.name}"?`}
+        description="Are you sure you want to delete this position? This action cannot be undone."
       />
     </main>
   );

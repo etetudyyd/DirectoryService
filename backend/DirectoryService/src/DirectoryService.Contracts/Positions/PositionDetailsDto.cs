@@ -2,12 +2,6 @@
 
 public record PositionDetailsDto
 {
-
-    public PositionDetailsDto()
-    {
-        Departments = [];
-    }
-
     public Guid Id { get; init; }
 
     public string Name { get; init; } = string.Empty;

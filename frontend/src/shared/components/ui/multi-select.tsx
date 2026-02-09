@@ -36,9 +36,9 @@ interface MultiSelectProps {
   loadMore?: () => void;
   hasNextPage?: boolean;
   isLoadingMore?: boolean;
-  maxDisplayCount?: number; // Количество отображаемых бэйджей до появления "ещё N"
-  searchPlaceholder?: string; // Плейсхолдер для поля поиска
-  notFoundPlaceholder?: string; // Плейсхолдер, если ничего не нашлось
+  maxDisplayCount?: number;
+  searchPlaceholder?: string;
+  notFoundPlaceholder?: string;
   morePlaceholder?: string;
 }
 
@@ -57,7 +57,7 @@ const MultiSelect = React.forwardRef<
       loadMore,
       hasNextPage,
       isLoadingMore,
-      maxDisplayCount = 3, // По умолчанию показываем 3 бэйджа, как в оригинальном компоненте
+      maxDisplayCount = 3,
       searchPlaceholder = "Search...",
       notFoundPlaceholder = "No results found",
       morePlaceholder = "more",
@@ -136,7 +136,7 @@ const MultiSelect = React.forwardRef<
                       <Badge
                         key={value}
                         variant="secondary"
-                        className="mr-1 hover:bg-secondary/60 transition-colors hover:-translate-y-1 hover:scale-110"
+                        className="mr-1 hover:bg-secondary/60 transition-colors"
                       >
                         {option?.label}
                         <div

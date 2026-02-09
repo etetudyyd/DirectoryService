@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/shared/components/ui/select";
 import { Badge } from "@/shared/components/ui/badge";
-import DepartmentsSelectFilter from "../departments/departments-select-filter";
+import DepartmentsSelectItem from "../departments/departments-select-filter";
 import {
   setFilterIsActive,
   setFilterPositionsDepartmentIds,
@@ -71,7 +71,7 @@ export default function PositionsList() {
         <Button
           onClick={() => setCreateOpen(true)}
           disabled={isPending}
-          className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 shrink-0"
+          className="bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 shrink-0"
           size="default"
         >
           <PlusIcon className="h-5 w-5 mr-2" />
@@ -99,7 +99,7 @@ export default function PositionsList() {
             <div className="flex flex-col sm:flex-row gap-3 sm:items-center shrink-0">
               {/* Departments Filter */}
               <div className="sm:w-68">
-                <DepartmentsSelectFilter
+                <DepartmentsSelectItem
                   selectedDepartmentIds={departmentsIds}
                   onDepartmentChange={setFilterPositionsDepartmentIds}
                 />
@@ -227,7 +227,7 @@ export default function PositionsList() {
       {/* Positions Grid */}
       <section className="mb-10">
         {isPending ? (
-          <div className="flex flex-col justify-center items-center min-h-[400px]">
+          <div className="flex flex-col justify-center items-center min-h-100">
             <Spinner className="h-12 w-12 text-blue-900 mb-4" />
             <p className="text-gray-400">Loading positions...</p>
           </div>

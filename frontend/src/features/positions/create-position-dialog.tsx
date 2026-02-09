@@ -19,7 +19,7 @@ import {
 import { Label } from "@/shared/components/ui/label";
 import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
-import DepartmentsSelectFilter from "../departments/departments-select-filter";
+import DepartmentsSelectItem from "../departments/departments-select-filter";
 
 type Props = {
   open: boolean;
@@ -198,7 +198,7 @@ export function CreatePositionDialog({ open, onOpenChange }: Props) {
                     <Building className="h-4 w-4 text-gray-400 group-hover:text-gray-300 transition-colors" />
                   </div>
                   <div className="pl-10">
-                    <DepartmentsSelectFilter
+                    <DepartmentsSelectItem
                       selectedDepartmentIds={departmentsIds}
                       onDepartmentChange={handleDepartmentsChange}
                     />

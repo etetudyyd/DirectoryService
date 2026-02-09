@@ -12,6 +12,8 @@ public interface IDepartmentsRepository
 {
     Task<Result<Guid, Error>> AddAsync(Department department, CancellationToken cancellationToken);
 
+    Task<UnitResult<Error>> IsDepartmentsActiveAsync(DepartmentId[] departmentIds, CancellationToken cancellationToken);
+
     Task<Result<Department, Error>> GetByIdAsync(Guid id, CancellationToken cancellationToken);
 
     Task<Result<Department, Error>> GetByIdWithLockAsync(Guid id, CancellationToken cancellationToken);

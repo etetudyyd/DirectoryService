@@ -63,6 +63,24 @@ public class DepartmentsRepository : IDepartmentsRepository
         return department;
     }
 
+    public async Task<UnitResult<Error>> IsDepartmentsActiveAsync(DepartmentId[] departmentIds, CancellationToken cancellationToken)
+    {
+        foreach (var departmentId in departmentIds)
+        {
+            bool exists = await _dbContext.Departments
+                .AnyAsync(
+                    l => l.Id == departmentId
+                         && l.IsActive, cancellationToken);
+
+            if (!exists)
+            {
+                return Error.Failure($"department{departmentId}.not_active", departmentId.ToString());
+            }
+        }
+
+        return UnitResult.Success<Error>();
+    }
+
     public async Task<Result<Guid, Error>> UpdateChildDepartmentsPath(
         Department parent,
         CancellationToken cancellationToken)

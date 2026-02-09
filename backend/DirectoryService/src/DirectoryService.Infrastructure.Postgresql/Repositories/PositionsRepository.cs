@@ -30,6 +30,22 @@ public class PositionsRepository : IPositionsRepository
         return position.Id.Value;
     }
 
+    public async Task<Result<Position, Error>> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    {
+        var position = await _dbContext.Positions
+            .Include(d => d.DepartmentPositions)
+            .FirstOrDefaultAsync(
+                d => d.IsActive && d.Id == new PositionId(id),
+                cancellationToken);
+
+        if (position is null)
+        {
+            return Error.Failure("position.not.found", "Position not found");
+        }
+
+        return position;
+    }
+
     public async Task<Result<Position, Error>> GetByIdWithLockAsync(
         Guid id,
         CancellationToken cancellationToken)

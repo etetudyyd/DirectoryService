@@ -10,7 +10,9 @@ public interface IPositionsRepository
 {
     Task<Guid> AddAsync(Position position, CancellationToken cancellationToken);
 
-    Task<Result<Position, Error>> GetByIdWithLockAsync(Guid id, CancellationToken cancellationToken);
+    Task<Result<Position, Error>> GetByIdAsync(Guid positionId, CancellationToken cancellationToken);
+
+    Task<Result<Position, Error>> GetByIdWithLockAsync(Guid positionId, CancellationToken cancellationToken);
 
     Task<bool> IsNameUniqueAsync(PositionName name, CancellationToken cancellationToken);
 

@@ -11,7 +11,7 @@ type DepartmentProps = {
   onDepartmentChange: (departmentIds: string[]) => void;
 };
 
-export default function DepartmentsSelectFilter({
+export default function DepartmentsSelectItem({
   selectedDepartmentIds,
   excludeDepartmentIds,
   onDepartmentChange,

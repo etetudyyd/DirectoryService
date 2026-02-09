@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
-import DepartmentsSelectFilter from "../departments/departments-select-filter";
+import DepartmentsSelectItem from "../departments/departments-select-filter";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
 
@@ -39,7 +39,7 @@ export function PositionsFilter() {
 
         {/* Departments Filter */}
         <div className="flex-1 min-w-62.5">
-          <DepartmentsSelectFilter
+          <DepartmentsSelectItem
             selectedDepartmentIds={departmentsIds}
             onDepartmentChange={setFilterPositionsDepartmentIds}
           />

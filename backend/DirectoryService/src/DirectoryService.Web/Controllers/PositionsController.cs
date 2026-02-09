@@ -3,6 +3,7 @@ using DirectoryService.Entities;
 using DirectoryService.Features.Positions.Commands.CreatePosition;
 using DirectoryService.Features.Positions.Commands.DeactivatePosition;
 using DirectoryService.Features.Positions.Commands.UpdatePosition;
+using DirectoryService.Features.Positions.Commands.UpdatePositionDepartments;
 using DirectoryService.Features.Positions.Queries.GetPositionById;
 using DirectoryService.Features.Positions.Queries.GetPositions;
 using DirectoryService.Positions.Requests;
@@ -57,6 +58,17 @@ public class PositionsController : ControllerBase
     {
         var command = new UpdatePositionCommand(positionId, request);
 
+        return await handler.Handle(command, cancellationToken);
+    }
+
+    [HttpPut("{positionId}/departments")]
+    public async Task<EndpointResult<Guid>> UpdatePositionDepartment(
+        [FromServices] ICommandHandler<Guid, UpdatePositionDepartmentsCommand> handler,
+        [FromRoute] Guid positionId,
+        [FromBody] UpdatePositionDepartmentsRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new UpdatePositionDepartmentsCommand(positionId, request);
         return await handler.Handle(command, cancellationToken);
     }
 
