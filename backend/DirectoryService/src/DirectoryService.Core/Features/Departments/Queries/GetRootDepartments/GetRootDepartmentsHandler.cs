@@ -13,7 +13,7 @@ using Shared.SharedKernel;
 
 namespace DirectoryService.Features.Departments.Queries.GetRootDepartments;
 
-public class GetRootDepartmentsHandler : IQueryHandler<GetRootDepartmentsResponse, GetRootDepartmentsQuery>
+public class GetRootDepartmentsHandler : IQueryHandler<PaginationResponse<DepartmentPrefetchResponse>, GetRootDepartmentsQuery>
 {
     private readonly ITransactionManager _transactionManager;
     private readonly IValidator<GetRootDepartmentsQuery> _validator;
@@ -31,7 +31,7 @@ public class GetRootDepartmentsHandler : IQueryHandler<GetRootDepartmentsRespons
         _cache = cache;
     }
 
-    public async Task<Result<GetRootDepartmentsResponse, Errors>> Handle(
+    public async Task<Result<PaginationResponse<DepartmentPrefetchResponse>, Errors>> Handle(
         GetRootDepartmentsQuery query,
         CancellationToken cancellationToken)
     {
@@ -50,8 +50,9 @@ public class GetRootDepartmentsHandler : IQueryHandler<GetRootDepartmentsRespons
                                         d.parent_id AS ParentId,
                                         d.is_active AS IsActive,
                                         d.created_at AS CreatedAt,
-                                        d.updated_at AS UpdatedAt
-                                 FROM {{Constants.SCHEMA}}.departments d
+                                        d.updated_at AS UpdatedAt,
+                                        CAST(COUNT(*) OVER() AS INT) AS total_count
+                                 FROM {{Constants.DEPARTMENT_TABLE_ROUTE}} d
                                  WHERE d.parent_id IS NULL
                                  ORDER BY d.created_at
                                  OFFSET @offset LIMIT @root_limit
@@ -66,10 +67,11 @@ public class GetRootDepartmentsHandler : IQueryHandler<GetRootDepartmentsRespons
                                  r.CreatedAt,
                                  r.UpdatedAt,
                                  (EXISTS(
-                                     SELECT 1 FROM {{Constants.SCHEMA}}.departments
+                                     SELECT 1 FROM {{Constants.DEPARTMENT_TABLE_ROUTE}}
                                      WHERE parent_id = r.id
                                      OFFSET @child_limit LIMIT 1
-                                 ))::bool AS HasMoreChildren
+                                 ))::bool AS HasMoreChildren,
+                                 r.total_count
                              FROM roots r
                              UNION ALL
                              SELECT
@@ -82,8 +84,9 @@ public class GetRootDepartmentsHandler : IQueryHandler<GetRootDepartmentsRespons
                                  c.created_at AS CreatedAt,
                                  c.updated_at AS UpdatedAt,
                                  (EXISTS(
-                                     SELECT 1 FROM {{Constants.SCHEMA}}.departments WHERE parent_id = c.id
-                                 ))::bool AS HasMoreChildren
+                                     SELECT 1 FROM {{Constants.DEPARTMENT_TABLE_ROUTE}} WHERE parent_id = c.id
+                                 ))::bool AS HasMoreChildren,
+                                 r.total_count
                              FROM roots r
                                       CROSS JOIN LATERAL (
                                  SELECT
@@ -95,7 +98,7 @@ public class GetRootDepartmentsHandler : IQueryHandler<GetRootDepartmentsRespons
                                      d.is_active,
                                      d.created_at,
                                      d.updated_at
-                                 FROM {{Constants.SCHEMA}}.departments d
+                                 FROM {{Constants.DEPARTMENT_TABLE_ROUTE}} d
                                  WHERE d.parent_id = r.id
                                    AND d.is_active = true
                                  ORDER BY d.created_at
@@ -109,6 +112,8 @@ public class GetRootDepartmentsHandler : IQueryHandler<GetRootDepartmentsRespons
         parameters.Add("offset", (queryRequest.Page - 1) * queryRequest.PageSize, DbType.Int32);
         parameters.Add("root_limit", queryRequest.PageSize, DbType.Int32);
         parameters.Add("child_limit", queryRequest.Prefetch, DbType.Int32);
+
+        int totalItems = 0;
 
         string prefix = $"{Constants.DEPARTMENT_CACHE_PREFIX}_roots";
         string cacheKey = CacheKeyBuilder.Build(
@@ -124,14 +129,24 @@ public class GetRootDepartmentsHandler : IQueryHandler<GetRootDepartmentsRespons
 
         var departments = await _cache.GetOrCreateAsync<IEnumerable<DepartmentPrefetchResponse>>(
         cacheKey,
-        async _ => await connection.QueryAsync<DepartmentPrefetchResponse>(
+        async _ => await connection.QueryAsync<DepartmentPrefetchResponse, int, DepartmentPrefetchResponse>(
             dapperSql,
+            splitOn: "total_count",
+            map: (department, count) =>
+            {
+                totalItems = count;
+                return department;
+            },
             param: parameters),
         options,
         cancellationToken: cancellationToken);
 
         _logger.LogInformation("Departments was successfully founded!");
 
-        return new GetRootDepartmentsResponse(departments.ToList());
+        return new PaginationResponse<DepartmentPrefetchResponse>(
+            departments.ToList(),
+            totalItems,
+            queryRequest.Page,
+            queryRequest.PageSize);
     }
 }

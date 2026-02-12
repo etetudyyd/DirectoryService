@@ -13,7 +13,7 @@ using Shared.SharedKernel;
 
 namespace DirectoryService.Features.Departments.Queries.GetChildrenDepartments;
 
-public class GetChildrenDepartmentsHandler : IQueryHandler<GetChildrenDepartmentsResponse, GetChildrenDepartmentsQuery>
+public class GetChildrenDepartmentsHandler : IQueryHandler<PaginationResponse<DepartmentPrefetchResponse>, GetChildrenDepartmentsQuery>
 {
     private readonly ITransactionManager _transactionManager;
     private readonly IValidator<GetChildrenDepartmentsQuery> _validator;
@@ -32,7 +32,7 @@ public class GetChildrenDepartmentsHandler : IQueryHandler<GetChildrenDepartment
         _validator = validator;
     }
 
-    public async Task<Result<GetChildrenDepartmentsResponse, Errors>> Handle(
+    public async Task<Result<PaginationResponse<DepartmentPrefetchResponse>, Errors>> Handle(
         GetChildrenDepartmentsQuery query,
         CancellationToken cancellationToken)
     {
@@ -53,7 +53,7 @@ public class GetChildrenDepartmentsHandler : IQueryHandler<GetChildrenDepartment
                                     d.is_active AS IsActive,
                                     d.created_at AS CreatedAt,
                                     d.updated_at AS UpdatedAt
-                                FROM {Constants.SCHEMA}.departments d
+                                FROM {Constants.DEPARTMENT_TABLE_ROUTE} d
                                 WHERE d.parent_id = @ParentId
                                 ORDER BY d.created_at
                                 OFFSET @Offset LIMIT @Limit
@@ -69,9 +69,10 @@ public class GetChildrenDepartmentsHandler : IQueryHandler<GetChildrenDepartment
                                 UpdatedAt,
                                 EXISTS(
                                     SELECT 1
-                                    FROM {Constants.SCHEMA}.departments d
+                                    FROM {Constants.DEPARTMENT_TABLE_ROUTE} d
                                     WHERE d.parent_id = child_departments.id
-                                ) AS HasMoreChildren
+                                ) AS HasMoreChildren,
+                                CAST(COUNT(*) OVER() AS INT) AS total_count
                             FROM child_departments;
                             """;
 
@@ -81,6 +82,8 @@ public class GetChildrenDepartmentsHandler : IQueryHandler<GetChildrenDepartment
         parameters.Add("ParentId", query.Request.ParentId);
         parameters.Add("Offset", (query.Request.Page - 1) * query.Request.PageSize, DbType.Int32);
         parameters.Add("Limit", query.Request.PageSize, DbType.Int32);
+
+        int totalItems = 0;
 
         string prefix = $"{Constants.DEPARTMENT_CACHE_PREFIX}_childs";
         string cacheKey = CacheKeyBuilder.Build(
@@ -94,16 +97,29 @@ public class GetChildrenDepartmentsHandler : IQueryHandler<GetChildrenDepartment
             Expiration = TimeSpan.FromMinutes(Constants.TTL_CACHE),
         };
 
-        var departments = await _cache.GetOrCreateAsync<IEnumerable<DepartmentPrefetchResponse>>(
+        var items = await _cache.GetOrCreateAsync<IEnumerable<DepartmentPrefetchResponse>>(
             cacheKey,
-            async _ => await connection.QueryAsync<DepartmentPrefetchResponse>(
+            async _ => await connection.QueryAsync<
+                DepartmentPrefetchResponse,
+                int,
+                DepartmentPrefetchResponse>(
                 dapperSql,
+                splitOn: "total_count",
+                map: (department, count) =>
+                {
+                    totalItems = count;
+                    return department;
+                },
                 param: parameters),
             options,
             cancellationToken : cancellationToken);
 
         _logger.LogInformation("Departments was successfully founded!");
 
-        return new GetChildrenDepartmentsResponse(departments.ToList());
+        return new PaginationResponse<DepartmentPrefetchResponse>(
+            items.ToList(),
+            totalItems,
+            queryRequest.Page,
+            queryRequest.PageSize);
     }
 }

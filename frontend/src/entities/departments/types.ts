@@ -12,5 +12,11 @@ export type Department = {
     deletedAt: Date | null;
 }
 
+// пока что тут, потом перенесу в стор, когда будет готов
+export type DepartmentDictionaryState = {
+  search?: string;
+  departmentsIds?: string[];
+  pageSize: number;
+};
 
 

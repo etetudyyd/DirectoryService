@@ -11,7 +11,7 @@ using Shared.SharedKernel;
 
 namespace DirectoryService.Features.Locations.Commands.UpdateLocation;
 
-public class UpdateLocationHandler : ICommandHandler<Location, UpdateLocationCommand>
+public class UpdateLocationHandler : ICommandHandler<Guid, UpdateLocationCommand>
 {
     private readonly ILocationsRepository _locationsRepository;
 
@@ -37,7 +37,7 @@ public class UpdateLocationHandler : ICommandHandler<Location, UpdateLocationCom
         _cache = cache;
     }
 
-    public async Task<Result<Location, Errors>> Handle(
+    public async Task<Result<Guid, Errors>> Handle(
         UpdateLocationCommand command,
         CancellationToken cancellationToken)
     {
@@ -106,6 +106,6 @@ public class UpdateLocationHandler : ICommandHandler<Location, UpdateLocationCom
 
         _logger.LogInformation($"Location was deactivated with id{location.Id}");
 
-        return location;
+        return location.Id.Value;
     }
 }

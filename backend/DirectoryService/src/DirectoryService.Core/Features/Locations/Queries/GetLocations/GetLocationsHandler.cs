@@ -10,7 +10,7 @@ using Shared.SharedKernel;
 
 namespace DirectoryService.Features.Locations.Queries.GetLocations;
 
-public class GetLocationsHandler : IQueryHandler<GetLocationsResponse, GetLocationsQuery>
+public class GetLocationsHandler : IQueryHandler<PaginationResponse<LocationDto>, GetLocationsQuery>
 {
     private readonly ITransactionManager _transactionManager;
     private readonly ILogger<GetLocationsHandler> _logger;
@@ -23,7 +23,7 @@ public class GetLocationsHandler : IQueryHandler<GetLocationsResponse, GetLocati
         _transactionManager = transactionManager;
     }
 
-    public async Task<Result<GetLocationsResponse, Errors>> Handle(
+    public async Task<Result<PaginationResponse<LocationDto>, Errors>> Handle(
     GetLocationsQuery query,
     CancellationToken cancellationToken)
 {
@@ -105,7 +105,7 @@ public class GetLocationsHandler : IQueryHandler<GetLocationsResponse, GetLocati
     
     _logger.LogInformation("Found {totalItems} locations", totalItems);
 
-    return new GetLocationsResponse(
+    return new PaginationResponse<LocationDto>(
         items.ToList(),
         totalItems,
         locationsQuery.Page!.Value,

@@ -1,6 +1,7 @@
 ﻿namespace DirectoryService;
 
-public record PaginationResponse<T>(List<T> Items,
+public record PaginationResponse<T>(
+    List<T> Items,
     int TotalItems,
     int Page,
     int PageSize)

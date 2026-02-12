@@ -1,4 +1,5 @@
 ﻿using Core.Abstractions;
+using DirectoryService.Departments;
 using DirectoryService.Departments.Requests;
 using DirectoryService.Departments.Responses;
 using DirectoryService.Features.Departments.Commands.CreateDepartment;
@@ -19,8 +20,8 @@ namespace DirectoryService.Controllers;
 public class DepartmentsController : ControllerBase
 {
     [HttpGet("{parentId:guid}")]
-    public async Task<EndpointResult<GetChildrenDepartmentsResponse>> GetChildrenDepartments(
-        [FromServices] IQueryHandler<GetChildrenDepartmentsResponse, GetChildrenDepartmentsQuery> handler,
+    public async Task<EndpointResult<PaginationResponse<DepartmentPrefetchResponse>>> GetChildrenDepartments(
+        [FromServices] IQueryHandler<PaginationResponse<DepartmentPrefetchResponse>, GetChildrenDepartmentsQuery> handler,
         [FromRoute] Guid parentId,
         [FromQuery] int? page,
         [FromQuery] int? pageSize,
@@ -36,8 +37,8 @@ public class DepartmentsController : ControllerBase
     }
 
     [HttpGet("roots")]
-    public async Task<EndpointResult<GetRootDepartmentsResponse>> GetRootDepartments(
-        [FromServices] IQueryHandler<GetRootDepartmentsResponse, GetRootDepartmentsQuery> handler,
+    public async Task<EndpointResult<PaginationResponse<DepartmentPrefetchResponse>>> GetRootDepartments(
+        [FromServices] IQueryHandler<PaginationResponse<DepartmentPrefetchResponse>, GetRootDepartmentsQuery> handler,
         [FromQuery] int? page,
         [FromQuery] int? pageSize,
         [FromQuery] int? prefetch,
@@ -63,8 +64,8 @@ public class DepartmentsController : ControllerBase
     }
 
     [HttpGet("dictionary")]
-    public async Task<EndpointResult<GetDepartmentsResponse>> GetDepartmentsDictionary(
-        [FromServices] IQueryHandler<GetDepartmentsResponse,
+    public async Task<EndpointResult<PaginationResponse<DepartmentItemDto>>> GetDepartmentsDictionary(
+        [FromServices] IQueryHandler<PaginationResponse<DepartmentItemDto>,
             GetDepartmentsQuery> handler,
         [FromQuery] GetDepartmentsDictionaryRequest request,
         CancellationToken cancellationToken)

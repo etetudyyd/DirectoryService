@@ -11,7 +11,7 @@ using Shared.SharedKernel;
 
 namespace DirectoryService.Features.Departments.Queries.GetDepartments;
 
-public class GetDepartmentsHandler : IQueryHandler<GetDepartmentsResponse, GetDepartmentsQuery>
+public class GetDepartmentsHandler : IQueryHandler<PaginationResponse<DepartmentItemDto>, GetDepartmentsQuery>
 {
     private readonly ITransactionManager _transactionManager;
     private readonly ILogger<GetDepartmentsHandler> _logger;
@@ -27,13 +27,13 @@ public class GetDepartmentsHandler : IQueryHandler<GetDepartmentsResponse, GetDe
         _transactionManager = transactionManager;
     }
 
-    public async Task<Result<GetDepartmentsResponse, Errors>> Handle(
+    public async Task<Result<PaginationResponse<DepartmentItemDto>, Errors>> Handle(
         GetDepartmentsQuery query,
         CancellationToken cancellationToken)
     {
         var connection = await _transactionManager.GetDbConnectionAsync(cancellationToken);
 
-        var departmentsQuery = query.DepartmentsDictionaryRequest;
+        var departmentsQuery = query.DepartmentsRequest;
 
         var parameters = new DynamicParameters();
         var conditions = new List<string>();
@@ -61,22 +61,22 @@ public class GetDepartmentsHandler : IQueryHandler<GetDepartmentsResponse, GetDe
                      d.name,
                      
                      CAST(COUNT(*) OVER() AS INT) AS total_count
-                 FROM {Constants.SCHEMA}.departments d
+                 FROM {Constants.DEPARTMENT_TABLE_ROUTE} d
                  {whereClause}
                  ORDER BY d.created_at DESC
                  LIMIT @page_size OFFSET @offset;
                  """,
                 splitOn: "total_count",
-                map: (position, count) =>
+                map: (department, count) =>
                 {
                     totalItems = count;
-                    return position;
+                    return department;
                 },
                 param: parameters);
 
         _logger.LogInformation("Departments was successfully founded!");
 
-        return new GetDepartmentsResponse(
+        return new PaginationResponse<DepartmentItemDto>(
             items.ToList(),
             totalItems,
             departmentsQuery.Page!.Value,
