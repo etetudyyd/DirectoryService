@@ -4,7 +4,7 @@ using Core.Caching;
 using Core.Validation;
 using CSharpFunctionalExtensions;
 using Dapper;
-using DirectoryService.Database.IQueries;
+using DirectoryService.Database.ITransactions;
 using DirectoryService.Departments.Responses;
 using FluentValidation;
 using Microsoft.Extensions.Caching.Hybrid;
@@ -15,18 +15,18 @@ namespace DirectoryService.Features.Departments.Queries.GetChildrenDepartments;
 
 public class GetChildrenDepartmentsHandler : IQueryHandler<GetChildrenDepartmentsResponse, GetChildrenDepartmentsQuery>
 {
-    private readonly IDapperConnectionFactory _connectionFactory;
+    private readonly ITransactionManager _transactionManager;
     private readonly IValidator<GetChildrenDepartmentsQuery> _validator;
     private readonly ILogger<GetChildrenDepartmentsHandler> _logger;
     private readonly HybridCache _cache;
 
     public GetChildrenDepartmentsHandler(
-        IDapperConnectionFactory connectionFactory,
+        ITransactionManager transactionManager,
         IValidator<GetChildrenDepartmentsQuery> validator,
         ILogger<GetChildrenDepartmentsHandler> logger,
         HybridCache cache)
     {
-        _connectionFactory = connectionFactory;
+        _transactionManager = transactionManager;
         _logger = logger;
         _cache = cache;
         _validator = validator;
@@ -42,40 +42,40 @@ public class GetChildrenDepartmentsHandler : IQueryHandler<GetChildrenDepartment
 
         var queryRequest = query.Request;
 
-        string dapperSql = """
-                           WITH child_departments AS (
-                               SELECT
-                                   d.id,
-                                   d.name,
-                                   d.identifier,
-                                   d.path,
-                                   d.parent_id AS ParentId,
-                                   d.is_active AS IsActive,
-                                   d.created_at AS CreatedAt,
-                                   d.updated_at AS UpdatedAt
-                               FROM departments d
-                               WHERE d.parent_id = @ParentId
-                               ORDER BY d.created_at
-                               OFFSET @Offset LIMIT @Limit
-                           )
-                           SELECT
-                               id,
-                               name,
-                               identifier,
-                               path,
-                               ParentId,
-                               IsActive,
-                               CreatedAt,
-                               UpdatedAt,
-                               EXISTS(
-                                   SELECT 1
-                                   FROM departments d
-                                   WHERE d.parent_id = child_departments.id
-                               ) AS HasMoreChildren
-                           FROM child_departments;
-                           """;
+        string dapperSql = $"""
+                            WITH child_departments AS (
+                                SELECT
+                                    d.id,
+                                    d.name,
+                                    d.identifier,
+                                    d.path,
+                                    d.parent_id AS ParentId,
+                                    d.is_active AS IsActive,
+                                    d.created_at AS CreatedAt,
+                                    d.updated_at AS UpdatedAt
+                                FROM {Constants.SCHEMA}.departments d
+                                WHERE d.parent_id = @ParentId
+                                ORDER BY d.created_at
+                                OFFSET @Offset LIMIT @Limit
+                            )
+                            SELECT
+                                id,
+                                name,
+                                identifier,
+                                path,
+                                ParentId,
+                                IsActive,
+                                CreatedAt,
+                                UpdatedAt,
+                                EXISTS(
+                                    SELECT 1
+                                    FROM {Constants.SCHEMA}.departments d
+                                    WHERE d.parent_id = child_departments.id
+                                ) AS HasMoreChildren
+                            FROM child_departments;
+                            """;
 
-        using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
+        var connection = await _transactionManager.GetDbConnectionAsync(cancellationToken);
 
         var parameters = new DynamicParameters();
         parameters.Add("ParentId", query.Request.ParentId);

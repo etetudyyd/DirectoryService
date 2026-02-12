@@ -1,4 +1,5 @@
-﻿using Core.Options;
+﻿using System.Linq.Expressions;
+using Core.Options;
 using CSharpFunctionalExtensions;
 using Dapper;
 using DirectoryService.Database;
@@ -9,6 +10,7 @@ using DirectoryService.Features.Departments.Commands.DeleteInactiveDepartments;
 using DirectoryService.ValueObjects.Department;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using Npgsql;
 using Shared.SharedKernel;
 using Path = DirectoryService.ValueObjects.Department.Path;
 
@@ -47,38 +49,107 @@ public class DepartmentsRepository : IDepartmentsRepository
         }
     }
 
-    public async Task<Result<Department, Error>> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<Result<Department, Error>> GetBy(
+        Expression<Func<Department, bool>> predicate,
+        CancellationToken cancellationToken = default)
     {
-        var department = await _dbContext.Departments
-            .Include(d => d.DepartmentLocations)
-            .FirstOrDefaultAsync(
-                d => d.IsActive && d.Id == new DepartmentId(id),
-                cancellationToken);
+        Department? department = await _dbContext.Departments.FirstOrDefaultAsync(predicate, cancellationToken);
 
         if (department is null)
-        {
-            return Error.Failure("department.not.found", "Department not found");
-        }
+            return GeneralErrors.General.NotFound();
 
         return department;
     }
 
-    public async Task<UnitResult<Error>> IsDepartmentsActiveAsync(DepartmentId[] departmentIds, CancellationToken cancellationToken)
+    public async Task<Result<Department, Error>> GetWithLocationsBy(
+        Expression<Func<Department, bool>> predicate,
+        CancellationToken cancellationToken = default)
     {
-        foreach (var departmentId in departmentIds)
+        Department? department = await _dbContext.Departments
+            .Include(x => x.DepartmentLocations)
+            .FirstOrDefaultAsync(predicate, cancellationToken);
+
+        if (department is null)
+            return GeneralErrors.General.NotFound();
+
+        return department;
+    }
+
+    public async Task<Result<Department, Error>> GetWithPositionsBy(
+        Expression<Func<Department, bool>> predicate,
+        CancellationToken cancellationToken = default)
+    {
+        Department? department = await _dbContext.Departments
+            .Include(x => x.DepartmentPositions)
+            .FirstOrDefaultAsync(predicate, cancellationToken);
+
+        if (department is null)
+            return GeneralErrors.General.NotFound();
+
+        return department;
+    }
+
+    public async Task<Result<Department, Error>> GetWithLocationsAndPositionsBy(
+        Expression<Func<Department, bool>> predicate,
+        CancellationToken cancellationToken = default)
+    {
+        Department? department = await _dbContext.Departments
+            .Include(x => x.DepartmentLocations)
+            .Include(x => x.DepartmentPositions)
+            .FirstOrDefaultAsync(predicate, cancellationToken);
+
+        if (department is null)
+            return GeneralErrors.General.NotFound();
+
+        return department;
+    }
+
+    public async Task<UnitResult<Error>> BulkDeleteDepartmentLocationsAsync(
+        Guid departmentId,
+        CancellationToken cancellationToken)
+    {
+        try
         {
-            bool exists = await _dbContext.Departments
-                .AnyAsync(
-                    l => l.Id == departmentId
-                         && l.IsActive, cancellationToken);
+            var connection = _dbContext.Database.GetDbConnection();
 
-            if (!exists)
-            {
-                return Error.Failure($"department{departmentId}.not_active", departmentId.ToString());
-            }
+            string sql = $@"
+        DELETE FROM {Constants.DEPARTMENT_LOCATIONS_TABLE_ROUTE}
+        WHERE department_id = @departmentId;
+        ";
+
+            var parameters = new { departmentId };
+
+            await connection.ExecuteAsync(sql, parameters);
+
+            return UnitResult.Success<Error>();
         }
+        catch (Exception ex)
+        {
+            return Error.Failure("database", "Failed to delete department locations");
+        }
+    }
 
-        return UnitResult.Success<Error>();
+    public async Task<Result<List<Guid>, Error>> GetActiveDepartmentIdsAsync(
+        Guid[] departmentIds,
+        CancellationToken cancellationToken)
+    {
+        var activeIds = await _dbContext.Locations
+            .FromSqlRaw(
+                @$"SELECT * FROM {Constants.DEPARTMENT_TABLE_ROUTE} 
+              WHERE id = ANY(@ids) AND is_active = true",
+                new NpgsqlParameter("ids", departmentIds))
+            .Select(l => l.Id.Value)
+            .ToListAsync(cancellationToken);
+
+        var missingIds = departmentIds
+            .Except(activeIds)
+            .ToList();
+
+        return missingIds.Any()
+            ? Error.NotFound(
+                "departments.not.found",
+                $"Departments not found or inactive: {string.Join(", ", missingIds)}")
+            : activeIds;
     }
 
     public async Task<Result<Guid, Error>> UpdateChildDepartmentsPath(

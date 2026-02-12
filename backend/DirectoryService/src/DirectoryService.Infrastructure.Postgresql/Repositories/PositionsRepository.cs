@@ -1,4 +1,5 @@
-﻿using CSharpFunctionalExtensions;
+﻿using System.Linq.Expressions;
+using CSharpFunctionalExtensions;
 using Dapper;
 using DirectoryService.Database;
 using DirectoryService.Database.IRepositories;
@@ -30,20 +31,55 @@ public class PositionsRepository : IPositionsRepository
         return position.Id.Value;
     }
 
-    public async Task<Result<Position, Error>> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<Result<Position, Error>> GetBy(
+        Expression<Func<Position, bool>> predicate,
+        CancellationToken cancellationToken = default)
     {
-        var position = await _dbContext.Positions
-            .Include(d => d.DepartmentPositions)
-            .FirstOrDefaultAsync(
-                d => d.IsActive && d.Id == new PositionId(id),
-                cancellationToken);
+        Position? position = await _dbContext.Positions.FirstOrDefaultAsync(predicate, cancellationToken);
 
         if (position is null)
-        {
-            return Error.Failure("position.not.found", "Position not found");
-        }
+            return GeneralErrors.General.NotFound();
 
         return position;
+    }
+
+    public async Task<Result<Position, Error>> GetWithDepartmentsBy(
+        Expression<Func<Position, bool>> predicate,
+        CancellationToken cancellationToken = default)
+    {
+        Position? position = await _dbContext.Positions
+            .Include(x => x.DepartmentPositions)
+            .FirstOrDefaultAsync(predicate, cancellationToken);
+
+        if (position is null)
+            return GeneralErrors.General.NotFound();
+
+        return position;
+    }
+
+    public async Task<UnitResult<Error>> BulkDeletePositionDepartmentsAsync(
+        Guid positionId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var connection = _dbContext.Database.GetDbConnection();
+
+            string sql = $@"
+        DELETE FROM {Constants.DEPARTMENT_POSITIONS_TABLE_ROUTE}
+        WHERE position_id = @positionId;
+        ";
+
+            var parameters = new { positionId };
+
+            await connection.ExecuteAsync(sql, parameters);
+
+            return UnitResult.Success<Error>();
+        }
+        catch (Exception ex)
+        {
+            return Error.Failure("database", "Failed to delete position departments");
+        }
     }
 
     public async Task<Result<Position, Error>> GetByIdWithLockAsync(

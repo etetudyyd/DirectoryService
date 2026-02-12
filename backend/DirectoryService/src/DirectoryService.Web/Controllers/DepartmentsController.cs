@@ -6,7 +6,7 @@ using DirectoryService.Features.Departments.Commands.DeactivateDepartment;
 using DirectoryService.Features.Departments.Commands.RelocateDepartmentParent;
 using DirectoryService.Features.Departments.Commands.UpdateDepartmentLocations;
 using DirectoryService.Features.Departments.Queries.GetChildrenDepartments;
-using DirectoryService.Features.Departments.Queries.GetDepartmentsDictionary;
+using DirectoryService.Features.Departments.Queries.GetDepartments;
 using DirectoryService.Features.Departments.Queries.GetRootDepartments;
 using DirectoryService.Features.Departments.Queries.GetTopDepartmentsByPositions;
 using Framework.Endpoints;
@@ -63,13 +63,13 @@ public class DepartmentsController : ControllerBase
     }
 
     [HttpGet("dictionary")]
-    public async Task<EndpointResult<GetDepartmentsDictionaryResponse>> GetDepartmentsDictionary(
-        [FromServices] IQueryHandler<GetDepartmentsDictionaryResponse,
-            GetDepartmentsDictionaryQuery> handler,
+    public async Task<EndpointResult<GetDepartmentsResponse>> GetDepartmentsDictionary(
+        [FromServices] IQueryHandler<GetDepartmentsResponse,
+            GetDepartmentsQuery> handler,
         [FromQuery] GetDepartmentsDictionaryRequest request,
         CancellationToken cancellationToken)
     {
-        var query = new GetDepartmentsDictionaryQuery(request);
+        var query = new GetDepartmentsQuery(request);
         return await handler.Handle(query, cancellationToken);
     }
 

@@ -12,14 +12,5 @@ export type Department = {
     deletedAt: Date | null;
 }
 
-export type DepartmentDictionaryState = {
-  search?: string;
-  departmentsIds?: string[];
-  pageSize: number;
-}
 
-export type GetDepartmentsDictionaryRequest = {
-  search?: string;
-  page: number;
-  pageSize: number;
-}
+

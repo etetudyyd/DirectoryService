@@ -52,7 +52,7 @@ public class DeactivateDepartmentHandler : ICommandHandler<Guid, DeactivateDepar
             return error.ToErrors();
 
         var departmentResult = await _departmentsRepository
-            .GetByIdAsync(command.Id, cancellationToken);
+            .GetBy(x => x.Id.Value == command.Id, cancellationToken);
         if (departmentResult.IsFailure)
         {
             transaction.Rollback(cancellationToken);

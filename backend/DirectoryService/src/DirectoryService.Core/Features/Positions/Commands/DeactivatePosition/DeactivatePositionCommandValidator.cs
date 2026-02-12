@@ -1,4 +1,6 @@
-﻿using FluentValidation;
+﻿using DirectoryService.Validators;
+using FluentValidation;
+using Shared.SharedKernel;
 
 namespace DirectoryService.Features.Positions.Commands.DeactivatePosition;
 
@@ -6,6 +8,7 @@ public class DeactivatePositionCommandValidator : AbstractValidator<DeactivatePo
 {
     public DeactivatePositionCommandValidator()
     {
-        RuleFor(x => x.Id).NotEmpty().WithMessage("Position id is has to be not empty");
+        RuleFor(x => x.Id).NotEmpty()
+            .WithError(GeneralErrors.General.ValueIsRequired());
     }
 }

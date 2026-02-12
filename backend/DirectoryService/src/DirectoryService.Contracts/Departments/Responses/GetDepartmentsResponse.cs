@@ -1,7 +1,7 @@
 ﻿namespace DirectoryService.Departments.Responses;
 
-public record GetDepartmentsDictionaryResponse(
-    List<DictionaryItemResponse> Items,
+public record GetDepartmentsResponse(
+    List<DepartmentItemDto> Items,
     int TotalItems,
     int Page,
     int PageSize)

@@ -1,12 +1,17 @@
 import { apiClient } from "@/shared/api/axios-instance";
-import { DictionaryItemResponse, DictionaryResponse, PaginationResponse } from "@/shared/api/types";
+import { DictionaryItemResponse, PaginationResponse } from "@/shared/api/types";
 import { Envelope } from "@/shared/api/envelope";
 import routes from "@/shared/routes";
 import { infiniteQueryOptions } from "@tanstack/react-query";
 import {
-  DepartmentDictionaryState,
-  GetDepartmentsDictionaryRequest,
+  DepartmentDictionaryState
 } from "./types";
+
+export type GetDepartmentsDictionaryRequest = {
+  search?: string;
+  page: number;
+  pageSize: number;
+}
 
 export const departmentsApi = {
   getDepartmentsDictionary: async (

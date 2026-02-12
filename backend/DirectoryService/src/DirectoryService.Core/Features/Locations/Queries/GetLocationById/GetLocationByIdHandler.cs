@@ -1,7 +1,7 @@
 ﻿using Core.Abstractions;
 using Core.Validation;
 using CSharpFunctionalExtensions;
-using DirectoryService.Database.IQueries;
+using DirectoryService.Database;
 using DirectoryService.Locations;
 using DirectoryService.Locations.Responses;
 using DirectoryService.ValueObjects.Location;

@@ -9,7 +9,7 @@ public sealed class Position : ISoftDeletable
     // ef
     private Position() { }
 
-    private List<DepartmentPosition> _departmentPositions;
+    private List<DepartmentPosition> _departmentPositions = new ();
 
     public PositionId Id { get; private set; }
 
@@ -63,10 +63,10 @@ public sealed class Position : ISoftDeletable
             departmentPositions);
     }
 
-    public void AddDepartments(IEnumerable<DepartmentPosition> departmentPosition)
+    public void AddDepartments(IEnumerable<DepartmentPosition> departmentPositions)
     {
-        var departmentPositions = departmentPosition
-            .Select(p => DepartmentPosition.Create(p.PositionId, p.DepartmentId).Value);
+        /* var departmentPositions = departmentPosition
+            .Select(p => DepartmentPosition.Create(p.PositionId, p.DepartmentId).Value);*/
         _departmentPositions.AddRange(departmentPositions);
     }
 
@@ -74,6 +74,7 @@ public sealed class Position : ISoftDeletable
     {
         _departmentPositions.Clear();
         AddDepartments(departmentPositions);
+        UpdatedAt = DateTime.UtcNow;
     }
 
     public UnitResult<Error> Update(PositionName name, PositionDescription description)

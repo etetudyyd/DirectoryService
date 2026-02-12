@@ -1,72 +1,64 @@
 ﻿using System.Data;
 using Core.Abstractions;
-using Core.Validation;
 using CSharpFunctionalExtensions;
 using Dapper;
-using DirectoryService.Database.IQueries;
+using DirectoryService.Database.ITransactions;
 using DirectoryService.Positions;
-using DirectoryService.Positions.Responses;
-using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Shared.SharedKernel;
 
 namespace DirectoryService.Features.Positions.Queries.GetPositions;
 
-public class GetPositionsHandler : IQueryHandler<GetPositionsResponse, GetPositionsQuery>
+public class GetPositionsHandler : IQueryHandler<PaginationResponse<PositionDto>, GetPositionsQuery>
 {
-    private readonly IDapperConnectionFactory _connectionFactory;
-    private readonly IValidator<GetPositionsQuery> _validator;
+    private readonly ITransactionManager _transactionManager;
     private readonly ILogger<GetPositionsHandler> _logger;
 
     public GetPositionsHandler(
-        IDapperConnectionFactory connectionFactory,
-        IValidator<GetPositionsQuery> validator,
-        ILogger<GetPositionsHandler> logger)
+        ILogger<GetPositionsHandler> logger,
+        ITransactionManager transactionManager)
     {
-        _connectionFactory = connectionFactory;
-        _validator = validator;
         _logger = logger;
+        _transactionManager = transactionManager;
     }
 
-    public async Task<Result<GetPositionsResponse, Errors>> Handle(
+    public async Task<Result<PaginationResponse<PositionDto>, Errors>> Handle(
         GetPositionsQuery query,
         CancellationToken cancellationToken)
     {
-        var validationResult = await _validator.ValidateAsync(query, cancellationToken);
-        if (!validationResult.IsValid)
-            return validationResult.ToErrors();
+        var connection = await _transactionManager.GetDbConnectionAsync(cancellationToken);
 
-        using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
+        var positionQuery = query.PositionsRequest;
 
         var parameters = new DynamicParameters();
         var conditions = new List<string>();
-        var joins = new List<string>();
+        string joins = positionQuery.DepartmentsIds is { Count: > 0 }
+            ? $"JOIN {Constants.DEPARTMENT_POSITIONS_TABLE_ROUTE} dp ON dp.position_id = p.id"
+            : string.Empty;
 
-        if (!string.IsNullOrWhiteSpace(query.Search))
+        if (!string.IsNullOrWhiteSpace(positionQuery.Search))
         {
             conditions.Add("p.name ILIKE @search");
-            parameters.Add("search", $"%{query.Search}%");
+            parameters.Add("search", $"%{positionQuery.Search}%");
         }
 
-        if (query.IsActive.HasValue)
+        if (positionQuery.IsActive.HasValue)
         {
             conditions.Add("p.is_active = @isActive");
-            parameters.Add("isActive", query.IsActive.Value);
+            parameters.Add("isActive", positionQuery.IsActive.Value);
 
-            conditions.Add(query.IsActive.Value == false ? "p.deleted_at IS NOT NULL" : "p.deleted_at IS NULL");
+            conditions.Add(positionQuery.IsActive.Value == false ? "p.deleted_at IS NOT NULL" : "p.deleted_at IS NULL");
         }
 
-        if (query.DepartmentsIds is { Count: > 0 })
+        if (positionQuery.DepartmentsIds is { Count: > 0 })
         {
-            joins.Add("JOIN department_positions dp ON dp.position_id = p.id");
             conditions.Add("dp.department_id = ANY(@departmentIds)");
-            parameters.Add("departmentIds", query.DepartmentsIds);
+            parameters.Add("departmentIds", positionQuery.DepartmentsIds);
         }
 
-        parameters.Add("offset", (query.Page - 1) * query.PageSize, DbType.Int32);
-        parameters.Add("page_size", query.PageSize, DbType.Int32);
+        parameters.Add("offset", (positionQuery.Page - 1) * positionQuery.PageSize, DbType.Int32);
+        parameters.Add("page_size", positionQuery.PageSize, DbType.Int32);
 
-        string joinClause = joins.Count > 0 ? string.Join(" ", joins) : string.Empty;
         string whereClause = conditions.Count > 0 ? "WHERE " + string.Join(" AND ", conditions) : string.Empty;
 
         int totalItems = 0;
@@ -85,13 +77,13 @@ public class GetPositionsHandler : IQueryHandler<GetPositionsResponse, GetPositi
                      
                      COALESCE((
                          SELECT COUNT(DISTINCT department_id)
-                         FROM department_positions dp
+                         FROM {Constants.DEPARTMENT_POSITIONS_TABLE_ROUTE} dp
                          WHERE dp.position_id = p.id
                      ), 0)::INTEGER as departmentCount,
 
                      CAST(COUNT(*) OVER() AS INT) AS total_count
-                 FROM positions p
-                 {joinClause}
+                 FROM {Constants.POSITION_TABLE_ROUTE} p
+                 {joins}
                  {whereClause}
                  GROUP BY p.id, p.name, p.description, p.is_active, p.created_at, p.updated_at, p.deleted_at
                  ORDER BY p.created_at DESC
@@ -108,10 +100,10 @@ public class GetPositionsHandler : IQueryHandler<GetPositionsResponse, GetPositi
 
         _logger.LogInformation("Found {totalItems} positions", totalItems);
 
-        return new GetPositionsResponse(
+        return new PaginationResponse<PositionDto>(
             items.ToList(),
             totalItems,
-            query.Page,
-            query.PageSize);
+            positionQuery.Page!.Value,
+            positionQuery.PageSize!.Value);
     }
 }

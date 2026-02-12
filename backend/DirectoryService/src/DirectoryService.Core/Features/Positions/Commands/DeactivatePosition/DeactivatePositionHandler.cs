@@ -47,16 +47,10 @@ public class DeactivatePositionHandler : ICommandHandler<Guid, DeactivatePositio
             return validationResult.ToErrors();
         }
 
-        var (_, isFailure, transaction, error) = await _transactionManager
-            .BeginTransactionAsync(cancellationToken);
-        if (isFailure)
-            return error.ToErrors();
-
         var positionResult = await _positionsRepository
             .GetByIdWithLockAsync(command.Id, cancellationToken);
         if (positionResult.IsFailure)
         {
-            transaction.Rollback(cancellationToken);
             return positionResult.Error.ToErrors();
         }
 
@@ -68,10 +62,6 @@ public class DeactivatePositionHandler : ICommandHandler<Guid, DeactivatePositio
             .SaveChangesAsync(cancellationToken);
         if (saveChangesResult.IsFailure)
             return saveChangesResult.Error.ToErrors();
-
-        var commitResult = transaction.Commit(cancellationToken);
-        if (commitResult.IsFailure)
-            return commitResult.Error.ToErrors();
 
         await _cache.RemoveByTagAsync(Constants.POSITION_CACHE_PREFIX, cancellationToken);
 

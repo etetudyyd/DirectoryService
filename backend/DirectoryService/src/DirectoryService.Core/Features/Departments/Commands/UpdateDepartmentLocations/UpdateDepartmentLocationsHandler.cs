@@ -15,7 +15,6 @@ namespace DirectoryService.Features.Departments.Commands.UpdateDepartmentLocatio
 public class UpdateDepartmentLocationsHandler : ICommandHandler<Guid, UpdateDepartmentLocationsCommand>
 {
     private readonly IDepartmentsRepository _departmentsRepository;
-
     private readonly ILocationsRepository _locationsRepository;
 
     private readonly ITransactionManager _transactionManager;
@@ -54,48 +53,29 @@ public class UpdateDepartmentLocationsHandler : ICommandHandler<Guid, UpdateDepa
 
         var departmentId = new DepartmentId(command.DepartmentId);
 
-        var transactionScopeResult = await _transactionManager.BeginTransactionAsync(cancellationToken);
-
-        if (transactionScopeResult.IsFailure)
-            return transactionScopeResult.Error.ToErrors();
-
-        using var transactionScope = transactionScopeResult.Value;
-
         var department = await _departmentsRepository
-            .GetByIdAsync(departmentId.Value, cancellationToken);
+            .GetBy(x => x.Id == departmentId, cancellationToken);
 
         // isExists validation
         if (department.IsFailure)
         {
-            transactionScope.Rollback(cancellationToken);
+            _logger.LogError("Department is not active!");
             return department.Error.ToErrors();
         }
 
-        var locationIds = department.Value.DepartmentLocations
-            .Select(x => x.LocationId)
-            .ToArray();
+        var activeLocationIdsResult = await _locationsRepository
+            .GetActiveLocationIdsAsync(command.DepartmentRequest.LocationsIds, cancellationToken);
 
-        var departmentLocationsResult = await _locationsRepository
-            .IsLocationActiveAsync(locationIds, cancellationToken);
+        if (activeLocationIdsResult.IsFailure)
+            return activeLocationIdsResult.Error.ToErrors();
 
-        var updatedLocations = command.DepartmentRequest.LocationsIds
-            .Select(ul => new LocationId(ul))
-            .ToArray();
+        var bulkDeleteDepartmentLocationsResult = await _departmentsRepository
+            .BulkDeleteDepartmentLocationsAsync(departmentId.Value, cancellationToken);
 
-        var departmentLocationsUpdateResult = await _locationsRepository
-            .IsLocationActiveAsync(updatedLocations, cancellationToken);
-
-        // Locations isExists, isActive, isUnique validation
-        if (departmentLocationsResult.IsFailure)
+        if (bulkDeleteDepartmentLocationsResult.IsFailure)
         {
-            transactionScope.Rollback(cancellationToken);
-            return departmentLocationsResult.Error.ToErrors();
-        }
-
-        if (departmentLocationsUpdateResult.IsFailure)
-        {
-            transactionScope.Rollback(cancellationToken);
-            return departmentLocationsUpdateResult.Error.ToErrors();
+            _logger.LogError("Position departments wasn't updated!");
+            return bulkDeleteDepartmentLocationsResult.Error.ToErrors();
         }
 
         List<DepartmentLocation> departmentLocations = [];
@@ -108,7 +88,7 @@ public class UpdateDepartmentLocationsHandler : ICommandHandler<Guid, UpdateDepa
 
             if (departmentLocation.IsFailure)
             {
-                transactionScope.Rollback(cancellationToken);
+                _logger.LogError("Department location wasn't updated!");
                 return departmentLocation.Error.ToErrors();
             }
 
@@ -118,12 +98,6 @@ public class UpdateDepartmentLocationsHandler : ICommandHandler<Guid, UpdateDepa
         department.Value.UpdateLocations(departmentLocations);
 
         await _transactionManager.SaveChangesAsync(cancellationToken);
-
-        var commitedResult = transactionScope.Commit(cancellationToken);
-        if (commitedResult.IsFailure)
-        {
-            return commitedResult.Error.ToErrors();
-        }
 
         await _cache.RemoveByTagAsync(Constants.DEPARTMENT_CACHE_PREFIX, cancellationToken);
 

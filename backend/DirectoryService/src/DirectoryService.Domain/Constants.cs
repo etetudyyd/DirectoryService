@@ -12,6 +12,9 @@ public readonly struct Constants
     // General
     public const string SOFT_DELETED_LABEL = "deleted-";
 
+    // Schema
+    public const string SCHEMA = "\"DirectoryService\"";
+
     // Cache Prefixes
     public const string DEPARTMENT_CACHE_PREFIX = "department";
     public const string LOCATION_CACHE_PREFIX = "location";

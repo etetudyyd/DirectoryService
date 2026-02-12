@@ -8,7 +8,7 @@ public record GetPositionsRequest
 
     public bool? IsActive { get; init; }
 
-    public int? Page { get; init; } = PaginationConstants.DEFAULT_PAGE_INDEX;
+    public int? Page { get; init; } = PaginationConstants.DEFAULT_PAGE;
 
     public int? PageSize { get; init; } = PaginationConstants.DEFAULT_PAGE_SIZE;
 }

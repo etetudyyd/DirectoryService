@@ -3,7 +3,6 @@ using Core.Validation;
 using CSharpFunctionalExtensions;
 using DirectoryService.Database.IRepositories;
 using DirectoryService.Database.ITransactions;
-using DirectoryService.Entities;
 using DirectoryService.ValueObjects.Position;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Logging;
@@ -11,7 +10,7 @@ using Shared.SharedKernel;
 
 namespace DirectoryService.Features.Positions.Commands.UpdatePosition;
 
-public class UpdatePositionHandler : ICommandHandler<Position, UpdatePositionCommand>
+public class UpdatePositionHandler : ICommandHandler<Guid, UpdatePositionCommand>
 {
     private readonly IPositionsRepository _positionsRepository;
 
@@ -37,7 +36,7 @@ public class UpdatePositionHandler : ICommandHandler<Position, UpdatePositionCom
         _cache = cache;
     }
 
-    public async Task<Result<Position, Errors>> Handle(
+    public async Task<Result<Guid, Errors>> Handle(
         UpdatePositionCommand command,
         CancellationToken cancellationToken)
     {
@@ -48,15 +47,10 @@ public class UpdatePositionHandler : ICommandHandler<Position, UpdatePositionCom
             return validationResult.ToErrors();
         }
 
-        var (_, isFailure, transaction, error) = await _transactionManager.BeginTransactionAsync(cancellationToken);
-        if (isFailure)
-            return error.ToErrors();
-
         var positionResult = await _positionsRepository
-            .GetByIdWithLockAsync(command.Id, cancellationToken);
+            .GetBy(x => x.Id == new PositionId(command.Id), cancellationToken);
         if (positionResult.IsFailure)
         {
-            transaction.Rollback(cancellationToken);
             _logger.LogError("Position is not active!");
             return positionResult.Error.ToErrors();
         }
@@ -68,7 +62,6 @@ public class UpdatePositionHandler : ICommandHandler<Position, UpdatePositionCom
             command.PositionRequest.Name);
         if (updatedName.IsFailure)
         {
-            transaction.Rollback(cancellationToken);
             _logger.LogError("Location name wasn't updated!");
             return updatedName.Error.ToErrors();
         }
@@ -78,7 +71,6 @@ public class UpdatePositionHandler : ICommandHandler<Position, UpdatePositionCom
 
         if(updatedDescription.IsFailure)
         {
-            transaction.Rollback(cancellationToken);
             _logger.LogError("Position description wasn't updated!");
             return updatedName.Error.ToErrors();
         }
@@ -86,7 +78,6 @@ public class UpdatePositionHandler : ICommandHandler<Position, UpdatePositionCom
         var updatePositionResult = position.Update(updatedName.Value, updatedDescription.Value);
         if (updatePositionResult.IsFailure)
         {
-            transaction.Rollback(cancellationToken);
             _logger.LogError("Position wasn't updated!");
             return updatePositionResult.Error.ToErrors();
         }
@@ -96,14 +87,10 @@ public class UpdatePositionHandler : ICommandHandler<Position, UpdatePositionCom
         if (saveChangesResult.IsFailure)
             return saveChangesResult.Error.ToErrors();
 
-        var commitResult = transaction.Commit(cancellationToken);
-        if (commitResult.IsFailure)
-            return commitResult.Error.ToErrors();
-
-        await _cache.RemoveByTagAsync(Constants.LOCATION_CACHE_PREFIX, cancellationToken);
+        await _cache.RemoveByTagAsync(Constants.POSITION_CACHE_PREFIX, cancellationToken);
 
         _logger.LogInformation($"Location was deactivated with id{position.Id}");
 
-        return position;
+        return position.Id.Value;
     }
 }

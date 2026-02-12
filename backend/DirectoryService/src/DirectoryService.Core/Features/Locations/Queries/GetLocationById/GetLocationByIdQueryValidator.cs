@@ -1,4 +1,6 @@
-﻿using FluentValidation;
+﻿using DirectoryService.Validators;
+using FluentValidation;
+using Shared.SharedKernel;
 
 namespace DirectoryService.Features.Locations.Queries.GetLocationById;
 
@@ -7,7 +9,7 @@ public class GetLocationByIdQueryValidator : AbstractValidator<GetLocationByIdQu
     public GetLocationByIdQueryValidator()
     {
         RuleFor(x => x.Id)
-            .NotEmpty().WithMessage("Id is has to be not empty.")
-            .NotNull().WithMessage("Id is has to be not null.");
+            .NotEmpty().WithError(GeneralErrors.General.ValueIsRequired())
+            .NotNull().WithError(GeneralErrors.General.ValueIsRequired());
     }
 }

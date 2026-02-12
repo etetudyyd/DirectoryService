@@ -14,9 +14,8 @@ namespace DirectoryService.Features.Positions.Commands.UpdatePositionDepartments
 
 public class UpdatePositionDepartmentsHandler : ICommandHandler<Guid, UpdatePositionDepartmentsCommand>
 {
-    private readonly IDepartmentsRepository _departmentsRepository;
-
     private readonly IPositionsRepository _positionsRepository;
+    private readonly IDepartmentsRepository _departmentsRepository;
 
     private readonly ITransactionManager _transactionManager;
 
@@ -27,14 +26,15 @@ public class UpdatePositionDepartmentsHandler : ICommandHandler<Guid, UpdatePosi
     private readonly HybridCache _cache;
 
     public UpdatePositionDepartmentsHandler(
-        IDepartmentsRepository departmentsRepository,
         IPositionsRepository positionsRepository,
+        IDepartmentsRepository departmentsRepository,
         ITransactionManager transactionManager,
         UpdatePositionDepartmentsCommandValidator validator,
-        ILogger<UpdatePositionDepartmentsHandler> logger, HybridCache cache)
+        ILogger<UpdatePositionDepartmentsHandler> logger,
+        HybridCache cache)
     {
-        _departmentsRepository = departmentsRepository;
         _positionsRepository = positionsRepository;
+        _departmentsRepository = departmentsRepository;
         _transactionManager = transactionManager;
         _validator = validator;
         _logger = logger;
@@ -54,46 +54,28 @@ public class UpdatePositionDepartmentsHandler : ICommandHandler<Guid, UpdatePosi
 
         var positionId = new PositionId(command.PositionId);
 
-        var transactionScopeResult = await _transactionManager.BeginTransactionAsync(cancellationToken);
-
-        if (transactionScopeResult.IsFailure)
-            return transactionScopeResult.Error.ToErrors();
-
-        using var transactionScope = transactionScopeResult.Value;
-
         var position = await _positionsRepository
-            .GetByIdAsync(positionId.Value, cancellationToken);
+            .GetBy(x => x.Id == positionId, cancellationToken);
 
         if (position.IsFailure)
         {
-            transactionScope.Rollback(cancellationToken);
+            _logger.LogError("Position is not active!");
             return position.Error.ToErrors();
         }
 
-        var departmentIds = position.Value.DepartmentPositions
-            .Select(x => x.DepartmentId)
-            .ToArray();
+        var activeDepartmentIdsResult = await _departmentsRepository
+            .GetActiveDepartmentIdsAsync(command.PositionDepartmentsRequest.DepartmentsIds, cancellationToken);
 
-        var departmentPositionsResult = await _departmentsRepository
-            .IsDepartmentsActiveAsync(departmentIds, cancellationToken);
+        if (activeDepartmentIdsResult.IsFailure)
+            return activeDepartmentIdsResult.Error.ToErrors();
 
-        var updatedDepartments = command.PositionDepartmentsRequest.DepartmentsIds
-            .Select(dp => new DepartmentId(dp))
-            .ToArray();
+        var bulkDeletePositionDepartmentsResult = await _positionsRepository
+            .BulkDeletePositionDepartmentsAsync(positionId.Value, cancellationToken);
 
-        var positionDepartmentsUpdateResult = await _departmentsRepository
-            .IsDepartmentsActiveAsync(updatedDepartments, cancellationToken);
-
-        if (departmentPositionsResult.IsFailure)
+        if (bulkDeletePositionDepartmentsResult.IsFailure)
         {
-            transactionScope.Rollback(cancellationToken);
-            return departmentPositionsResult.Error.ToErrors();
-        }
-
-        if (positionDepartmentsUpdateResult.IsFailure)
-        {
-            transactionScope.Rollback(cancellationToken);
-            return positionDepartmentsUpdateResult.Error.ToErrors();
+            _logger.LogError("Position departments wasn't updated!");
+            return bulkDeletePositionDepartmentsResult.Error.ToErrors();
         }
 
         List<DepartmentPosition> departmentPositions = [];
@@ -106,7 +88,7 @@ public class UpdatePositionDepartmentsHandler : ICommandHandler<Guid, UpdatePosi
 
             if (departmentPosition.IsFailure)
             {
-                transactionScope.Rollback(cancellationToken);
+                _logger.LogError("Position departments wasn't updated!");
                 return departmentPosition.Error.ToErrors();
             }
 
@@ -116,12 +98,6 @@ public class UpdatePositionDepartmentsHandler : ICommandHandler<Guid, UpdatePosi
         position.Value.UpdateDepartments(departmentPositions);
 
         await _transactionManager.SaveChangesAsync(cancellationToken);
-
-        var commitedResult = transactionScope.Commit(cancellationToken);
-        if (commitedResult.IsFailure)
-        {
-            return commitedResult.Error.ToErrors();
-        }
 
         await _cache.RemoveByTagAsync(Constants.POSITION_CACHE_PREFIX, cancellationToken);
 

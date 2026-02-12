@@ -6,6 +6,7 @@ using DirectoryService.Features.Positions.Commands.UpdatePosition;
 using DirectoryService.Features.Positions.Commands.UpdatePositionDepartments;
 using DirectoryService.Features.Positions.Queries.GetPositionById;
 using DirectoryService.Features.Positions.Queries.GetPositions;
+using DirectoryService.Positions;
 using DirectoryService.Positions.Requests;
 using DirectoryService.Positions.Responses;
 using Framework.Endpoints;
@@ -29,8 +30,8 @@ public class PositionsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<EndpointResult<GetPositionsResponse>> Get(
-        [FromServices] IQueryHandler<GetPositionsResponse, GetPositionsQuery> handler,
+    public async Task<EndpointResult<PaginationResponse<PositionDto>>> Get(
+        [FromServices] IQueryHandler<PaginationResponse<PositionDto>, GetPositionsQuery> handler,
         [FromQuery] GetPositionsRequest request,
         CancellationToken cancellationToken)
     {
@@ -50,8 +51,8 @@ public class PositionsController : ControllerBase
     }
 
     [HttpPatch("{positionId}")]
-    public async Task<EndpointResult<Position>> Update(
-        [FromServices] ICommandHandler<Position, UpdatePositionCommand> handler,
+    public async Task<EndpointResult<Guid>> Update(
+        [FromServices] ICommandHandler<Guid, UpdatePositionCommand> handler,
         [FromRoute] Guid positionId,
         [FromBody] UpdatePositionRequest request,
         CancellationToken cancellationToken)

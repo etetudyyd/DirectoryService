@@ -1,4 +1,6 @@
-﻿namespace DirectoryService.Positions;
+﻿using DirectoryService.Departments;
+
+namespace DirectoryService.Positions;
 
 public record PositionDetailsDto
 {
@@ -18,5 +20,5 @@ public record PositionDetailsDto
 
     public DateTime? DeletedAt { get; init; }
 
-    public List<DictionaryItemResponse> Departments { get; init; } = [];
+    public List<DepartmentItemDto> Departments { get; init; } = [];
 }

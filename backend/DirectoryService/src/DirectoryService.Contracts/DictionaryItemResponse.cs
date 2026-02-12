@@ -1,7 +1,8 @@
-﻿namespace DirectoryService;
+﻿/*namespace DirectoryService;
 
-public record DictionaryItemResponse{
+public record DictionaryItemResponse
+{
     public Guid Id { get; init; }
 
     public string Name { get; init; } = string.Empty;
-}
+}*/

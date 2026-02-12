@@ -1,7 +1,8 @@
 ﻿using Core.Abstractions;
 using Core.Validation;
 using CSharpFunctionalExtensions;
-using DirectoryService.Database.IQueries;
+using DirectoryService.Database;
+using DirectoryService.Departments;
 using DirectoryService.Positions;
 using DirectoryService.Positions.Responses;
 using DirectoryService.ValueObjects.Position;
@@ -18,7 +19,10 @@ public class GetPositionByIdHandler : IQueryHandler<GetPositionByIdResponse, Get
     private readonly IValidator<GetPositionByIdQuery> _validator;
     private readonly ILogger<GetPositionByIdHandler> _logger;
 
-    public GetPositionByIdHandler(IReadDbContext readDbContext, IValidator<GetPositionByIdQuery> validator, ILogger<GetPositionByIdHandler> logger)
+    public GetPositionByIdHandler(
+        IReadDbContext readDbContext,
+        IValidator<GetPositionByIdQuery> validator,
+        ILogger<GetPositionByIdHandler> logger)
     {
         _readDbContext = readDbContext;
         _validator = validator;
@@ -46,11 +50,16 @@ public class GetPositionByIdHandler : IQueryHandler<GetPositionByIdResponse, Get
                 DeletedAt = p.DeletedAt,
                 DepartmentCount = p.DepartmentPositions.Count,
                 Departments = p.DepartmentPositions
-                    .Where(dp => dp.Department.DeletedAt == null) // Проверка на soft delete
-                    .Select(dp => new DictionaryItemResponse
+                    .Where(dp => dp.Department.DeletedAt == null)
+                    .Select(dp => new DepartmentItemDto
                     {
                         Id = dp.DepartmentId.Value,
-                        Name = dp.Department!.Name.Value,
+                        Name = dp.Department.Name.Value,
+                        Identifier = dp.Department.Identifier.Value,
+                        IsActive = dp.Department.IsActive,
+                        CreatedAt = dp.Department.CreatedAt,
+                        UpdatedAt = dp.Department.UpdatedAt,
+                        DeletedAt = dp.Department.DeletedAt,
                     })
                     .ToList(),
             })

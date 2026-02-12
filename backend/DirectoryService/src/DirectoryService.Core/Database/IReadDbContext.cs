@@ -1,6 +1,6 @@
 ﻿using DirectoryService.Entities;
 
-namespace DirectoryService.Database.IQueries;
+namespace DirectoryService.Database;
 
 public interface IReadDbContext
 {

@@ -47,16 +47,11 @@ public class DeactivateLocationHandler : ICommandHandler<Guid, DeactivateLocatio
           return validationResult.ToErrors();
       }
 
-      var (_, isFailure, transaction, error) = await _transactionManager
-          .BeginTransactionAsync(cancellationToken);
-      if (isFailure)
-          return error.ToErrors();
-
       var locationResult = await _locationsRepository
           .GetByIdWithLockAsync(command.Id, cancellationToken);
       if (locationResult.IsFailure)
       {
-          transaction.Rollback(cancellationToken);
+          _logger.LogError("Location is not active!");
           return locationResult.Error.ToErrors();
       }
 
@@ -68,10 +63,6 @@ public class DeactivateLocationHandler : ICommandHandler<Guid, DeactivateLocatio
           .SaveChangesAsync(cancellationToken);
       if (saveChangesResult.IsFailure)
           return saveChangesResult.Error.ToErrors();
-
-      var commitResult = transaction.Commit(cancellationToken);
-      if (commitResult.IsFailure)
-            return commitResult.Error.ToErrors();
 
       await _cache.RemoveByTagAsync(Constants.LOCATION_CACHE_PREFIX, cancellationToken);
 

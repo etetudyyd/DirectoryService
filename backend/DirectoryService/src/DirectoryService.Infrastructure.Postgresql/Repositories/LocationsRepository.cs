@@ -1,4 +1,5 @@
-﻿using CSharpFunctionalExtensions;
+﻿using System.Linq.Expressions;
+using CSharpFunctionalExtensions;
 using Dapper;
 using DirectoryService.Database;
 using DirectoryService.Database.IRepositories;
@@ -6,6 +7,7 @@ using DirectoryService.Entities;
 using DirectoryService.ValueObjects.Department;
 using DirectoryService.ValueObjects.Location;
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using Shared.SharedKernel;
 
 namespace DirectoryService.Repositories;
@@ -30,36 +32,53 @@ public class LocationsRepository : ILocationsRepository
         return location.Id.Value;
     }
 
-    public async Task<Result<Location, Error>> GetByIdAsync(Guid id, CancellationToken cancellationToken)
+    public async Task<Result<Location, Error>> GetBy(
+        Expression<Func<Location, bool>> predicate,
+        CancellationToken cancellationToken = default)
     {
-        var location = await _dbContext.Locations
-            .FirstOrDefaultAsync(d => d.Id.Value == id, cancellationToken);
+        Location? location = await _dbContext.Locations.FirstOrDefaultAsync(predicate, cancellationToken);
 
         if (location is null)
-        {
-            return Error.Failure("location.not.found", "Location not found");
-        }
+            return GeneralErrors.General.NotFound();
 
-        return Result.Success<Location, Error>(location);
+        return location;
     }
 
-    public async Task<UnitResult<Error>> IsLocationActiveAsync(LocationId[] locationIds, CancellationToken cancellationToken)
+    public async Task<Result<Location, Error>> GetWithDepartmentsBy(
+        Expression<Func<Location, bool>> predicate,
+        CancellationToken cancellationToken = default)
     {
-        foreach (var locationId in locationIds)
-        {
-            bool exists = await _dbContext.Locations
-                .AnyAsync(
-                    l => l.Id == locationId
-                         && l.IsActive, cancellationToken);
+        Location? location = await _dbContext.Locations
+            .Include(x => x.DepartmentLocations)
+            .FirstOrDefaultAsync(predicate, cancellationToken);
 
-            if (!exists)
-            {
-                return Error.Failure($"location{locationId}.not_active", locationId.ToString());
-            }
-        }
+        if (location is null)
+            return GeneralErrors.General.NotFound();
 
-        return UnitResult.Success<Error>();
+        return location;
     }
+
+    public async Task<Result<List<Guid>, Error>> GetActiveLocationIdsAsync(
+        Guid[] locationIds,
+        CancellationToken cancellationToken)
+    {
+        var activeIds = await _dbContext.Locations
+            .FromSqlRaw(
+                @$"SELECT * FROM {Constants.LOCATION_TABLE_ROUTE} 
+              WHERE id = ANY(@ids) AND is_active = true",
+                new NpgsqlParameter("ids", locationIds))
+            .Select(l => l.Id.Value)
+            .ToListAsync(cancellationToken);
+
+        var missingIds = locationIds
+            .Except(activeIds)
+            .ToList();
+
+        return missingIds.Any()
+            ? Error.NotFound("locations.not.found", $"Locations not found or inactive: {string.Join(", ", missingIds)}")
+            : activeIds;
+    }
+
 
     public async Task<UnitResult<Error>> BulkDeleteInactiveLocationsAsync(
         List<DepartmentId> departmentIds,
