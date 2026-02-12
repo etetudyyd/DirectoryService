@@ -1,4 +1,5 @@
 ﻿using Core.Abstractions;
+using DirectoryService.Departments;
 using DirectoryService.Departments.Requests;
 using DirectoryService.Departments.Responses;
 using DirectoryService.Features.Departments.Commands.CreateDepartment;
@@ -6,6 +7,7 @@ using DirectoryService.Features.Departments.Commands.DeactivateDepartment;
 using DirectoryService.Features.Departments.Commands.RelocateDepartmentParent;
 using DirectoryService.Features.Departments.Commands.UpdateDepartmentLocations;
 using DirectoryService.Features.Departments.Queries.GetChildrenDepartments;
+using DirectoryService.Features.Departments.Queries.GetDepartments;
 using DirectoryService.Features.Departments.Queries.GetRootDepartments;
 using DirectoryService.Features.Departments.Queries.GetTopDepartmentsByPositions;
 using Framework.Endpoints;
@@ -18,8 +20,8 @@ namespace DirectoryService.Controllers;
 public class DepartmentsController : ControllerBase
 {
     [HttpGet("{parentId:guid}")]
-    public async Task<EndpointResult<GetChildrenDepartmentsResponse>> GetChildrenDepartments(
-        [FromServices] IQueryHandler<GetChildrenDepartmentsResponse, GetChildrenDepartmentsQuery> handler,
+    public async Task<EndpointResult<PaginationResponse<DepartmentPrefetchResponse>>> GetChildrenDepartments(
+        [FromServices] IQueryHandler<PaginationResponse<DepartmentPrefetchResponse>, GetChildrenDepartmentsQuery> handler,
         [FromRoute] Guid parentId,
         [FromQuery] int? page,
         [FromQuery] int? pageSize,
@@ -35,8 +37,8 @@ public class DepartmentsController : ControllerBase
     }
 
     [HttpGet("roots")]
-    public async Task<EndpointResult<GetRootDepartmentsResponse>> GetRootDepartments(
-        [FromServices] IQueryHandler<GetRootDepartmentsResponse, GetRootDepartmentsQuery> handler,
+    public async Task<EndpointResult<PaginationResponse<DepartmentPrefetchResponse>>> GetRootDepartments(
+        [FromServices] IQueryHandler<PaginationResponse<DepartmentPrefetchResponse>, GetRootDepartmentsQuery> handler,
         [FromQuery] int? page,
         [FromQuery] int? pageSize,
         [FromQuery] int? prefetch,
@@ -58,6 +60,17 @@ public class DepartmentsController : ControllerBase
         CancellationToken cancellationToken)
     {
         var query = new GetTopDepartmentsByPositionsQuery();
+        return await handler.Handle(query, cancellationToken);
+    }
+
+    [HttpGet("dictionary")]
+    public async Task<EndpointResult<PaginationResponse<DepartmentItemDto>>> GetDepartmentsDictionary(
+        [FromServices] IQueryHandler<PaginationResponse<DepartmentItemDto>,
+            GetDepartmentsQuery> handler,
+        [FromQuery] GetDepartmentsDictionaryRequest request,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetDepartmentsQuery(request);
         return await handler.Handle(query, cancellationToken);
     }
 

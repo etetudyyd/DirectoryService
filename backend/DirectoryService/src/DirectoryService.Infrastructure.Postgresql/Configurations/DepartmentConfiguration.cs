@@ -27,7 +27,7 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
             builder.Property(p => p.Name)
             .HasColumnName("name")
             .IsRequired()
-            .HasMaxLength(Constants.MAX_LENGTH_DEPARTMENT_NAME)
+            .HasMaxLength(Constants.MaxLengthDepartmentName)
             .HasConversion(
                 name => name.Value,
                 value => DepartmentName.Create(value).Value);

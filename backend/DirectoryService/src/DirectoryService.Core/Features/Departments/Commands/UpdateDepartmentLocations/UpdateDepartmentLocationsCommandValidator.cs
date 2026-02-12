@@ -1,4 +1,6 @@
-﻿using FluentValidation;
+﻿using DirectoryService.Validators;
+using FluentValidation;
+using Shared.SharedKernel;
 
 namespace DirectoryService.Features.Departments.Commands.UpdateDepartmentLocations;
 
@@ -7,8 +9,8 @@ public class UpdateDepartmentLocationsCommandValidator : AbstractValidator<Updat
     public UpdateDepartmentLocationsCommandValidator()
     {
         RuleFor(x => x.DepartmentId)
-            .NotEmpty().WithMessage("Id is has to be not empty.");
+            .NotEmpty().WithError(GeneralErrors.General.ValueIsRequired());
         RuleForEach(x => x.DepartmentRequest.LocationsIds)
-            .NotEmpty().WithMessage("To update department is has to be at least one location.");
+            .NotEmpty().WithError(GeneralErrors.General.ValueIsRequired());
     }
 }

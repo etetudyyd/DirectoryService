@@ -33,7 +33,7 @@ export default function Header() {
 
   return (
     <>
-      <header className="sticky top-0 z-40 w-full h-16 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 border-b flex items-center px-4 sm:px-6 lg:px-8">
+      <header className="sticky top-0 z-40 w-full h-16 border-slate-700/50 bg-linear-to-br from-slate-900/50 to-slate-800/30 backdrop-blur supports-backdrop-filter:bg-background/60 border-b flex items-center px-4 sm:px-6 lg:px-8">
         <div className="flex items-center gap-3">
           <SidebarTrigger className="md:hidden" />
           

@@ -1,4 +1,7 @@
-﻿using FluentValidation;
+﻿using DirectoryService.Validators;
+using DirectoryService.ValueObjects.Department;
+using FluentValidation;
+using Shared.SharedKernel;
 
 namespace DirectoryService.Features.Departments.Commands.CreateDepartment;
 
@@ -7,15 +10,10 @@ public class CreateDepartmentCommandValidator : AbstractValidator<CreateDepartme
     public CreateDepartmentCommandValidator()
     {
         RuleFor(x => x.DepartmentRequest.Name)
-            .MinimumLength(Constants.MIN_LENGTH_DEPARTMENT_NAME).WithMessage("Name is has to be at least 3 characters long")
-            .MaximumLength(Constants.MAX_LENGTH_DEPARTMENT_NAME).WithMessage("Name is has to be at most 100 characters long")
-            .NotEmpty().WithMessage("Name is has to be not empty");
+            .MustBeValueObject(DepartmentName.Create);
         RuleFor(x => x.DepartmentRequest.Identifier)
-            .MinimumLength(Constants.MIN_LENGTH_DEPARTMENT_IDENTIFIER)
-            .WithMessage($"Identifier is has to be at least {Constants.MIN_LENGTH_DEPARTMENT_IDENTIFIER} characters long")
-            .MaximumLength(Constants.MAX_LENGTH_DEPARTMENT_IDENTIFIER).WithMessage($"Identifier is has to be at most {Constants.MAX_LENGTH_DEPARTMENT_IDENTIFIER} characters long")
-            .NotEmpty().WithMessage("Identifier is has to be not empty");
+            .MustBeValueObject(Identifier.Create);
         RuleForEach(x => x.DepartmentRequest.LocationsIds)
-            .NotEmpty().WithMessage("Department is has to be at least 1 location.");
+            .NotEmpty().WithError(GeneralErrors.General.ValueIsRequired());
     }
 }

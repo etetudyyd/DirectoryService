@@ -1,5 +1,8 @@
-﻿using CSharpFunctionalExtensions;
+﻿using System.Data;
+using System.Data.Common;
+using CSharpFunctionalExtensions;
 using DirectoryService.Database.ITransactions;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using Shared.SharedKernel;
@@ -57,4 +60,17 @@ public class TransactionManager : ITransactionManager
             return Error.Failure("database", "Failed to save changes");
         }
     }
+
+    public async Task<DbConnection> GetDbConnectionAsync(CancellationToken cancellationToken = default)
+    {
+        var connection = _dbContext.Database.GetDbConnection();
+
+        if (connection.State != ConnectionState.Open)
+        {
+            await connection.OpenAsync(cancellationToken);
+        }
+
+        return connection;
+    }
+
 }

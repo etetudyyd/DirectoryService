@@ -5,7 +5,7 @@ public record GetChildrenDepartmentsRequest
     public GetChildrenDepartmentsRequest(Guid parentId, int? page, int? pageSize)
     {
         ParentId = parentId;
-        Page = page ?? PaginationConstants.DEFAULT_PAGE_INDEX;
+        Page = page ?? PaginationConstants.DEFAULT_PAGE;
         PageSize = pageSize ?? PaginationConstants.DEFAULT_PAGE_SIZE;
     }
 

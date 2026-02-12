@@ -60,7 +60,7 @@ public class LocationConfiguration : IEntityTypeConfiguration<Location>
 
             a.Property(address => address.Apartment)
                 .IsRequired()
-                .HasMaxLength(Constants.Address.MAX_LENGTH_ADDRESS_APARTAMENT)
+                .HasMaxLength(Constants.Address.MAX_LENGTH_ADDRESS_APARTMENT)
                 .HasColumnName("apartment");
         });
 

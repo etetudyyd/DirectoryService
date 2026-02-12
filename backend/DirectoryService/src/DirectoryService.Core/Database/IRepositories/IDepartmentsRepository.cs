@@ -1,4 +1,5 @@
-﻿using Core.Options;
+﻿using System.Linq.Expressions;
+using Core.Options;
 using CSharpFunctionalExtensions;
 using DirectoryService.Entities;
 using DirectoryService.Features.Departments.Commands.DeleteInactiveDepartments;
@@ -12,7 +13,17 @@ public interface IDepartmentsRepository
 {
     Task<Result<Guid, Error>> AddAsync(Department department, CancellationToken cancellationToken);
 
-    Task<Result<Department, Error>> GetByIdAsync(Guid id, CancellationToken cancellationToken);
+    Task<Result<Department, Error>> GetBy(Expression<Func<Department, bool>> predicate, CancellationToken cancellationToken = default);
+
+    Task<Result<Department, Error>> GetWithPositionsBy(Expression<Func<Department, bool>> predicate, CancellationToken cancellationToken = default);
+
+    Task<Result<Department, Error>> GetWithLocationsBy(Expression<Func<Department, bool>> predicate, CancellationToken cancellationToken = default);
+
+    Task<Result<Department, Error>> GetWithLocationsAndPositionsBy(Expression<Func<Department, bool>> predicate, CancellationToken cancellationToken = default);
+
+    Task<UnitResult<Error>> BulkDeleteDepartmentLocationsAsync(Guid departmentId, CancellationToken cancellationToken);
+
+    Task<Result<List<Guid>, Error>> GetActiveDepartmentIdsAsync(Guid[] departmentIds, CancellationToken cancellationToken);
 
     Task<Result<Department, Error>> GetByIdWithLockAsync(Guid id, CancellationToken cancellationToken);
 

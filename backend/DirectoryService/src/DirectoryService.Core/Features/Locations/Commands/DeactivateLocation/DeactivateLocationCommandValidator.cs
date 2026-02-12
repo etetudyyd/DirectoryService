@@ -1,5 +1,7 @@
 ﻿using DirectoryService.Features.Locations.Commands.CreateLocation;
+using DirectoryService.Validators;
 using FluentValidation;
+using Shared.SharedKernel;
 
 namespace DirectoryService.Features.Locations.Commands.DeactivateLocation;
 
@@ -7,7 +9,7 @@ public class DeactivateLocationCommandValidator : AbstractValidator<DeactivateLo
 {
     public DeactivateLocationCommandValidator()
     {
-        RuleFor(x => x.Id).NotEmpty().WithMessage("Location id is has to be not empty");
+        RuleFor(x => x.Id).NotEmpty().WithError(GeneralErrors.General.ValueIsRequired());
     }
 }
 

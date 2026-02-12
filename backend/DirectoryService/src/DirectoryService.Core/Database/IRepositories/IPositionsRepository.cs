@@ -1,6 +1,8 @@
-﻿using CSharpFunctionalExtensions;
+﻿using System.Linq.Expressions;
+using CSharpFunctionalExtensions;
 using DirectoryService.Entities;
 using DirectoryService.ValueObjects.Department;
+using DirectoryService.ValueObjects.Position;
 using Shared.SharedKernel;
 
 namespace DirectoryService.Database.IRepositories;
@@ -8,6 +10,16 @@ namespace DirectoryService.Database.IRepositories;
 public interface IPositionsRepository
 {
     Task<Guid> AddAsync(Position position, CancellationToken cancellationToken);
+
+    Task<Result<Position, Error>> GetBy(Expression<Func<Position, bool>> predicate, CancellationToken cancellationToken = default);
+
+    Task<Result<Position, Error>> GetWithDepartmentsBy(Expression<Func<Position, bool>> predicate, CancellationToken cancellationToken = default);
+
+    Task<UnitResult<Error>> BulkDeletePositionDepartmentsAsync(Guid positionIds, CancellationToken cancellationToken);
+
+    Task<Result<Position, Error>> GetByIdWithLockAsync(Guid positionId, CancellationToken cancellationToken);
+
+    Task<bool> IsNameUniqueAsync(PositionName name, CancellationToken cancellationToken);
 
     Task<UnitResult<Error>> BulkDeleteInactivePositionsAsync(List<DepartmentId> departmentIds, CancellationToken cancellationToken);
 }

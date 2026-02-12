@@ -4,6 +4,7 @@ import { PaginationResponse } from "@/shared/api/types";
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { Envelope } from "@/shared/api/envelope";
 import { LocationsFilterState } from "@/features/locations/model/location-filters-store";
+import routes from "@/shared/routes";
 
 export type UpdateLocationRequest = {
   locationId: string;
@@ -32,14 +33,14 @@ export const locationsApi = {
   getLocations: async (request: GetLocationsRequest) => {
     const response = await apiClient.get<
       Envelope<PaginationResponse<Location>>
-    >(`/locations`, { params: request });
+    >(routes.locations, { params: request });
 
     return response.data.result;
   },
 
   createLocation: async (request: CreateLocationRequest) => {
     const response = await apiClient.post<Envelope<Location>>(
-      `/locations`,
+      routes.locations,
       request,
     );
     return response.data;
@@ -53,7 +54,7 @@ export const locationsApi = {
     departmentsIds,
   }: UpdateLocationRequest): Promise<Envelope<Location>> => {
     const response = await apiClient.patch<Envelope<Location>>(
-      `/locations/${locationId}`,
+      `${routes.locations}/${locationId}`,
       { name, address, timeZone, departmentsIds },
     );
     return response.data;
@@ -61,7 +62,7 @@ export const locationsApi = {
 
   deleteLocation: async (locationId: string) => {
     const response = await apiClient.delete<Envelope<Location>>(
-      `/locations/${locationId}`,
+      `${routes.locations}/${locationId}`,
     );
     return response.data;
   },

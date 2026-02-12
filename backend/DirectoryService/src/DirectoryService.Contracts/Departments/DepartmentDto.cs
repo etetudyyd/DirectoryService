@@ -16,7 +16,7 @@ public record DepartmentDto
 
     public DateTime CreatedAt { get; init; }
 
-    public DateTime UpdateAt { get; init; }
+    public DateTime UpdatedAt { get; init; }
 
     public int PositionCount { get; init; }
 }

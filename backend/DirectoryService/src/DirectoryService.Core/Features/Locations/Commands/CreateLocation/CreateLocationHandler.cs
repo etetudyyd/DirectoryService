@@ -27,7 +27,7 @@ public class CreateLocationHandler : ICommandHandler<Guid, CreateLocationCommand
     public CreateLocationHandler(
         ILocationsRepository locationsRepository,
         ILogger<CreateLocationHandler> logger,
-        IValidator<CreateLocationCommand> validator, 
+        IValidator<CreateLocationCommand> validator,
         HybridCache cache)
     {
         _locationsRepository = locationsRepository;

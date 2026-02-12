@@ -7,6 +7,7 @@ using DirectoryService.ValueObjects.ConnectionEntities;
 using DirectoryService.ValueObjects.Department;
 using DirectoryService.ValueObjects.Position;
 using FluentValidation;
+using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Logging;
 using Shared.SharedKernel;
 
@@ -20,14 +21,18 @@ public class CreatePositionHandler: ICommandHandler<Guid, CreatePositionCommand>
 
     private readonly IValidator<CreatePositionCommand> _validator;
 
+    private readonly HybridCache _cache;
+
     public CreatePositionHandler(
         IPositionsRepository positionsRepository,
         ILogger<CreatePositionHandler> logger,
-        IValidator<CreatePositionCommand> validator)
+        IValidator<CreatePositionCommand> validator,
+        HybridCache cache)
     {
         _positionsRepository = positionsRepository;
         _logger = logger;
         _validator = validator;
+        _cache = cache;
     }
 
     public async Task<Result<Guid, Errors>> Handle(
@@ -48,7 +53,15 @@ public class CreatePositionHandler: ICommandHandler<Guid, CreatePositionCommand>
             return name.Error.ToErrors();
         }
 
-        var description = Description.Create(command.PositionRequest.Description);
+        bool isNameExists = await _positionsRepository.IsNameUniqueAsync(name.Value, cancellationToken);
+
+        if (isNameExists)
+        {
+            _logger.LogError("Name already exists");
+            return GeneralErrors.General.ValueAlreadyExists("Name").ToErrors();
+        }
+
+        var description = PositionDescription.Create(command.PositionRequest.Description);
 
         var positionId = new PositionId(Guid.NewGuid());
 
@@ -71,8 +84,9 @@ public class CreatePositionHandler: ICommandHandler<Guid, CreatePositionCommand>
             return position.Error.ToErrors();
         }
 
-
         await _positionsRepository.AddAsync(position.Value, cancellationToken);
+
+        await _cache.RemoveByTagAsync(Constants.POSITION_CACHE_PREFIX, cancellationToken);
 
         _logger.LogInformation($"Location created successfully with id {positionId}", positionId);
 

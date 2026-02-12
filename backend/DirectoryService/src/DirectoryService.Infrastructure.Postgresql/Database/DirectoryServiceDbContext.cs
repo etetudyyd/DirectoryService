@@ -1,5 +1,4 @@
-﻿using DirectoryService.Database.IQueries;
-using DirectoryService.Entities;
+﻿using DirectoryService.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 

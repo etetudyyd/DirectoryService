@@ -5,6 +5,7 @@ using DirectoryService.Features.Locations.Commands.DeactivateLocation;
 using DirectoryService.Features.Locations.Commands.UpdateLocation;
 using DirectoryService.Features.Locations.Queries.GetLocationById;
 using DirectoryService.Features.Locations.Queries.GetLocations;
+using DirectoryService.Locations;
 using DirectoryService.Locations.Requests;
 using DirectoryService.Locations.Responses;
 using Framework.Endpoints;
@@ -39,8 +40,8 @@ public class LocationsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<EndpointResult<GetLocationsResponse>> Get(
-        [FromServices] IQueryHandler<GetLocationsResponse, GetLocationsQuery> handler,
+    public async Task<EndpointResult<PaginationResponse<LocationDto>>> Get(
+        [FromServices] IQueryHandler<PaginationResponse<LocationDto>, GetLocationsQuery> handler,
         [FromQuery] GetLocationsRequest request,
         CancellationToken cancellationToken)
     {
@@ -49,8 +50,8 @@ public class LocationsController : ControllerBase
     }
 
     [HttpPatch("{locationId}")]
-    public async Task<EndpointResult<Location>> Update(
-        [FromServices] ICommandHandler<Location, UpdateLocationCommand> handler,
+    public async Task<EndpointResult<Guid>> Update(
+        [FromServices] ICommandHandler<Guid, UpdateLocationCommand> handler,
         [FromRoute] Guid locationId,
         [FromBody] UpdateLocationRequest request,
         CancellationToken cancellationToken)

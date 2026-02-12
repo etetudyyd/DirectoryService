@@ -1,7 +1,7 @@
-﻿namespace DirectoryService.Locations.Responses;
+﻿namespace DirectoryService;
 
-public record GetLocationsResponse(
-    List<LocationDto> Items,
+public record PaginationResponse<T>(
+    List<T> Items,
     int TotalItems,
     int Page,
     int PageSize)

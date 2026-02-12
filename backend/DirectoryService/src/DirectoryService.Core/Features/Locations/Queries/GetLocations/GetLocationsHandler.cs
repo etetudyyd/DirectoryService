@@ -1,72 +1,64 @@
 ﻿using System.Data;
 using Core.Abstractions;
-using Core.Validation;
 using CSharpFunctionalExtensions;
 using Dapper;
-using DirectoryService.Database.IQueries;
+using DirectoryService.Database.ITransactions;
 using DirectoryService.Locations;
 using DirectoryService.Locations.Responses;
-using FluentValidation;
 using Microsoft.Extensions.Logging;
 using Shared.SharedKernel;
 
 namespace DirectoryService.Features.Locations.Queries.GetLocations;
 
-public class GetLocationsHandler : IQueryHandler<GetLocationsResponse, GetLocationsQuery>
+public class GetLocationsHandler : IQueryHandler<PaginationResponse<LocationDto>, GetLocationsQuery>
 {
-    private readonly IDapperConnectionFactory _connectionFactory;
-    private readonly IValidator<GetLocationsQuery> _validator;
+    private readonly ITransactionManager _transactionManager;
     private readonly ILogger<GetLocationsHandler> _logger;
 
     public GetLocationsHandler(
         ILogger<GetLocationsHandler> logger,
-        IValidator<GetLocationsQuery> validator,
-        IDapperConnectionFactory connectionFactory)
+        ITransactionManager transactionManager)
     {
-        _connectionFactory = connectionFactory;
         _logger = logger;
-        _validator = validator;
+        _transactionManager = transactionManager;
     }
 
-    public async Task<Result<GetLocationsResponse, Errors>> Handle(
+    public async Task<Result<PaginationResponse<LocationDto>, Errors>> Handle(
     GetLocationsQuery query,
     CancellationToken cancellationToken)
 {
-    var validationResult = await _validator.ValidateAsync(query, cancellationToken);
-    if (!validationResult.IsValid)
-        return validationResult.ToErrors();
+    var connection = await _transactionManager.GetDbConnectionAsync(cancellationToken);
 
-    using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
-
+    var locationsQuery = query.LocationsRequest;
     var parameters = new DynamicParameters();
     var conditions = new List<string>();
-    var joins = new List<string>();
+    string joins = locationsQuery.DepartmentIds is { Count: > 0 }
+        ? $"JOIN {Constants.DEPARTMENT_LOCATIONS_TABLE_ROUTE} dl ON dl.location_id = l.id"
+        : string.Empty;
 
-    if (!string.IsNullOrWhiteSpace(query.Search))
+    if (!string.IsNullOrWhiteSpace(locationsQuery.Search))
     {
         conditions.Add("l.name ILIKE @search");
-        parameters.Add("search", $"%{query.Search}%");
+        parameters.Add("search", $"%{locationsQuery.Search}%");
     }
 
-    if (query.IsActive.HasValue)
+    if (locationsQuery.IsActive.HasValue)
     {
         conditions.Add("l.is_active = @isActive");
-        parameters.Add("isActive", query.IsActive.Value);
+        parameters.Add("isActive", locationsQuery.IsActive.Value);
 
-        conditions.Add(query.IsActive.Value == false ? "l.deleted_at IS NOT NULL" : "l.deleted_at IS NULL");
+        conditions.Add(locationsQuery.IsActive.Value == false ? "l.deleted_at IS NOT NULL" : "l.deleted_at IS NULL");
     }
 
-    if (query.Ids is { Count: > 0 })
+    if (locationsQuery.DepartmentIds is { Count: > 0 })
     {
-        joins.Add("JOIN department_locations dl ON dl.location_id = l.id");
         conditions.Add("dl.department_id = ANY(@departmentIds)");
-        parameters.Add("departmentIds", query.Ids);
+        parameters.Add("departmentIds", locationsQuery.DepartmentIds);
     }
 
-    parameters.Add("offset", (query.Page - 1) * query.PageSize, DbType.Int32);
-    parameters.Add("page_size", query.PageSize, DbType.Int32);
+    parameters.Add("offset", (locationsQuery.Page - 1) * locationsQuery.PageSize, DbType.Int32);
+    parameters.Add("page_size", locationsQuery.PageSize, DbType.Int32);
 
-    string joinClause = joins.Count > 0 ? string.Join(" ", joins) : string.Empty;
     string whereClause = conditions.Count > 0 ? "WHERE " + string.Join(" AND ", conditions) : string.Empty;
 
     int totalItems = 0;
@@ -74,11 +66,17 @@ public class GetLocationsHandler : IQueryHandler<GetLocationsResponse, GetLocati
     var items = await connection
         .QueryAsync<LocationDto, AddressDto, int, LocationDto>(
             $"""
+             WITH filtered_locations AS (
+                 SELECT DISTINCT l.id
+                 FROM {Constants.LOCATION_TABLE_ROUTE} l
+                 {joins}
+                 {whereClause}
+             )
              SELECT 
                  l.id,
                  l.name,
                  l.timezone,
-                 l.is_active as isActive,
+                 l.is_active as IsActive,
                  l.created_at as CreatedAt,
                  l.updated_at as UpdatedAt,
                  l.deleted_at as DeletedAt,
@@ -90,10 +88,9 @@ public class GetLocationsHandler : IQueryHandler<GetLocationsResponse, GetLocati
                  l.house         AS House,
                  l.apartment     AS Apartment,
                  
-                 CAST(COUNT(*) OVER() AS INT) AS total_count
-             FROM locations l
-             {joinClause}
-             {whereClause}
+                 CAST((SELECT COUNT(*) FROM filtered_locations) AS INTEGER) AS total_count
+             FROM {Constants.LOCATION_TABLE_ROUTE} l
+             WHERE l.id IN (SELECT id FROM filtered_locations)
              ORDER BY l.created_at DESC
              LIMIT @page_size OFFSET @offset;
              """,
@@ -101,17 +98,17 @@ public class GetLocationsHandler : IQueryHandler<GetLocationsResponse, GetLocati
             map: (location, address, count) =>
             {
                 location.Address = address;
-                totalItems = count;
+                totalItems = count; // count теперь int
                 return location;
             },
             param: parameters);
-
+    
     _logger.LogInformation("Found {totalItems} locations", totalItems);
 
-    return new GetLocationsResponse(
+    return new PaginationResponse<LocationDto>(
         items.ToList(),
         totalItems,
-        query.Page,
-        query.PageSize);
+        locationsQuery.Page!.Value,
+        locationsQuery.PageSize!.Value);
 }
 }

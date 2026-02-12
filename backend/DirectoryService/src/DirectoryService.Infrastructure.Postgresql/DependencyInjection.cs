@@ -1,7 +1,5 @@
 ﻿using DirectoryService.BackgroundServices;
-using DirectoryService.Dapper;
 using DirectoryService.Database;
-using DirectoryService.Database.IQueries;
 using DirectoryService.Database.IRepositories;
 using DirectoryService.Database.ITransactions;
 using DirectoryService.Repositories;
@@ -25,7 +23,6 @@ public static class DependencyInjection
         services.AddScoped<ILocationsRepository, LocationsRepository>();
         services.AddScoped<IPositionsRepository, PositionsRepository>();
         services.AddScoped<IDepartmentsRepository, DepartmentsRepository>();
-        services.AddScoped<IDapperConnectionFactory, DapperConnectionFactory>();
         services.AddScoped<ITransactionManager, TransactionManager>();
 
         services.AddHostedService<InactiveDepartmentsCleanerBackgroundService>();

@@ -68,8 +68,6 @@ public class CreateDepartmentHandler : ICommandHandler<Guid, CreateDepartmentCom
             new LocationId(locationId)))
         .ToList();
 
-
-
     Result<Department, Error> departmentResult;
     if (command.DepartmentRequest.ParentId is null)
     {
@@ -82,7 +80,7 @@ public class CreateDepartmentHandler : ICommandHandler<Guid, CreateDepartmentCom
     else
     {
         var parentResult = await _departmentsRepository
-            .GetByIdAsync(command.DepartmentRequest.ParentId.Value, cancellationToken);
+            .GetBy(x => x.Id == new DepartmentId(command.DepartmentRequest.ParentId.Value), cancellationToken);
         if (parentResult.IsFailure)
         {
             _logger.LogError("Parent department not found");

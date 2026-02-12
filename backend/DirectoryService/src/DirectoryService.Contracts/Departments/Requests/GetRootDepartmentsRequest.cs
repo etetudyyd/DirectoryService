@@ -13,8 +13,8 @@ public record GetRootDepartmentsRequest
         int? pageSize,
         int? prefetch)
     {
-        Page = page ?? PaginationConstants.DEFAULT_PAGE_INDEX;
+        Page = page ?? PaginationConstants.DEFAULT_PAGE;
         PageSize = pageSize ?? PaginationConstants.DEFAULT_PAGE_SIZE;
-        Prefetch = prefetch ?? PaginationConstants.MAX_PREFETCH_PAGE_INDEX;
+        Prefetch = prefetch ?? PaginationConstants.MAX_PREFETCH_PAGE;
     }
 }

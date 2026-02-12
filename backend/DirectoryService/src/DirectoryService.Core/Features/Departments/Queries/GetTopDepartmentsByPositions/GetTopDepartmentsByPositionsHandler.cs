@@ -1,11 +1,9 @@
 ﻿using Core.Abstractions;
-using Core.Validation;
 using CSharpFunctionalExtensions;
 using Dapper;
-using DirectoryService.Database.IQueries;
+using DirectoryService.Database.ITransactions;
 using DirectoryService.Departments;
 using DirectoryService.Departments.Responses;
-using FluentValidation;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Logging;
 using Shared.SharedKernel;
@@ -14,20 +12,17 @@ namespace DirectoryService.Features.Departments.Queries.GetTopDepartmentsByPosit
 
 public class GetTopDepartmentsByPositionsHandler : IQueryHandler<GetTopDepartmentsByPositionsResponse, GetTopDepartmentsByPositionsQuery>
 {
-    private readonly IDapperConnectionFactory _connectionFactory;
-    private readonly IValidator<GetTopDepartmentsByPositionsQuery> _validator;
+    private readonly ITransactionManager _transactionManager;
     private readonly ILogger<GetTopDepartmentsByPositionsHandler> _logger;
     private readonly HybridCache _cache;
 
-
     public GetTopDepartmentsByPositionsHandler(
-        IDapperConnectionFactory connectionFactory,
+        ITransactionManager transactionManager,
         ILogger<GetTopDepartmentsByPositionsHandler> logger,
-        IValidator<GetTopDepartmentsByPositionsQuery> validator, HybridCache cache)
+        HybridCache cache)
     {
-        _connectionFactory = connectionFactory;
+        _transactionManager = transactionManager;
         _logger = logger;
-        _validator = validator;
         _cache = cache;
     }
 
@@ -35,29 +30,7 @@ public class GetTopDepartmentsByPositionsHandler : IQueryHandler<GetTopDepartmen
         GetTopDepartmentsByPositionsQuery query,
         CancellationToken cancellationToken)
     {
-        var validationResult = await _validator.ValidateAsync(query, cancellationToken);
-        if (!validationResult.IsValid)
-            return validationResult.ToErrors();
-
-        string dapperSql = """
-                           SELECT
-                               d.id AS "Id",
-                               d.name AS "Name",
-                               d.identifier AS "Identifier",
-                               d.path AS "Path",
-                               d.parent_id AS "ParentId",
-                               d.is_active AS "IsActive",
-                               d.created_at AS "CreatedAt",
-                               d.updated_at AS "UpdatedAt",
-                               COUNT(dp.position_id) AS "PositionCount"
-                           FROM departments d
-                           LEFT JOIN department_positions dp ON dp.department_id = d.id
-                           GROUP BY d.id, d.name, d.identifier, d.path, d.parent_id, d.is_active, d.created_at, d.updated_at
-                           ORDER BY "PositionCount" DESC
-                           LIMIT 5;
-                           """;
-
-        using var connection = await _connectionFactory.CreateConnectionAsync(cancellationToken);
+        var connection = await _transactionManager.GetDbConnectionAsync(cancellationToken);
 
         string cacheKey = $"{Constants.DEPARTMENT_CACHE_PREFIX}_childs_top5";
 
@@ -69,10 +42,25 @@ public class GetTopDepartmentsByPositionsHandler : IQueryHandler<GetTopDepartmen
         var departments = await _cache.GetOrCreateAsync<IEnumerable<DepartmentDto>>(
             cacheKey,
             async _ => await connection
-                .QueryAsync<DepartmentDto>(dapperSql),
+                .QueryAsync<DepartmentDto>($"""
+                                            SELECT
+                                                d.id AS "Id",
+                                                d.name AS "Name",
+                                                d.identifier AS "Identifier",
+                                                d.path AS "Path",
+                                                d.parent_id AS "ParentId",
+                                                d.is_active AS "IsActive",
+                                                d.created_at AS "CreatedAt",
+                                                d.updated_at AS "UpdatedAt",
+                                                COUNT(dp.position_id) AS "PositionCount"
+                                            FROM {Constants.SCHEMA}.departments d
+                                            LEFT JOIN {Constants.SCHEMA}.department_positions dp ON dp.department_id = d.id
+                                            GROUP BY d.id, d.name, d.identifier, d.path, d.parent_id, d.is_active, d.created_at, d.updated_at
+                                            ORDER BY "PositionCount" DESC
+                                            LIMIT 5;
+                                            """),
             options,
             cancellationToken : cancellationToken);
-
 
         _logger.LogInformation("Departments was successfully founded!");
 

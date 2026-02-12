@@ -1,11 +1,13 @@
 import axios from "axios";
-import { Envelope } from "./envelope";
 import { EnvelopeError, ErrorType } from "./errors";
 
 export const apiClient = axios.create({
   baseURL: "http://localhost:8090/api",
-  //baseURL: "http://localhost:8080/api",
   headers: { "Content-Type": "application/json" },
+
+  paramsSerializer: {
+    indexes: null,
+  }
 });
 
 apiClient.interceptors.response.use(
