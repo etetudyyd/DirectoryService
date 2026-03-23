@@ -7,4 +7,7 @@
     <PackageReference Include="etetudyyd.framework"/>
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.0.0"/>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Features\" />
+  </ItemGroup>
 </Project>
