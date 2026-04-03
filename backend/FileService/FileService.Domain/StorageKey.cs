@@ -30,7 +30,7 @@ public sealed record StorageKey
     public static Result<StorageKey, Error> Create(string bucket, string? prefix, string key)
     {
         if(string.IsNullOrWhiteSpace(bucket))
-            return GeneralErrors.General.ValueIsInvalid("location");
+            return GeneralErrors.General.ValueIsInvalid("bucket");
 
         Result<string, Error> normalizedKeyResult = NormalizeSegment(key);
         if (normalizedKeyResult.IsFailure)
@@ -40,7 +40,7 @@ public sealed record StorageKey
         if (normalizedPrefixResult.IsFailure)
             return normalizedPrefixResult.Error;
 
-        return new StorageKey(bucket.Trim(), normalizedPrefixResult.Value, normalizedKeyResult.Value);
+        return new StorageKey(bucket.Trim(), normalizedKeyResult.Value, normalizedPrefixResult.Value);
     }
 
     public Result<StorageKey, Error> AppendSegment(string value)

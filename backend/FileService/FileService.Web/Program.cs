@@ -11,27 +11,22 @@ try
 {
     Log.Information("Starting web application");
 
-
     WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
-
 
     string environment = builder.Environment.EnvironmentName;
 
-
     builder.Configuration.AddJsonFile($"appsettings.{environment}.json", true, true);
-
 
     builder.Configuration.AddEnvironmentVariables();
 
-
     builder.Services.AddConfiguration(builder.Configuration);
 
+    builder.Services.AddEndpointsApiExplorer();
+    builder.Services.AddSwaggerGen();
 
     WebApplication app = builder.Build();
 
-
     app.Configure();
-
 
     app.Run();
 }

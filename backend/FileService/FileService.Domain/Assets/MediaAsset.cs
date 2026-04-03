@@ -44,6 +44,7 @@ public abstract class MediaAsset
         UpdatedAt = CreatedAt;
         Owner = owner;
         RawKey = rawKey;
+        FinalKey = rawKey;
     }
 
     public UnitResult<Error> MarkUploaded(DateTime timestamp)
@@ -86,6 +87,23 @@ public abstract class MediaAsset
         UpdatedAt = timestamp;
 
         return UnitResult.Success<Error>();
+    }
+
+    public static Result<MediaAsset, Error> CreateForUpload(MediaData mediaData,  AssetType assetType, MediaOwner owner)
+    {
+        var assetId = Guid.NewGuid();
+
+        switch (assetType)
+        {
+            case AssetType.VIDEO:
+                var videoResult = VideoAsset.CreateForUpload(assetId, mediaData, owner);
+                return videoResult.IsFailure ? videoResult.Error : videoResult.Value;
+            case AssetType.PREVIEW:
+                var previewResult = PreviewAsset.CreateForUpload(assetId, mediaData, owner);
+                return previewResult.IsFailure ? previewResult.Error : previewResult.Value;
+            default:
+                throw new ArgumentOutOfRangeException(nameof(assetType), assetType, null);
+        }
     }
 }
 

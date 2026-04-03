@@ -6,7 +6,7 @@ namespace DirectoryService.Assets;
 public class VideoAsset : MediaAsset
 {
     public const long MAX_SIZE = 5_368_709_120; // 5 GB
-    public const string LOCATION = "videos";
+    public const string BUCKET = "videos";
     public const string ALLOWED_CONTENT_TYPE = "video";
     public const string RAW_PREFIX = "raw";
     public const string HLS_PREFIX = "hls";
@@ -51,7 +51,7 @@ public class VideoAsset : MediaAsset
         if (validationResult.IsFailure)
             return validationResult.Error;
 
-        Result<StorageKey, Error> key = StorageKey.Create(LOCATION, null, id.ToString());
+        Result<StorageKey, Error> key = StorageKey.Create(BUCKET, null, id.ToString());
         if (key.IsFailure)
             return key.Error;
 

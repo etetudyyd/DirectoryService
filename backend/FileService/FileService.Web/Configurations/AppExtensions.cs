@@ -14,16 +14,16 @@ public static class AppExtensions
         app.UseRequestCorrelationId();
         app.UseSerilogRequestLogging();
 
-        app.MapOpenApi();
-
         app.UseSwagger();
+
         app.UseSwaggerUI(options =>
         {
-            options.SwaggerEndpoint("/openapi/v1.json", "MediaAsset Service V1");
+            options.SwaggerEndpoint("/swagger/v1/swagger.json", "File Service V1");
         });
 
         RouteGroupBuilder apiGroup = app.MapGroup("/api").WithOpenApi();
         app.MapEndpoints(apiGroup);
+
         app.UseAutoMigrate();
 
         return app;

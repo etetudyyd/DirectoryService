@@ -1,13 +1,15 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
+    <ProjectReference Include="..\FileService.Contracts\FileService.Contracts.csproj" />
     <ProjectReference Include="..\FileService.Domain\FileService.Domain.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="etetudyyd.core"/>
+    <PackageReference Include="etetudyyd.core" Version="0.0.3" />
     <PackageReference Include="etetudyyd.framework"/>
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="12.0.0"/>
+    <PackageReference Include="Scrutor" Version="6.1.0" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Features\" />
+    <Folder Include="Features\Delete\" />
   </ItemGroup>
 </Project>

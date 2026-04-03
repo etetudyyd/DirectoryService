@@ -6,4 +6,13 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <ItemGroup>
+      <Folder Include="Responses\" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="etetudyyd.Core" Version="0.0.3" />
+      <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
+    </ItemGroup>
+
 </Project>

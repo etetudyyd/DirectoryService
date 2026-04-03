@@ -1,4 +1,5 @@
-﻿using DirectoryService.Validators;
+﻿using Core.Validation;
+using DirectoryService.Validators;
 using DirectoryService.ValueObjects.Location;
 using FluentValidation;
 using Shared.SharedKernel;

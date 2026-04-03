@@ -3,6 +3,7 @@ using Amazon.S3.Model;
 using Amazon.S3.Util;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 namespace DirectoryService;
 
@@ -15,11 +16,11 @@ public class S3BucketInitializationService : BackgroundService
     public S3BucketInitializationService(
         ILogger<S3BucketInitializationService> logger,
         IAmazonS3 s3Client,
-        S3Options s3Options)
+        IOptions<S3Options> s3Options)
     {
         _logger = logger;
         _s3Client = s3Client;
-        _s3Options = s3Options;
+        _s3Options = s3Options.Value;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
