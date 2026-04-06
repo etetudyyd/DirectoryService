@@ -1,5 +1,5 @@
 ﻿using Core.Abstractions;
 
-namespace DirectoryService.Features.Download;
+namespace DirectoryService.Features.DownloadFile;
 
 public record DownloadFileQuery(Guid FileId) : IQuery;

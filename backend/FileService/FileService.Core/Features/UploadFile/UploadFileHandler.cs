@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Shared.SharedKernel;
 
-namespace DirectoryService.Features.Upload;
+namespace DirectoryService.Features.UploadFile;
 
 public sealed class UploadFileEndpoint : IEndpoint
 {

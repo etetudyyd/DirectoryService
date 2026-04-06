@@ -7,7 +7,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Shared.SharedKernel;
 
-namespace DirectoryService.Features.Download;
+namespace DirectoryService.Features.DownloadFile;
 
 public class DownloadFileEndpoint : IEndpoint
 {

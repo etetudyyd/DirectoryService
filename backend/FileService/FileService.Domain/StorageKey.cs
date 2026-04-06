@@ -1,4 +1,5 @@
-﻿using CSharpFunctionalExtensions;
+﻿using System.Text.Json.Serialization;
+using CSharpFunctionalExtensions;
 using Shared.SharedKernel;
 
 namespace DirectoryService;
@@ -6,17 +7,20 @@ namespace DirectoryService;
 public sealed record StorageKey
 {
     public string Bucket { get; }
-
     public string Key { get; }
-
     public string Prefix { get; }
-
     public string Value { get; }
-
     public string FullPath { get; }
 
-    public StorageKey() { }
-
+    [JsonConstructor]
+    public StorageKey(string bucket, string key, string prefix, string value, string fullPath)
+    {
+        Bucket = bucket;
+        Key = key;
+        Prefix = prefix;
+        Value = value;
+        FullPath = fullPath;
+    }
 
     private StorageKey(string bucket, string key, string prefix)
     {

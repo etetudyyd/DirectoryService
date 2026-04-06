@@ -3,7 +3,7 @@ using DirectoryService.Requests;
 using FluentValidation;
 using Shared.SharedKernel;
 
-namespace DirectoryService.Features.Upload;
+namespace DirectoryService.Features.UploadFile;
 
 public class UploadFileCommandValidator : AbstractValidator<UploadFileCommand>
 {
