@@ -9,13 +9,10 @@ public sealed record FileName
 
     public string Extension { get; }
 
-    public string Value { get; }
-
     private FileName(string name, string extension)
     {
         Name = name;
         Extension = extension;
-        Value = name + "." + extension;
     }
 
     public static Result<FileName, Error> Create(string fileName)

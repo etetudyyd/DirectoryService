@@ -31,7 +31,6 @@ public class MediaAssetConfiguration : IEntityTypeConfiguration<MediaAsset>
             {
                 fb.Property(x => x.Name).HasColumnName("name");
                 fb.Property(x => x.Extension).HasColumnName("extension");
-                fb.Property(x => x.Value).HasColumnName("value");
             });
 
             mb.Property(x => x.Size).HasColumnName("size");
