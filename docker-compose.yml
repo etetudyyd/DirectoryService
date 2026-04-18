@@ -18,7 +18,7 @@ services:
   
   postgres:
     container_name: postgres-etetudyyd
-    image: postgres
+    image: postgres:16
     restart: always
     environment:
       POSTGRES_DB: reservation_service_db

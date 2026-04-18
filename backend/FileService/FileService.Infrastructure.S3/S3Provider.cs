@@ -54,27 +54,36 @@ public class S3Provider : IS3Provider
     }
 
     public async Task<Result<string, Error>> DownloadFileAsync(
-        StorageKey key,
-        CancellationToken cancellationToken)
+        StorageKey key, CancellationToken cancellationToken)
     {
-        var request = new GetPreSignedUrlRequest
-        {
-            BucketName = key.Bucket,
-            Key = key.Key,
-            Verb = HttpVerb.GET,
-            Expires = DateTime.UtcNow.AddHours(_s3Options.DownloadUrlExpirationHours),
-            Protocol = _s3Options.WithSsl ? Protocol.HTTPS : Protocol.HTTP,
-        };
-
         try
         {
-            string? response = await _s3Client.GetPreSignedURLAsync(request);
+            var response = await _s3Client.GetObjectAsync(key.Bucket, key.Key, cancellationToken);
 
-            return response;
+            return response.BucketName;
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error downloading file");
+            return S3ErrorMapper.ToError(ex);
+        }
+    }
+
+
+    public async Task<Result<string, Error>> DeleteFileAsync(
+        StorageKey key,
+        CancellationToken cancellationToken)
+    {
+        var request = new DeleteObjectRequest { BucketName = key.Bucket, Key = key.Value };
+
+        try
+        {
+            DeleteObjectResponse response = await _s3Client.DeleteObjectAsync(request, cancellationToken);
+            return response.DeleteMarker;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error delete file");
             return S3ErrorMapper.ToError(ex);
         }
     }
@@ -89,6 +98,7 @@ public class S3Provider : IS3Provider
             BucketName = storageKey.Bucket,
             Key = storageKey.Key,
             Verb = HttpVerb.PUT,
+            ContentType = mediaData.ContentType.Value,
             Expires = DateTime.UtcNow.AddHours(_s3Options.UploadUrlExpirationHours),
             Protocol = _s3Options.WithSsl ? Protocol.HTTPS : Protocol.HTTP,
         };
@@ -105,24 +115,6 @@ public class S3Provider : IS3Provider
         }
     }
 
-    public async Task<Result<string, Error>> DeleteFileAsync(
-        StorageKey key,
-        CancellationToken cancellationToken)
-    {
-        var request = new DeleteObjectRequest { BucketName = key.Bucket };
-
-        try
-        {
-            DeleteObjectResponse response = await _s3Client.DeleteObjectAsync(request, cancellationToken);
-            return response.DeleteMarker;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error delete file");
-            return S3ErrorMapper.ToError(ex);
-        }
-    }
-
     public async Task<Result<string, Error>> GenerateDownloadUrlAsync(StorageKey key)
     {
         var request = new GetPreSignedUrlRequest
@@ -130,7 +122,7 @@ public class S3Provider : IS3Provider
             BucketName = key.Bucket,
             Key = key.Key,
             Verb = HttpVerb.GET,
-            Expires = DateTime.UtcNow.AddHours(_s3Options.UploadUrlExpirationHours),
+            Expires = DateTime.UtcNow.AddHours(_s3Options.DownloadUrlExpirationHours),
             Protocol = _s3Options.WithSsl ? Protocol.HTTPS : Protocol.HTTP,
         };
 

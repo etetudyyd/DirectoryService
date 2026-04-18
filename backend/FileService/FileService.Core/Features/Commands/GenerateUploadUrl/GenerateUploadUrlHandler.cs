@@ -7,62 +7,63 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Shared.SharedKernel;
 
-namespace DirectoryService.Features.DownloadFile;
+namespace DirectoryService.Features.Commands.GenerateUploadUrl;
 
-public class DownloadFileEndpoint : IEndpoint
+
+public class GenerateUploadUrlEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGet("/files/{id:guid}", async Task<EndpointResult<string>>(
+        app.MapPut("/files/upload/url/{id:guid}", async Task<EndpointResult<string>>(
             [FromRoute] Guid id,
-            [FromServices] DownloadFileHandler handler,
+            [FromServices] GenerateUploadUrlHandler handler,
             CancellationToken cancellationToken) =>
         {
-            var query = new DownloadFileQuery(id);
+            var query = new GenerateUploadUrlCommand(id);
             return await handler.Handle(query, cancellationToken);
-        });
+        }).DisableAntiforgery();
     }
 }
 
-public class DownloadFileHandler : IQueryHandler<string, DownloadFileQuery>
+public class GenerateUploadUrlHandler : ICommandHandler<string, GenerateUploadUrlCommand>
 {
     private readonly IMediaAssetsRepository _mediaAssetRepository;
     private readonly IS3Provider _s3Provider;
-    private readonly ILogger<DownloadFileHandler> _logger;
+    private readonly ILogger<GenerateUploadUrlHandler> _logger;
 
-    public DownloadFileHandler(
+    public GenerateUploadUrlHandler(
         IMediaAssetsRepository mediaAssetRepository,
         IS3Provider s3Provider,
-        ILogger<DownloadFileHandler> logger)
+        ILogger<GenerateUploadUrlHandler> logger)
     {
         _mediaAssetRepository = mediaAssetRepository;
         _s3Provider = s3Provider;
         _logger = logger;
     }
 
-    public async Task<Result<string, Errors>> Handle(
-        DownloadFileQuery query,
-        CancellationToken cancellationToken)
+    public async Task<Result<string, Errors>> Handle(GenerateUploadUrlCommand command, CancellationToken cancellationToken)
     {
-        var fileId = query.FileId;
+        var fileId = command.FileId;
         var mediaAssetResult = await _mediaAssetRepository
             .GetBy(x => x.Id == fileId, cancellationToken);
 
         if (mediaAssetResult.IsFailure)
+        {
+            _logger.LogInformation("Failed to find file with id:{fileId}", fileId);
             return mediaAssetResult.Error.ToErrors();
+        }
 
         var mediaAsset = mediaAssetResult.Value;
 
-        var downloadResult = await _s3Provider.DownloadFileAsync(
-            mediaAsset.RawKey,
-            cancellationToken);
+        var downloadResult = await _s3Provider.GenerateUploadUrlAsync(mediaAsset.RawKey, mediaAsset.MediaData, cancellationToken);
 
         if (downloadResult.IsFailure)
         {
+            _logger.LogInformation("Failed upload file url with id:{fileId}", fileId);
             return downloadResult.Error.ToErrors();
         }
 
-        _logger.LogInformation("Download file with id:{fileId}", fileId);
+        _logger.LogInformation("Upload file url with id:{fileId}", fileId);
 
         return downloadResult.Value;
     }

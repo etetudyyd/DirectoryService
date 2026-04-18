@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Shared.SharedKernel;
 
-namespace DirectoryService.Features.UploadFile;
+namespace DirectoryService.Features.Commands.UploadFile;
 
 public sealed class UploadFileEndpoint : IEndpoint
 {
@@ -60,17 +60,11 @@ public class UploadFileHandler : ICommandHandler<Guid, UploadFileCommand>
 
         var request = command.Request;
 
-        var assetType = request.AssetType.ToAssetType();
-
-        var file = request.FormFile;
-
-        var fileName = FileName.Create(file.FileName).Value;
-
-        var contentType = ContentType.Create(file.ContentType).Value;
-
-        long size = file.Length;
-
-        var mediaDataResult = MediaData.Create(fileName, contentType, size, 1);
+        var mediaDataResult = MediaData.Create(
+            FileName.Create(request.FormFile.FileName).Value,
+            ContentType.Create(request.FormFile.ContentType).Value,
+            request.FormFile.Length,
+            1);
 
         if (mediaDataResult.IsFailure)
             return mediaDataResult.Error.ToErrors();
@@ -78,11 +72,11 @@ public class UploadFileHandler : ICommandHandler<Guid, UploadFileCommand>
         var mediaData = mediaDataResult.Value;
         var owner = MediaOwner.Create(request.Context, request.ContextId);
 
-        var mediaAssetResult = MediaAsset.CreateForUpload(mediaData, assetType, owner.Value);
+        var mediaAssetResult = MediaAsset.CreateForUpload(mediaData, request.AssetType.ToAssetType(), owner.Value);
 
         if (mediaAssetResult.IsFailure)
         {
-            _logger.LogInformation("Failed to create file {fileName}", fileName);
+            _logger.LogInformation("Failed to create file {fileName}", request.FormFile.Name);
             return mediaAssetResult.Error.ToErrors();
         }
 
@@ -90,20 +84,20 @@ public class UploadFileHandler : ICommandHandler<Guid, UploadFileCommand>
         var addResult = await _mediaAssetRepository.AddAsync(mediaAsset, cancellationToken);
         if (addResult.IsFailure)
         {
-            _logger.LogInformation("Failed to upload file {fileName}", fileName);
+            _logger.LogInformation("Failed to upload file {fileName}", request.FormFile.Name);
             return addResult.Error.ToErrors();
         }
 
         var uploadResult = await _s3Provider.UploadFileAsync(
             mediaAsset.RawKey,
-            file.OpenReadStream(),
+            request.FormFile.OpenReadStream(),
             mediaData,
             cancellationToken);
         if (uploadResult.IsFailure)
         {
             mediaAsset.MarkFailed(DateTime.UtcNow);
             await _mediaAssetRepository.SaveChangesAsync(cancellationToken);
-            _logger.LogInformation("Failed to upload file {fileName}", fileName);
+            _logger.LogInformation("Failed to upload file {fileName}", request.FormFile.Name);
             return uploadResult.Error.ToErrors();
         }
 
@@ -111,7 +105,7 @@ public class UploadFileHandler : ICommandHandler<Guid, UploadFileCommand>
 
         await _mediaAssetRepository.SaveChangesAsync(cancellationToken);
 
-        _logger.LogInformation($"Uploaded file {file.Name}");
+        _logger.LogInformation($"Uploaded file {request.FormFile.Name}");
 
         return addResult.Value;
     }
