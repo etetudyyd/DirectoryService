@@ -6,7 +6,7 @@ namespace DirectoryService.Assets;
 public class PreviewAsset: MediaAsset
 {
     public const long MAX_SIZE = 10_485_760; // 10 MB
-    public const string BUCKET = "preview";
+    public const string BUCKET = "previews";
     public const string ALLOWED_CONTENT_TYPE = "preview";
     public const string RAW_PREFIX = "raw";
 
@@ -34,7 +34,7 @@ public class PreviewAsset: MediaAsset
                 $"File extension must be one of: {string.Join(", ", AllowedExtensions)}");
         }
 
-        if (mediaData.ContentType.Category != MediaType.VIDEO)
+        if (mediaData.ContentType.Category != MediaType.IMAGE)
         {
             return Error.Validation(
                 "preview.invalid.content-type",

@@ -3,7 +3,7 @@ using CSharpFunctionalExtensions;
 using FluentValidation;
 using Shared.SharedKernel;
 
-namespace DirectoryService.Validators;
+namespace Core.Validation;
 
 public static class CustomValidators
 {

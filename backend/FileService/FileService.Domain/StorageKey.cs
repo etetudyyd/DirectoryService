@@ -1,4 +1,5 @@
-﻿using CSharpFunctionalExtensions;
+﻿using System.Text.Json.Serialization;
+using CSharpFunctionalExtensions;
 using Shared.SharedKernel;
 
 namespace DirectoryService;
@@ -6,17 +7,20 @@ namespace DirectoryService;
 public sealed record StorageKey
 {
     public string Bucket { get; }
-
     public string Key { get; }
-
     public string Prefix { get; }
-
     public string Value { get; }
-
     public string FullPath { get; }
 
-    private StorageKey() { }
-
+    [JsonConstructor]
+    public StorageKey(string bucket, string key, string prefix, string value, string fullPath)
+    {
+        Bucket = bucket;
+        Key = key;
+        Prefix = prefix;
+        Value = value;
+        FullPath = fullPath;
+    }
 
     private StorageKey(string bucket, string key, string prefix)
     {
@@ -30,7 +34,7 @@ public sealed record StorageKey
     public static Result<StorageKey, Error> Create(string bucket, string? prefix, string key)
     {
         if(string.IsNullOrWhiteSpace(bucket))
-            return GeneralErrors.General.ValueIsInvalid("location");
+            return GeneralErrors.General.ValueIsInvalid("bucket");
 
         Result<string, Error> normalizedKeyResult = NormalizeSegment(key);
         if (normalizedKeyResult.IsFailure)
@@ -40,7 +44,7 @@ public sealed record StorageKey
         if (normalizedPrefixResult.IsFailure)
             return normalizedPrefixResult.Error;
 
-        return new StorageKey(bucket.Trim(), normalizedPrefixResult.Value, normalizedKeyResult.Value);
+        return new StorageKey(bucket.Trim(), normalizedKeyResult.Value, normalizedPrefixResult.Value);
     }
 
     public Result<StorageKey, Error> AppendSegment(string value)
