@@ -23,7 +23,6 @@ public abstract class MediaAsset
 
     public MediaOwner Owner { get; protected set; } = null!;
 
-
     protected MediaAsset()
     {
     }

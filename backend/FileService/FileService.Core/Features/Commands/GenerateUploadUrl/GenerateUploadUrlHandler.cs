@@ -55,7 +55,7 @@ public class GenerateUploadUrlHandler : ICommandHandler<string, GenerateUploadUr
 
         var mediaAsset = mediaAssetResult.Value;
 
-        var downloadResult = await _s3Provider.GenerateUploadUrlAsync(mediaAsset.RawKey, mediaAsset.MediaData, cancellationToken);
+        var downloadResult = await _s3Provider.GenerateUploadUrlAsync(mediaAsset.RawKey, mediaAsset.MediaData);
 
         if (downloadResult.IsFailure)
         {

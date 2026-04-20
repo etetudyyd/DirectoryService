@@ -15,4 +15,8 @@ public record S3Options
 
     public int MaxConcurrentRequests { get; init; } = 20;
     public IReadOnlyList<string> RequiredBuckets { get; init; } = [];
+
+    public int RecommendedChunkSizeBytes { get; set; } = 10240;
+
+    public int MaxChunks { get; set; } = 10000;
 }
