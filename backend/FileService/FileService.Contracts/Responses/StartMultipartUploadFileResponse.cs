@@ -3,6 +3,6 @@
 public record StartMultipartUploadFileResponse(
     Guid MediaAssetId,
     string UploadId,
-    IEnumerable<string> UploadUrls,
-    long Size
+    IEnumerable<string> ChunkUrls,
+    long ChunkSize
     );
