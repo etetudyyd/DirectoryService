@@ -1,7 +1,7 @@
 ﻿using CSharpFunctionalExtensions;
 using Shared.SharedKernel;
 
-namespace DirectoryService;
+namespace DirectoryService.VOs;
 
 public sealed record MediaData
 {

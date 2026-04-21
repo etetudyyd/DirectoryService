@@ -3,6 +3,8 @@ using Core.Validation;
 using CSharpFunctionalExtensions;
 using DirectoryService.Assets;
 using DirectoryService.Requests;
+using DirectoryService.Types;
+using DirectoryService.VOs;
 using FluentValidation;
 using Framework.Endpoints;
 using Microsoft.AspNetCore.Builder;

@@ -1,5 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
 using DirectoryService.Responses;
+using DirectoryService.VOs;
 using Shared.SharedKernel;
 
 namespace DirectoryService;

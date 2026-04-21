@@ -1,4 +1,5 @@
 ﻿using Core.Validation;
+using DirectoryService.VOs;
 using FluentValidation;
 using Shared.SharedKernel;
 

@@ -1,4 +1,4 @@
-﻿namespace DirectoryService;
+﻿namespace DirectoryService.Types;
 
 public enum MediaType
 {

@@ -1,4 +1,4 @@
-﻿namespace DirectoryService.Features.Commands.StartMultipartUploadFile;
+﻿namespace DirectoryService.Requests;
 
 public record StartMultipartUploadFileRequest(
     string FileName,

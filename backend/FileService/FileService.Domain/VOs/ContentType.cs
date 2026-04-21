@@ -1,7 +1,8 @@
 ﻿using CSharpFunctionalExtensions;
+using DirectoryService.Types;
 using Shared.SharedKernel;
 
-namespace DirectoryService;
+namespace DirectoryService.VOs;
 
 public sealed record ContentType
 {

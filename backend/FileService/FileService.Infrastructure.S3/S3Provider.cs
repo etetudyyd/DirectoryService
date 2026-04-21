@@ -1,6 +1,7 @@
 ﻿using Amazon.S3;
 using Amazon.S3.Model;
 using CSharpFunctionalExtensions;
+using DirectoryService.VOs;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Shared.SharedKernel;
