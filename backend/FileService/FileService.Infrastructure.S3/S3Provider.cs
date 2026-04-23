@@ -1,6 +1,7 @@
 ﻿using Amazon.S3;
 using Amazon.S3.Model;
 using CSharpFunctionalExtensions;
+using DirectoryService.FilesStorage;
 using DirectoryService.VOs;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -170,7 +171,7 @@ public class S3Provider : IS3Provider
             return downloadUrlsResult.Select(res => res.Value).ToList();
     }
 
-    public async Task<Result<string, Error>> StartMultipartUpload(StorageKey key, MediaData mediaData,
+    public async Task<Result<string, Error>> StartMultipartUploadAsync(StorageKey key, MediaData mediaData,
         CancellationToken cancellationToken)
     {
         try
@@ -219,7 +220,7 @@ public class S3Provider : IS3Provider
         }
     }
 
-    public async Task<Result<IReadOnlyList<string>, Error>> GenerateAllChunkUploadUrls(
+    public async Task<Result<IReadOnlyList<ChunkUploadUrl>, Error>> GenerateAllChunkUploadUrls(
         StorageKey key,
         string uploadId,
         int totalChunks,
@@ -227,7 +228,7 @@ public class S3Provider : IS3Provider
     {
         try
         {
-            IEnumerable<Task<string>> tasks = Enumerable.Range(1, totalChunks)
+            IEnumerable<Task<ChunkUploadUrl>> tasks = Enumerable.Range(1, totalChunks)
                 .Select(async partNumber =>
                 {
                     await _requestsSemaphore.WaitAsync(cancellationToken);
@@ -247,7 +248,7 @@ public class S3Provider : IS3Provider
 
                         string? url = await _s3Client.GetPreSignedURLAsync(request);
 
-                        return url;
+                        return new ChunkUploadUrl(partNumber, url);
                     }
                     finally
                     {
@@ -255,7 +256,7 @@ public class S3Provider : IS3Provider
                     }
                 });
 
-            string[] results = await Task.WhenAll(tasks);
+            ChunkUploadUrl[] results = await Task.WhenAll(tasks);
 
             return results;
 

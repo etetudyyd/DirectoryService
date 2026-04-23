@@ -2,6 +2,7 @@
 using Core.Validation;
 using CSharpFunctionalExtensions;
 using DirectoryService.Assets;
+using DirectoryService.FilesStorage;
 using DirectoryService.Requests;
 using DirectoryService.Responses;
 using DirectoryService.Types;
@@ -14,7 +15,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Shared.SharedKernel;
 
-namespace DirectoryService.Features.Commands.StartMultipartUploadFile;
+namespace DirectoryService.Features.Commands.StartMultipartUpload;
 
 public class StartMultipartUploadFileEndpoint : IEndpoint
 {
@@ -64,15 +65,22 @@ public class StartMultipartUploadFileHandler : ICommandHandler<StartMultipartUpl
 
         var request = command.Request;
 
-        var fileName = FileName.Create(request.FileName).Value;
-
-        var contentType = ContentType.Create(request.ContentType).Value;
-
         var chunkSizeResult = _chunkSizeCalculator
             .Calculate(request.Size);
 
+        if (chunkSizeResult.IsFailure)
+        {
+            _logger.LogInformation("Invalid chunk size: {chunkSizeResult}", chunkSizeResult.Error);
+            return chunkSizeResult.Error.ToErrors();
+        }
+
         var mediaDataResult = MediaData
-            .Create(fileName, contentType, chunkSizeResult.Value.ChunkSize, chunkSizeResult.Value.TotalChunks);
+            .Create(
+                FileName.Create(request.FileName).Value,
+                ContentType.Create(request.ContentType).Value,
+                chunkSizeResult.Value.ChunkSize,
+                chunkSizeResult.Value.TotalChunks);
+
         if (mediaDataResult.IsFailure)
         {
             _logger.LogInformation("Failed to create media data: {mediaDataResult}", mediaDataResult.Error);
@@ -81,6 +89,7 @@ public class StartMultipartUploadFileHandler : ICommandHandler<StartMultipartUpl
 
         var mediaOwnerResult = MediaOwner
             .Create(request.Context, request.ContextId);
+
         if (mediaOwnerResult.IsFailure)
         {
             _logger.LogInformation("Failed to create media owner: {mediaOwnerResult}", mediaOwnerResult.Error);
@@ -96,19 +105,21 @@ public class StartMultipartUploadFileHandler : ICommandHandler<StartMultipartUpl
             return mediaAssetResult.Error.ToErrors();
         }
 
-        var multipartUploadResult = await _s3Provider
-            .StartMultipartUpload(mediaAssetResult.Value.RawKey, mediaAssetResult.Value.MediaData, cancellationToken);
+        await _mediaAssetRepository.AddAsync(mediaAssetResult.Value, cancellationToken);
 
-        if (multipartUploadResult.IsFailure)
+        var startMultipartUploadResult = await _s3Provider
+            .StartMultipartUploadAsync(mediaAssetResult.Value.RawKey, mediaAssetResult.Value.MediaData, cancellationToken);
+
+        if (startMultipartUploadResult.IsFailure)
         {
-            _logger.LogInformation("Failed to start multipart upload: {multipartUploadResult}", multipartUploadResult.Error);
-            return multipartUploadResult.Error.ToErrors();
+            _logger.LogInformation("Failed to start multipart upload: {multipartUploadResult}", startMultipartUploadResult.Error);
+            return startMultipartUploadResult.Error.ToErrors();
         }
 
         var generateChunkUploadUrlsResult = await _s3Provider
             .GenerateAllChunkUploadUrls(
                 mediaAssetResult.Value.RawKey,
-                multipartUploadResult.Value,
+                startMultipartUploadResult.Value,
                 chunkSizeResult.Value.TotalChunks,
                 cancellationToken);
 
@@ -124,9 +135,11 @@ public class StartMultipartUploadFileHandler : ICommandHandler<StartMultipartUpl
 
         await _mediaAssetRepository.SaveChangesAsync(cancellationToken);
 
+        _logger.LogInformation("Successfully generated media asset: {mediaAsset}", mediaAsset);
+
         return new StartMultipartUploadFileResponse(
             mediaAsset.Id,
-            multipartUploadResult.Value,
+            startMultipartUploadResult.Value,
             generateChunkUploadUrlsResult.Value,
             chunkSizeResult.Value.ChunkSize);
     }

@@ -3,7 +3,7 @@ using DirectoryService.Responses;
 using DirectoryService.VOs;
 using Shared.SharedKernel;
 
-namespace DirectoryService;
+namespace DirectoryService.FilesStorage;
 
 public interface IS3Provider
 {
@@ -19,11 +19,11 @@ public interface IS3Provider
 
     Task<Result<IReadOnlyList<string>, Errors>> GenerateDownloadUrlsAsync(IEnumerable<StorageKey> keys);
 
-    Task<Result<string, Error>> StartMultipartUpload(StorageKey key, MediaData mediaData, CancellationToken cancellationToken);
+    Task<Result<string, Error>> StartMultipartUploadAsync(StorageKey key, MediaData mediaData, CancellationToken cancellationToken);
 
     Task<Result<string, Error>> GenerateChunkUploadUrl(StorageKey key, string uploadId, int partNumber);
 
-    Task<Result<IReadOnlyList<string>, Error>> GenerateAllChunkUploadUrls(StorageKey key, string uploadId, int totalChunks, CancellationToken cancellationToken);
+    Task<Result<IReadOnlyList<ChunkUploadUrl>, Error>> GenerateAllChunkUploadUrls(StorageKey key, string uploadId, int totalChunks, CancellationToken cancellationToken);
 
     Task<UnitResult<Error>> CompleteMultipartUploadAsync(StorageKey key, string uploadId, List<PartETagDto> eTags, CancellationToken cancellationToken);
 

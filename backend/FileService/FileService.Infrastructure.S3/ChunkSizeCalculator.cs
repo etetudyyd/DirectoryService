@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using DirectoryService.FilesStorage;
 using Microsoft.Extensions.Options;
 using Shared.SharedKernel;
 
@@ -16,23 +17,20 @@ public class ChunkSizeCalculator : IChunkSizeCalculator
     public Result<(long ChunkSize, int TotalChunks), Error> Calculate(
         long fileSize)
     {
-        int recommendedChunkSize = _s3Options.RecommendedChunkSizeBytes;
-        int maxChunks = _s3Options.MaxChunks;
-
-        if(recommendedChunkSize <= 0 || maxChunks <= 0 )
+        if(_s3Options.RecommendedChunkSizeBytes <= 0 || _s3Options.MaxChunks <= 0 )
             return GeneralErrors.General.ValueIsInvalid("Invalid chunk size or max chunks");
 
-        if (fileSize <= recommendedChunkSize)
+        if (fileSize <= _s3Options.RecommendedChunkSizeBytes)
         {
             return (fileSize, 1);
         }
 
-        int calculatedChunks = (int)Math.Ceiling((double)fileSize / recommendedChunkSize);
+        int calculatedChunks = (int)Math.Ceiling((double)fileSize / _s3Options.RecommendedChunkSizeBytes);
 
-        int actualChunks = Math.Min(calculatedChunks, maxChunks);
+        int actualChunks = Math.Min(calculatedChunks, _s3Options.MaxChunks);
 
-        long chunkSize = fileSize / actualChunks;
+        long chunkSize = (fileSize + actualChunks - 1) / actualChunks;
 
-        return (chunkSize, actualChunks); 
+        return (chunkSize, actualChunks);
     }
 }

@@ -5,7 +5,7 @@ using DirectoryService.VOs;
 using FluentValidation;
 using Shared.SharedKernel;
 
-namespace DirectoryService.Features.Commands.UploadFile;
+namespace DirectoryService.Features.Commands.Upload;
 
 public class UploadFileCommandValidator : AbstractValidator<UploadFileCommand>
 {

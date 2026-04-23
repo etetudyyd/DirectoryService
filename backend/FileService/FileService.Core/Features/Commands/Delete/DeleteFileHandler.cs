@@ -1,5 +1,6 @@
 ﻿using Core.Abstractions;
 using CSharpFunctionalExtensions;
+using DirectoryService.FilesStorage;
 using Framework.Endpoints;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +8,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Shared.SharedKernel;
 
-namespace DirectoryService.Features.Commands.DeleteFile;
+namespace DirectoryService.Features.Commands.Delete;
 
 public class DeleteFileEndpoint : IEndpoint
 {

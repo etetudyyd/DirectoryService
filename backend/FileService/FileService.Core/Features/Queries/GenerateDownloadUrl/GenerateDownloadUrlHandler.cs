@@ -1,6 +1,7 @@
 ﻿using Core.Abstractions;
 using Core.Validation;
 using CSharpFunctionalExtensions;
+using DirectoryService.FilesStorage;
 using DirectoryService.VOs;
 using FluentValidation;
 using Framework.Endpoints;

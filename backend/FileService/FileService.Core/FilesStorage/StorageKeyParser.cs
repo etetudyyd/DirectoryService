@@ -1,4 +1,4 @@
-﻿namespace DirectoryService;
+﻿namespace DirectoryService.FilesStorage;
 
 public static class StorageKeyParser
 {

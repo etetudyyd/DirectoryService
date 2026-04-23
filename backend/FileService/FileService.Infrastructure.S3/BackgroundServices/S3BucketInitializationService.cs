@@ -5,7 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-namespace DirectoryService;
+namespace DirectoryService.BackgroundServices;
 
 public class S3BucketInitializationService : BackgroundService
 {

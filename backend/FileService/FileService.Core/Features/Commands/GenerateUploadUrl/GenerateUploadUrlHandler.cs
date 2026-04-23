@@ -1,5 +1,6 @@
 ﻿using Core.Abstractions;
 using CSharpFunctionalExtensions;
+using DirectoryService.FilesStorage;
 using Framework.Endpoints;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;

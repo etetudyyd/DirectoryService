@@ -2,6 +2,7 @@
 using Core.Validation;
 using CSharpFunctionalExtensions;
 using DirectoryService.Assets;
+using DirectoryService.FilesStorage;
 using DirectoryService.Requests;
 using DirectoryService.Types;
 using DirectoryService.VOs;
@@ -13,7 +14,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Shared.SharedKernel;
 
-namespace DirectoryService.Features.Commands.UploadFile;
+namespace DirectoryService.Features.Commands.Upload;
 
 public sealed class UploadFileEndpoint : IEndpoint
 {

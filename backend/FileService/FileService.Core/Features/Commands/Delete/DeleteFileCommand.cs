@@ -1,5 +1,5 @@
 ﻿using Core.Abstractions;
 
-namespace DirectoryService.Features.Commands.DeleteFile;
+namespace DirectoryService.Features.Commands.Delete;
 
 public record DeleteFileCommand(Guid FileId) : ICommand;
