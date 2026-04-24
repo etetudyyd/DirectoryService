@@ -12,35 +12,35 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Shared.SharedKernel;
 
-namespace DirectoryService.Features.Commands.CompleteMultipartUpload;
+namespace DirectoryService.Features.Commands.AbortMultipartUpload;
 
-public class CompleteMultipartUploadFileEndpoint : IEndpoint
+public class AbortMultipartUploadFileEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPost("/files/multipart/complete", async Task<EndpointResult<Guid>>(
-            [FromBody] CompleteMultipartUploadFileRequest request,
-            [FromServices] CompleteMultipartUploadFileHandler handler,
+        app.MapPost("/files/multipart/abort", async Task<EndpointResult>(
+            [FromBody] AbortMultipartUploadFileRequest request,
+            [FromServices] AbortMultipartUploadFileHandler handler,
             CancellationToken cancellationToken) =>
         {
-            var command = new CompleteMultipartUploadFileCommand(request);
+            var command = new AbortMultipartUploadFileCommand(request);
             return await handler.Handle(command, cancellationToken);
         }).DisableAntiforgery();
     }
 }
 
-public class CompleteMultipartUploadFileHandler : ICommandHandler<Guid, CompleteMultipartUploadFileCommand>
+public class AbortMultipartUploadFileHandler : ICommandHandler<AbortMultipartUploadFileCommand>
 {
     private readonly IMediaAssetsRepository _mediaAssetRepository;
     private readonly IS3Provider _s3Provider;
-    private readonly ILogger<CompleteMultipartUploadFileHandler> _logger;
-    private readonly IValidator<CompleteMultipartUploadFileCommand> _validator;
+    private readonly ILogger<AbortMultipartUploadFileHandler> _logger;
+    private readonly IValidator<AbortMultipartUploadFileCommand> _validator;
 
-    public CompleteMultipartUploadFileHandler(
+    public AbortMultipartUploadFileHandler(
         IS3Provider s3Provider,
         IMediaAssetsRepository mediaAssetRepository,
-        ILogger<CompleteMultipartUploadFileHandler> logger,
-        IValidator<CompleteMultipartUploadFileCommand> validator)
+        ILogger<AbortMultipartUploadFileHandler> logger,
+        IValidator<AbortMultipartUploadFileCommand> validator)
     {
         _s3Provider = s3Provider;
         _mediaAssetRepository = mediaAssetRepository;
@@ -48,8 +48,8 @@ public class CompleteMultipartUploadFileHandler : ICommandHandler<Guid, Complete
         _validator = validator;
     }
 
-    public async Task<Result<Guid, Errors>> Handle(
-        CompleteMultipartUploadFileCommand command,
+    public async Task<UnitResult<Errors>> Handle(
+        AbortMultipartUploadFileCommand command,
         CancellationToken cancellationToken)
     {
         var validationResult = await _validator.ValidateAsync(command, cancellationToken);
@@ -70,29 +70,21 @@ public class CompleteMultipartUploadFileHandler : ICommandHandler<Guid, Complete
             return error.ToErrors();
         }
 
-        if (mediaAsset.MediaData.ExpectedChunksCount != request.PartETags.Count)
+        var abortResult = await _s3Provider
+            .AbortMultipartUploadAsync(mediaAsset.RawKey, request.UploadId, cancellationToken);
+
+        if (abortResult.IsFailure)
         {
-            return GeneralErrors.General.ValueIsInvalid("Amount of eTags is not equal to amount of chunks.").ToErrors();
+            _logger.LogInformation("Can`t abort uploading the media asset {mediaAssetId}", request.MediaAssetId);
+            return abortResult.Error.ToErrors();
         }
 
-        var completeResult = await _s3Provider.CompleteMultipartUploadAsync(
-            mediaAsset.RawKey,
-            request.UploadId,
-            request.PartETags,
-            cancellationToken);
-
-        if (completeResult.IsFailure)
-        {
-            _logger.LogInformation("Can`t complete uploading the media asset {mediaAssetId}", request.MediaAssetId);
-            return completeResult.Error.ToErrors();
-        }
-
-        mediaAsset.MarkUploaded(DateTime.UtcNow);
+        mediaAsset.MarkFailed(DateTime.UtcNow);
 
         await _mediaAssetRepository.SaveChangesAsync(cancellationToken);
 
-        _logger.LogInformation("Completed uploading the media asset {mediaAssetId}", request.MediaAssetId);
+        _logger.LogInformation("Aborted uploading the media asset {mediaAssetId}", request.MediaAssetId);
 
-        return mediaAsset.Id;
+        return Result.Success<Errors>();
     }
 }

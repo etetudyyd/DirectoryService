@@ -29,6 +29,4 @@ public interface IS3Provider
         IReadOnlyList<PartETagDto> eTags, CancellationToken cancellationToken);
 
     Task<UnitResult<Error>> AbortMultipartUploadAsync(StorageKey key, string uploadId, CancellationToken cancellationToken);
-
-    Task<Result<ListMultipartUploadsResponse, Error>> ListMultipartUploadAsync(string bucketName, CancellationToken cancellationToken);
 }

@@ -6,7 +6,6 @@ using DirectoryService.VOs;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Shared.SharedKernel;
-using ListMultipartUploadsResponse = DirectoryService.Responses.ListMultipartUploadsResponse;
 
 namespace DirectoryService;
 
@@ -299,7 +298,27 @@ public class S3Provider : IS3Provider
         }
     }
 
-    public Task<UnitResult<Error>> AbortMultipartUploadAsync(StorageKey key, string uploadId, CancellationToken cancellationToken) => throw new NotImplementedException();
+    public async Task<UnitResult<Error>> AbortMultipartUploadAsync(StorageKey key, string uploadId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var request = new AbortMultipartUploadRequest
+            {
+                BucketName = key.Bucket,
+                Key = key.Key,
+                UploadId = uploadId,
+            };
 
-    public Task<Result<ListMultipartUploadsResponse, Error>> ListMultipartUploadAsync(string bucketName, CancellationToken cancellationToken) => throw new NotImplementedException();
+            await _s3Client.AbortMultipartUploadAsync(request, cancellationToken);
+
+            return UnitResult.Success<Error>();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error abort upload url");
+            return S3ErrorMapper.ToError(ex);
+        }
+    }
+
 }
