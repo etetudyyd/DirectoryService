@@ -271,7 +271,7 @@ public class S3Provider : IS3Provider
     public async Task<UnitResult<Error>> CompleteMultipartUploadAsync(
         StorageKey key,
         string uploadId,
-        List<PartETagDto> eTags,
+        IReadOnlyList<PartETagDto> eTags,
         CancellationToken cancellationToken)
     {
         try

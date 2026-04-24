@@ -25,7 +25,8 @@ public interface IS3Provider
 
     Task<Result<IReadOnlyList<ChunkUploadUrl>, Error>> GenerateAllChunkUploadUrls(StorageKey key, string uploadId, int totalChunks, CancellationToken cancellationToken);
 
-    Task<UnitResult<Error>> CompleteMultipartUploadAsync(StorageKey key, string uploadId, List<PartETagDto> eTags, CancellationToken cancellationToken);
+    Task<UnitResult<Error>> CompleteMultipartUploadAsync(StorageKey key, string uploadId,
+        IReadOnlyList<PartETagDto> eTags, CancellationToken cancellationToken);
 
     Task<UnitResult<Error>> AbortMultipartUploadAsync(StorageKey key, string uploadId, CancellationToken cancellationToken);
 

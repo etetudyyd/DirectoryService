@@ -129,16 +129,12 @@ public class StartMultipartUploadFileHandler : ICommandHandler<StartMultipartUpl
             return generateChunkUploadUrlsResult.Error.ToErrors();
         }
 
-        var mediaAsset = mediaAssetResult.Value;
-
-        mediaAsset.MarkUploaded(DateTime.UtcNow);
-
         await _mediaAssetRepository.SaveChangesAsync(cancellationToken);
 
-        _logger.LogInformation("Successfully generated media asset: {mediaAsset}", mediaAsset);
+        _logger.LogInformation("Successfully generated media asset: {mediaAsset}", mediaAssetResult.Value);
 
         return new StartMultipartUploadFileResponse(
-            mediaAsset.Id,
+            mediaAssetResult.Value.Id,
             startMultipartUploadResult.Value,
             generateChunkUploadUrlsResult.Value,
             chunkSizeResult.Value.ChunkSize);
