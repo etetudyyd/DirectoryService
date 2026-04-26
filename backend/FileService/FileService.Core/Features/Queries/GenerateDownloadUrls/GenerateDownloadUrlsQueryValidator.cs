@@ -1,4 +1,6 @@
 ﻿using Core.Validation;
+using DirectoryService.FilesStorage;
+using DirectoryService.VOs;
 using FluentValidation;
 using Shared.SharedKernel;
 

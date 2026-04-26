@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using DirectoryService.Assets;
+using DirectoryService.VOs;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 

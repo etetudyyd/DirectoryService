@@ -1,4 +1,6 @@
 ﻿using CSharpFunctionalExtensions;
+using DirectoryService.Types;
+using DirectoryService.VOs;
 using Shared.SharedKernel;
 
 namespace DirectoryService.Assets;
@@ -22,7 +24,6 @@ public abstract class MediaAsset
     public StorageKey FinalKey { get; protected set; } = null!;
 
     public MediaOwner Owner { get; protected set; } = null!;
-
 
     protected MediaAsset()
     {
