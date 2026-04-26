@@ -13,35 +13,35 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Shared.SharedKernel;
 
-namespace DirectoryService.Features.Queries.GetChunkUploadUrl;
+namespace DirectoryService.Features.Commands.GetChunkUploadUrl;
 
 public class GetChunkUploadUrlFileEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGet("/files/multipart/url", async Task<EndpointResult<GetChunkUploadUrlFileResponse>>(
+        app.MapPost("/files/multipart/url", async Task<EndpointResult<GetChunkUploadUrlFileResponse>>(
             [FromBody] GetChunkUploadUrlFileRequest request,
             [FromServices] GetChunkUploadUrlFileHandler handler,
             CancellationToken cancellationToken) =>
         {
-            var query = new GetChunkUploadUrlFileQuery(request);
-            return await handler.Handle(query, cancellationToken);
+            var command = new GetChunkUploadUrlFileCommand(request);
+            return await handler.Handle(command, cancellationToken);
         }).DisableAntiforgery();
     }
 }
 
-public class GetChunkUploadUrlFileHandler : IQueryHandler<GetChunkUploadUrlFileResponse, GetChunkUploadUrlFileQuery>
+public class GetChunkUploadUrlFileHandler : ICommandHandler<GetChunkUploadUrlFileResponse, GetChunkUploadUrlFileCommand>
 {
     private readonly IMediaAssetsRepository _mediaAssetRepository;
     private readonly IS3Provider _s3Provider;
     private readonly ILogger<GetChunkUploadUrlFileHandler> _logger;
-    private readonly IValidator<GetChunkUploadUrlFileQuery> _validator;
+    private readonly IValidator<GetChunkUploadUrlFileCommand> _validator;
 
     public GetChunkUploadUrlFileHandler(
         IS3Provider s3Provider,
         IMediaAssetsRepository mediaAssetRepository,
         ILogger<GetChunkUploadUrlFileHandler> logger,
-        IValidator<GetChunkUploadUrlFileQuery> validator)
+        IValidator<GetChunkUploadUrlFileCommand> validator)
     {
         _s3Provider = s3Provider;
         _mediaAssetRepository = mediaAssetRepository;
@@ -50,17 +50,17 @@ public class GetChunkUploadUrlFileHandler : IQueryHandler<GetChunkUploadUrlFileR
     }
 
     public async Task<Result<GetChunkUploadUrlFileResponse, Errors>> Handle(
-        GetChunkUploadUrlFileQuery query,
+        GetChunkUploadUrlFileCommand command,
         CancellationToken cancellationToken)
     {
-        var validationResult = await _validator.ValidateAsync(query, cancellationToken);
+        var validationResult = await _validator.ValidateAsync(command, cancellationToken);
         if (!validationResult.IsValid)
         {
-            _logger.LogInformation("Invalid request: {command}", query);
+            _logger.LogInformation("Invalid request: {command}", command);
             return validationResult.ToErrors();
         }
 
-        var request = query.Request;
+        var request = command.Request;
 
         (_, bool isFailure, MediaAsset? mediaAsset, Error? error) = await _mediaAssetRepository
             .GetBy(m => m.Id == request.MediaAssetId, cancellationToken);

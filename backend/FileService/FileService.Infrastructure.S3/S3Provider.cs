@@ -208,9 +208,11 @@ public class S3Provider : IS3Provider
                 Protocol = _s3Options.WithSsl ? Protocol.HTTPS : Protocol.HTTP,
             };
 
-            await _s3Client.GetPreSignedURLAsync(request);
+            string? response = await _s3Client.GetPreSignedURLAsync(request);
+            if (response == null)
+                return GeneralErrors.General.ValueIsInvalid();
 
-            return request.UploadId;
+            return response;
         }
         catch (Exception ex)
         {
@@ -297,6 +299,7 @@ public class S3Provider : IS3Provider
             return S3ErrorMapper.ToError(ex);
         }
     }
+
 
     public async Task<UnitResult<Error>> AbortMultipartUploadAsync(StorageKey key, string uploadId,
         CancellationToken cancellationToken)

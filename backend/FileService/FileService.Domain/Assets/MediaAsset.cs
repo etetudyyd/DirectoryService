@@ -50,7 +50,7 @@ public abstract class MediaAsset
 
     public UnitResult<Error> MarkUploaded(DateTime timestamp)
     {
-        if (Status != MediaStatus.UPLOADING)
+        if (Status is not MediaStatus.UPLOADING)
             return GeneralErrors.General.ValueIsInvalid(nameof(Status));
 
         Status = MediaStatus.UPLOADED;
@@ -61,25 +61,31 @@ public abstract class MediaAsset
 
     public UnitResult<Error> MarkReady(StorageKey finalyKey, DateTime timestamp)
     {
-        if (Status != MediaStatus.UPLOADING)
+        if (Status is not MediaStatus.UPLOADING)
+        {
             return GeneralErrors.General.ValueIsInvalid(nameof(Status));
+        }
 
         Status = MediaStatus.READY;
         UpdatedAt = timestamp;
         FinalKey = finalyKey;
 
         return UnitResult.Success<Error>();
+
     }
 
     public UnitResult<Error> MarkFailed(DateTime timestamp)
     {
-        if (Status != MediaStatus.UPLOADED)
+        if (Status is not(MediaStatus.UPLOADED or MediaStatus.UPLOADING))
+        {
             return GeneralErrors.General.ValueIsInvalid(nameof(Status));
+        }
 
         Status = MediaStatus.FAILED;
         UpdatedAt = timestamp;
 
         return UnitResult.Success<Error>();
+
     }
 
     public UnitResult<Error> MarkDeleted(DateTime timestamp)

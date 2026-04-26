@@ -2,9 +2,9 @@
 using FluentValidation;
 using Shared.SharedKernel;
 
-namespace DirectoryService.Features.Queries.GetChunkUploadUrl;
+namespace DirectoryService.Features.Commands.GetChunkUploadUrl;
 
-public class GetChunkUploadUrlFileValidator : AbstractValidator<GetChunkUploadUrlFileQuery>
+public class GetChunkUploadUrlFileValidator : AbstractValidator<GetChunkUploadUrlFileCommand>
 {
     public GetChunkUploadUrlFileValidator()
     {
