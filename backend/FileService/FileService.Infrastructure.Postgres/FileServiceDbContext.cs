@@ -5,22 +5,16 @@ using Microsoft.Extensions.Logging;
 
 namespace DirectoryService;
 
-public class FileServiceDbContext : DbContext
+public class FileServiceDbContext : DbContext, IReadDbContext
 {
-    private readonly string _connectionString;
+    public FileServiceDbContext(DbContextOptions<FileServiceDbContext> options)
+        : base(options)
+    {
+    }
 
     public DbSet<MediaAsset> MediaAssets => Set<MediaAsset>();
 
-    public FileServiceDbContext(string connectionString)
-    {
-        _connectionString = connectionString;
-    }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-    {
-        optionsBuilder.UseNpgsql(_connectionString);
-        optionsBuilder.UseLoggerFactory(CreateLoggerFactory());
-    }
+    public IQueryable<MediaAsset> MediaAssetsQuery => MediaAssets.AsQueryable().AsNoTracking();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -28,10 +22,5 @@ public class FileServiceDbContext : DbContext
         modelBuilder.Ignore<StorageKey>();
 
         modelBuilder.ApplyConfigurationsFromAssembly(typeof(FileServiceDbContext).Assembly);
-    }
-
-    private static ILoggerFactory CreateLoggerFactory()
-    {
-        return LoggerFactory.Create(builder => builder.AddConsole());
     }
 }

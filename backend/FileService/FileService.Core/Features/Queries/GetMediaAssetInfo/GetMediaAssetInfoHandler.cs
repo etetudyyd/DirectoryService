@@ -2,13 +2,13 @@
 using CSharpFunctionalExtensions;
 using DirectoryService.Assets;
 using DirectoryService.FilesStorage;
-using DirectoryService.Responses;
-using FluentValidation;
+using DirectoryService.Models;
 using Framework.Endpoints;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.Extensions.Logging;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Extensions;
 using Shared.SharedKernel;
 
 namespace DirectoryService.Features.Queries.GetMediaAssetInfo;
@@ -17,7 +17,7 @@ public class GetMediaAssetInfoEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapGet("/files/download/{mediaAssetId:guid}", async Task<EndpointResult<GetMediaAssetInfoResponse>>(
+        app.MapGet("/files/{mediaAssetId:guid}", async Task<EndpointResult<MediaAssetInfoDto?>>(
             [FromRoute] Guid mediaAssetId,
             [FromServices] GetMediaAssetInfoHandler handler,
             CancellationToken cancellationToken) =>
@@ -28,48 +28,54 @@ public class GetMediaAssetInfoEndpoint : IEndpoint
     }
 }
 
-public class GetMediaAssetInfoHandler : IQueryHandler<GetMediaAssetInfoResponse, GetMediaAssetInfoHandlerQuery>
+public class GetMediaAssetInfoHandler : IQueryHandler<MediaAssetInfoDto?, GetMediaAssetInfoHandlerQuery>
 {
     private readonly IS3Provider _s3Provider;
-    private readonly IValidator<GetMediaAssetInfoHandlerQuery> _validator;
-    private readonly ILogger<GetMediaAssetInfoHandler> _logger;
-    private readonly IMediaAssetsRepository _mediaAssetRepository;
+    private readonly IReadDbContext _readDbContext;
 
     public GetMediaAssetInfoHandler(
         IS3Provider s3Provider,
-        IValidator<GetMediaAssetInfoHandlerQuery> validator,
-        ILogger<GetMediaAssetInfoHandler> logger,
-        IMediaAssetsRepository mediaAssetsRepository)
+        IReadDbContext readDbContext)
     {
         _s3Provider = s3Provider;
-        _validator = validator;
-        _logger = logger;
-        _mediaAssetRepository = mediaAssetsRepository;
+        _readDbContext = readDbContext;
     }
 
-    public async Task<Result<GetMediaAssetInfoResponse, Errors>> Handle(
+    public async Task<Result<MediaAssetInfoDto?, Errors>> Handle(
         GetMediaAssetInfoHandlerQuery query,
         CancellationToken cancellationToken)
     {
-        (_, bool isFailure, MediaAsset? mediaAsset, Error? error) = await _mediaAssetRepository
-            .GetBy(m => m.Id == query.MediaAssetId && m.Status != MediaStatus.DELETED, cancellationToken);
+        var mediaAsset = await _readDbContext.MediaAssetsQuery
+            .FirstOrDefaultAsync(
+                m => m.Id == query.MediaAssetId
+                            && m.Status != MediaStatus.DELETED, cancellationToken);
 
-        if (isFailure)
+        if (mediaAsset == null)
         {
-            _logger.LogInformation("Can`t find the media asset {mediaAssetId}", query.MediaAssetId);
-            return error.ToErrors();
+            return Result.Success<MediaAssetInfoDto?, Errors>(null);
         }
+
+        string? url = null;
 
         if (mediaAsset.Status is MediaStatus.READY)
         {
-            var generateResult = await _s3Provider.GenerateDownloadUrlAsync(mediaAsset.RawKey);
-            if (generateResult.IsFailure)
-            {
-                _logger.LogInformation("Can`t generate the download url {downloadUrl}", generateResult.Value);
-                return generateResult.Error.ToErrors();
-            }
+            (_, bool isFailure, MediaUrl? presignedUrl, Error? error) = await _s3Provider.GenerateDownloadUrlAsync(mediaAsset.RawKey);
+            if (isFailure)
+                return error.ToErrors();
+
+            url = presignedUrl.PresignedUrl;
         }
 
-        return new GetMediaAssetInfoResponse(query.MediaAssetId);
+        return new MediaAssetInfoDto(
+            query.MediaAssetId,
+            mediaAsset.Status.GetDisplayName(),
+            mediaAsset.AssetType.GetDisplayName(),
+            mediaAsset.CreatedAt,
+            mediaAsset.UpdatedAt,
+            new FileInfoDto(
+                mediaAsset.MediaData.FileName.Name,
+                mediaAsset.MediaData.ContentType.Value,
+                mediaAsset.MediaData.Size),
+            url);
     }
 }

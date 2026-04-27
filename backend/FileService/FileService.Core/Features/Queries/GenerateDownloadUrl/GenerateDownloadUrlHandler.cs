@@ -69,6 +69,6 @@ public class GenerateDownloadUrlHandler : IQueryHandler<string, GenerateDownload
 
         _logger.LogInformation("Download file url was generated with id:{key}", key);
 
-        return downloadResult.Value;
+        return downloadResult.Value.PresignedUrl;
     }
 }
