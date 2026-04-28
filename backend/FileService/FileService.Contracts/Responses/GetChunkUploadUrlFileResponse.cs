@@ -1,5 +1,5 @@
 ﻿namespace DirectoryService.Responses;
 
 public record GetChunkUploadUrlFileResponse(
-    string UploadId,
+    string UploadUrl,
     int PartNumber);

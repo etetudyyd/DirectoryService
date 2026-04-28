@@ -2,6 +2,7 @@
 using Amazon.S3.Model;
 using CSharpFunctionalExtensions;
 using DirectoryService.FilesStorage;
+using DirectoryService.Models;
 using DirectoryService.VOs;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
@@ -114,7 +115,7 @@ public class S3Provider : IS3Provider
         }
     }
 
-    public async Task<Result<string, Error>> GenerateDownloadUrlAsync(StorageKey key)
+    public async Task<Result<MediaUrl, Error>> GenerateDownloadUrlAsync(StorageKey key)
     {
         var request = new GetPreSignedUrlRequest
         {
@@ -128,7 +129,7 @@ public class S3Provider : IS3Provider
         try
         {
              string? response = await _s3Client.GetPreSignedURLAsync(request);
-             return response;
+             return new MediaUrl(key, response);
         }
         catch (Exception ex)
         {
@@ -137,9 +138,9 @@ public class S3Provider : IS3Provider
         }
     }
 
-    public async Task<Result<IReadOnlyList<string>, Errors>> GenerateDownloadUrlsAsync(IEnumerable<StorageKey> keys)
+    public async Task<Result<IReadOnlyList<MediaUrl>, Errors>> GenerateDownloadUrlsAsync(IEnumerable<StorageKey> keys)
     {
-            IEnumerable<Task<Result<string, Error>>> tasks = keys
+            IEnumerable<Task<Result<MediaUrl, Error>>> tasks = keys
                 .Select(async key =>
                 {
                     await _requestsSemaphore.WaitAsync();
@@ -154,7 +155,7 @@ public class S3Provider : IS3Provider
                     }
                 });
 
-            Result<string, Error>[] downloadUrlsResult = await Task.WhenAll(tasks);
+            Result<MediaUrl, Error>[] downloadUrlsResult = await Task.WhenAll(tasks);
 
             Error[] errors = downloadUrlsResult
                 .Where(res => res.IsFailure)
@@ -208,9 +209,11 @@ public class S3Provider : IS3Provider
                 Protocol = _s3Options.WithSsl ? Protocol.HTTPS : Protocol.HTTP,
             };
 
-            await _s3Client.GetPreSignedURLAsync(request);
+            string? response = await _s3Client.GetPreSignedURLAsync(request);
+            if (response == null)
+                return GeneralErrors.General.ValueIsInvalid();
 
-            return request.UploadId;
+            return response;
         }
         catch (Exception ex)
         {
@@ -297,6 +300,7 @@ public class S3Provider : IS3Provider
             return S3ErrorMapper.ToError(ex);
         }
     }
+
 
     public async Task<UnitResult<Error>> AbortMultipartUploadAsync(StorageKey key, string uploadId,
         CancellationToken cancellationToken)

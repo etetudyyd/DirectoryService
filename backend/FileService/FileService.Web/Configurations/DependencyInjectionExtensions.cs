@@ -1,5 +1,4 @@
 ﻿using DirectoryService;
-using DirectoryService.Repositories;
 using Framework.Endpoints;
 using Framework.Logging;
 using Framework.Swagger;
@@ -19,16 +18,6 @@ public static class DependencyInjectionExtensions
 
         services
             .AddCore(configuration);
-
-        return services;
-    }
-
-    private static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.AddScoped<FileServiceDbContext>(_ =>
-            new FileServiceDbContext(configuration.GetConnectionString("DefaultConnection")!));
-
-        services.AddScoped<IMediaAssetsRepository, MediaAssetsRepository>();
 
         return services;
     }

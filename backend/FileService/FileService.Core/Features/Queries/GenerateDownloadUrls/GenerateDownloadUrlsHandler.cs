@@ -54,7 +54,7 @@ public class GenerateDownloadUrlsHandler : IQueryHandler<string[], GenerateDownl
             return validatorResult.ToErrors();
         }
 
-        List<StorageKey> storageKeys = new();
+        List<StorageKey> storageKeys = [];
 
         foreach (string path in query.Paths)
         {
@@ -73,8 +73,10 @@ public class GenerateDownloadUrlsHandler : IQueryHandler<string[], GenerateDownl
             return downloadResult.Error;
         }
 
+        string[] urls = downloadResult.Value.Select(m => m.PresignedUrl).ToArray();
+
         _logger.LogInformation("Download file urls was generated with ids:{downloadResult.Value}", string.Join(", ", downloadResult.Value));
 
-        return downloadResult.Value.ToArray();
+        return urls;
     }
 }
