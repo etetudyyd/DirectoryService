@@ -51,7 +51,7 @@ public class GetMediaAssetsInfoHandler : IQueryHandler<GetMediaAssetsInfoRespons
         if (!query.Request.MediaAssetIds.Any())
             return new GetMediaAssetsInfoResponse([]);
 
-        List<MediaAsset> mediaAssets = await _readDbContext.MediaAssetsQuery
+        List<MediaAsset> mediaAssets = await _readDbContext.MediaAssetsRead
             .Where(m => query.Request.MediaAssetIds.Contains(m.Id)
                         && m.Status != MediaStatus.DELETED)
                             .ToListAsync(cancellationToken);

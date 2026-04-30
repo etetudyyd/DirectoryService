@@ -45,7 +45,7 @@ public class GetMediaAssetInfoHandler : IQueryHandler<MediaAssetInfoDto?, GetMed
         GetMediaAssetInfoHandlerQuery query,
         CancellationToken cancellationToken)
     {
-        var mediaAsset = await _readDbContext.MediaAssetsQuery
+        var mediaAsset = await _readDbContext.MediaAssetsRead
             .FirstOrDefaultAsync(
                 m => m.Id == query.MediaAssetId
                             && m.Status != MediaStatus.DELETED, cancellationToken);

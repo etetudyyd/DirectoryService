@@ -1,4 +1,5 @@
 ﻿using DirectoryService.Repositories;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -8,17 +9,44 @@ namespace DirectoryService;
 
 public static class DependencyInjectionPostgresExtensions
 {
-    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructurePostgres(this IServiceCollection services, IConfiguration configuration)
     {
-        services.AddDbContextPool<FileServiceDbContext>(options =>
-            options.UseNpgsql(configuration.GetConnectionString("DefaultConnection"))
-                .UseLoggerFactory(LoggerFactory.Create(b => b.AddConsole())));
+       services.AddScoped<IMediaAssetsRepository, MediaAssetsRepository>();
 
-        services.AddScoped<IReadDbContext>(sp =>
-            sp.GetRequiredService<FileServiceDbContext>());
+       services.AddDbContextPool<FileServiceDbContext>((sp, options) =>
+       {
+           string? connectionString = configuration.GetConnectionString(Constants.DATABASE);
+           IHostingEnvironment env = sp.GetRequiredService<IHostingEnvironment>();
+           ILoggerFactory loggerFactory = sp.GetRequiredService<ILoggerFactory>();
 
-        services.AddScoped<IMediaAssetsRepository, MediaAssetsRepository>();
+           options.UseNpgsql(connectionString);
 
-        return services;
+           if (env.IsDevelopment())
+           {
+               options.EnableSensitiveDataLogging();
+               options.EnableDetailedErrors();
+           }
+
+           options.UseLoggerFactory(loggerFactory);
+       });
+
+       services.AddDbContextPool<IReadDbContext, FileServiceDbContext>((sp, options) =>
+       {
+           string? connectionString = configuration.GetConnectionString(Constants.DATABASE);
+           IHostingEnvironment env = sp.GetRequiredService<IHostingEnvironment>();
+           ILoggerFactory loggerFactory = sp.GetRequiredService<ILoggerFactory>();
+
+           options.UseNpgsql(connectionString);
+
+           if (env.IsDevelopment())
+           {
+               options.EnableSensitiveDataLogging();
+               options.EnableDetailedErrors();
+           }
+
+           options.UseLoggerFactory(loggerFactory);
+       });
+
+       return services;
     }
 }
