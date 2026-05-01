@@ -55,9 +55,6 @@ public static class HttpResponseMessageExtensions
             if (envelope.ErrorList is not null)
                 return envelope.ErrorList;
 
-            if (envelope.Result is null)
-                return Error.Failure("test.error", "Unknown error").ToErrors();
-
             return UnitResult.Success<Errors>();
         }
         catch
