@@ -1,5 +1,6 @@
 using System.Data.Common;
 using Amazon.S3;
+using FileService;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -8,7 +9,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
-using Microsoft.VisualStudio.TestPlatform.TestHost;
 using Npgsql;
 using Respawn;
 using Testcontainers.Minio;
@@ -23,15 +23,15 @@ public class FileServiceTestsWebFactory : WebApplicationFactory<Program>, IAsync
 
     private readonly PostgreSqlContainer _dbContainer = new PostgreSqlBuilder()
         .WithImage("postgres")
-        .WithDatabase("file_service")
+        .WithDatabase("file_service_db_tests")
         .WithUsername("postgres")
         .WithPassword("postgres")
         .Build();
 
     private readonly MinioContainer _minioContainer = new MinioBuilder()
         .WithImage("minio/minio")
-        .WithUsername("minio")
-        .WithPassword("minio")
+        .WithUsername("minioadmin")
+        .WithPassword("minioadmin")
         .Build();
 
     public async Task InitializeAsync()
@@ -39,7 +39,7 @@ public class FileServiceTestsWebFactory : WebApplicationFactory<Program>, IAsync
         await _dbContainer.StartAsync();
         await _minioContainer.StartAsync();
 
-        await using var scope = Services.CreateAsyncScope();
+        await using AsyncServiceScope scope = Services.CreateAsyncScope();
         var dbContext = scope.ServiceProvider.GetRequiredService<FileServiceDbContext>();
 
         await dbContext.Database.EnsureDeletedAsync();

@@ -1,4 +1,5 @@
 ﻿using System.Net.Http.Json;
+using System.Text.Json;
 using CSharpFunctionalExtensions;
 using Shared.SharedKernel;
 
@@ -44,15 +45,16 @@ public static class HttpResponseMessageExtensions
         try
         {
             Envelope? envelope = await response.Content
-                .ReadFromJsonAsync<Envelope>(cancellationToken);
+                .ReadJsonSafeAsync<Envelope>(cancellationToken);
 
             if (!response.IsSuccessStatusCode)
-                return envelope?.ErrorList ?? Error.Failure("test.error", "Unknown error");
+            {
+                return envelope?.ErrorList
+                       ?? Error.Failure("test.error", "Unknown error")
+                           .ToErrors();
+            }
 
-            if(envelope is null)
-                return Error.Failure("test.error", "Unknown error").ToErrors();
-
-            if (envelope.ErrorList is not null)
+            if (envelope?.ErrorList is not null)
                 return envelope.ErrorList;
 
             return UnitResult.Success<Errors>();
@@ -64,5 +66,13 @@ public static class HttpResponseMessageExtensions
         }
     }
 
+    private static async Task<T?> ReadJsonSafeAsync<T>(this HttpContent content, CancellationToken cancellationToken)
+    {
+        string json = await content.ReadAsStringAsync(cancellationToken);
 
+        if (string.IsNullOrWhiteSpace(json))
+            return default;
+
+        return JsonSerializer.Deserialize<T>(json);
+    }
 }

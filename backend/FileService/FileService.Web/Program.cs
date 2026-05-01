@@ -40,4 +40,7 @@ finally
 
 }
 
-public partial class Program;
+namespace FileService
+{
+    public partial class Program { };
+}

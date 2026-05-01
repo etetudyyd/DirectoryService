@@ -1,4 +1,5 @@
 ﻿using System.Net.Http.Json;
+using Amazon.S3.Model;
 using CSharpFunctionalExtensions;
 using DirectoryService.Assets;
 using DirectoryService.HttpCommunication;
@@ -12,12 +13,9 @@ namespace DirectoryService.Features;
 
 public class MultipartUploadFileTests : FileServiceBaseClass
 {
-    private readonly FileServiceTestsWebFactory _factory;
-
     public MultipartUploadFileTests(FileServiceTestsWebFactory factory)
         : base(factory)
     {
-        _factory = factory;
     }
 
     [Fact]
@@ -26,7 +24,7 @@ public class MultipartUploadFileTests : FileServiceBaseClass
         // arrange
         CancellationToken cancellationToken = new CancellationTokenSource().Token;
 
-        FileInfo fileInfo = new(Path.Combine(AppContext.BaseDirectory, "Resources", "text-video.mp4"));
+        FileInfo fileInfo = new(Path.Combine(AppContext.BaseDirectory, "Resources", "test-video.mp4"));
 
         // act
         StartMultipartUploadFileResponse startMultipartUploadFileResponse = await StartMultipartUpload(fileInfo, cancellationToken);
@@ -44,6 +42,17 @@ public class MultipartUploadFileTests : FileServiceBaseClass
 
             Assert.Equal(MediaStatus.UPLOADED, mediaAsset?.Status);
             Assert.NotNull(mediaAsset);
+
+            await ExecuteInS3Client(async s3Client =>
+            {
+                var objectRequest = await s3Client.GetObjectAsync(
+                    mediaAsset.RawKey.Bucket,
+                    mediaAsset.RawKey.Key,
+                    cancellationToken);
+
+                Assert.Equal(mediaAsset.MediaData.Size, objectRequest.ContentLength);
+                Assert.Equal(mediaAsset.RawKey.Key, objectRequest.Key);
+            });
         });
 
     }
@@ -61,7 +70,8 @@ public class MultipartUploadFileTests : FileServiceBaseClass
         HttpResponseMessage completeMultipartResponseMessage = await AppHttpClient
             .PostAsJsonAsync("/api/files/multipart/complete", request, cancellationToken);
 
-        UnitResult<Errors> completeMultipartResponse = await completeMultipartResponseMessage.HandleResponseAsync(cancellationToken);
+        UnitResult<Errors> completeMultipartResponse = await completeMultipartResponseMessage
+            .HandleResponseAsync(cancellationToken);
 
         return completeMultipartResponse;
     }
@@ -102,7 +112,9 @@ public class MultipartUploadFileTests : FileServiceBaseClass
             fileInfo.Name,
             "video",
             "video/mp4",
-            fileInfo.Length);
+            fileInfo.Length,
+            "department",
+            Guid.NewGuid());
 
         HttpResponseMessage startMultipartResponseMessage = await AppHttpClient
             .PostAsJsonAsync("/api/files/multipart/start", request, cancellationToken);

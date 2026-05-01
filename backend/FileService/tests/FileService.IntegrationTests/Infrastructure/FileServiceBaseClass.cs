@@ -1,3 +1,5 @@
+using Amazon.S3;
+using DirectoryService.FilesStorage;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DirectoryService.Infrastructure;
@@ -6,7 +8,7 @@ public class FileServiceBaseClass : IClassFixture<FileServiceTestsWebFactory>, I
 {
     private readonly Func<Task> _resetDatabase;
 
-    protected IServiceProvider Services { get; init; }
+    private readonly IServiceProvider _serviceProvider;
 
     protected HttpClient AppHttpClient { get; init; }
 
@@ -16,35 +18,53 @@ public class FileServiceBaseClass : IClassFixture<FileServiceTestsWebFactory>, I
     {
         AppHttpClient = factory.CreateClient();
         HttpClient = new HttpClient();
-        Services = factory.Services;
+        _serviceProvider = factory.Services;
         _resetDatabase = factory.ResetDatabaseAsync;
     }
 
     public Task InitializeAsync() => Task.CompletedTask;
 
-    public async Task DisposeAsync() => await _resetDatabase();
-
-    protected async Task<T> ExecuteInDb<T>(Func<FileServiceDbContext, Task<T>> action)
+    public async Task DisposeAsync()
     {
-        using var scope = Services.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<FileServiceDbContext>();
-        return await action(dbContext);
+        await _resetDatabase();
+        AppHttpClient.Dispose();
+        HttpClient.Dispose();
     }
 
-    protected async Task ExecuteInDb(Func<FileServiceDbContext, Task> action)
+    private async Task<TResult> Execute<TResult, TService>(Func<TService, Task<TResult>> action)
+        where TService : notnull
     {
-        using var scope = Services.CreateScope();
-        var dbContext = scope.ServiceProvider.GetRequiredService<FileServiceDbContext>();
-        await action(dbContext);
+        await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+        TService handler = scope.ServiceProvider.GetRequiredService<TService>();
+        return await action(handler);
+    }
+
+    private async Task Execute<TService>(Func<TService, Task> action)
+        where TService : notnull
+    {
+        await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+        TService handler = scope.ServiceProvider.GetRequiredService<TService>();
+        await action(handler);
     }
 
     protected async Task<T> ExecuteHandler<TCommand, T>(Func<TCommand, Task<T>> action)
         where TCommand : notnull
     {
-        using var scope = Services.CreateScope();
-
-        var sut = scope.ServiceProvider.GetRequiredService<TCommand>();
-
+        await using AsyncServiceScope scope = _serviceProvider.CreateAsyncScope();
+        TCommand sut = scope.ServiceProvider.GetRequiredService<TCommand>();
         return await action(sut);
     }
+
+    protected async Task<T> ExecuteInDb<T>(Func<FileServiceDbContext, Task<T>> action) => await Execute(action);
+
+    protected async Task ExecuteInDb(Func<FileServiceDbContext, Task> action) => await Execute(action);
+
+    protected async Task<T> ExecuteInS3Client<T>(Func<IAmazonS3, Task<T>> action) => await Execute(action);
+
+    protected async Task ExecuteInS3Client(Func<IAmazonS3, Task> action) => await Execute(action);
+
+    protected async Task<T> ExecuteInS3Provider<T>(Func<IS3Provider, Task<T>> action) => await Execute(action);
+
+    protected async Task ExecuteInS3Provider(Func<IS3Provider, Task> action) => await Execute(action);
+
 }
