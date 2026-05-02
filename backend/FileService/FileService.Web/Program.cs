@@ -39,3 +39,8 @@ finally
     Log.CloseAndFlush();
 
 }
+
+namespace FileService
+{
+    public partial class Program { };
+}

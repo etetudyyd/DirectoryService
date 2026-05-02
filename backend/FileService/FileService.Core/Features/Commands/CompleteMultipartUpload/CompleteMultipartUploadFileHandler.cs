@@ -18,7 +18,7 @@ public class CompleteMultipartUploadFileEndpoint : IEndpoint
 {
     public void MapEndpoint(IEndpointRouteBuilder app)
     {
-        app.MapPost("/files/multipart/complete", async Task<EndpointResult<Guid>>(
+        app.MapPost("/files/multipart/complete", async Task<EndpointResult>(
             [FromBody] CompleteMultipartUploadFileRequest request,
             [FromServices] CompleteMultipartUploadFileHandler handler,
             CancellationToken cancellationToken) =>
@@ -29,7 +29,7 @@ public class CompleteMultipartUploadFileEndpoint : IEndpoint
     }
 }
 
-public class CompleteMultipartUploadFileHandler : ICommandHandler<Guid, CompleteMultipartUploadFileCommand>
+public class CompleteMultipartUploadFileHandler : ICommandHandler<CompleteMultipartUploadFileCommand>
 {
     private readonly IMediaAssetsRepository _mediaAssetRepository;
     private readonly IS3Provider _s3Provider;
@@ -48,7 +48,7 @@ public class CompleteMultipartUploadFileHandler : ICommandHandler<Guid, Complete
         _validator = validator;
     }
 
-    public async Task<Result<Guid, Errors>> Handle(
+    public async Task<UnitResult<Errors>> Handle(
         CompleteMultipartUploadFileCommand command,
         CancellationToken cancellationToken)
     {
@@ -93,6 +93,6 @@ public class CompleteMultipartUploadFileHandler : ICommandHandler<Guid, Complete
 
         _logger.LogInformation("Completed uploading the media asset {mediaAssetId}", request.MediaAssetId);
 
-        return mediaAsset.Id;
+        return UnitResult.Success<Errors>();
     }
 }
