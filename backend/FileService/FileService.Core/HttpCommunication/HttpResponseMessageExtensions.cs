@@ -10,7 +10,6 @@ public static class HttpResponseMessageExtensions
     public static async Task<Result<TResponse, Errors>> HandleResponseAsync<TResponse>(
         this HttpResponseMessage response,
         CancellationToken cancellationToken = default)
-        where TResponse : class
     {
         try
         {
