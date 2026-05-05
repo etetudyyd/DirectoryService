@@ -2,6 +2,7 @@
 using Amazon.S3.Model;
 using CSharpFunctionalExtensions;
 using DirectoryService.Assets;
+using DirectoryService.Dtos;
 using DirectoryService.HttpCommunication;
 using DirectoryService.Infrastructure;
 using DirectoryService.Requests;
@@ -25,7 +26,7 @@ public class MultipartUploadFileTests : FileServiceBaseClass
 
         CancellationToken cancellationToken = new CancellationTokenSource().Token;
 
-        FileInfo fileInfo = new(Path.Combine(AppContext.BaseDirectory, "Resources", "test-video.mp4"));
+        FileInfo fileInfo = new(Path.Combine(AppContext.BaseDirectory, "Resources", Constants.TESTFILE_VIDEO));
 
         // act
         StartMultipartUploadFileResponse startMultipartUploadFileResponse = await StartMultipartUpload(fileInfo, cancellationToken);
@@ -53,7 +54,7 @@ public class MultipartUploadFileTests : FileServiceBaseClass
 
         CancellationToken cancellationToken = new CancellationTokenSource().Token;
 
-        FileInfo fileInfo = new(Path.Combine(AppContext.BaseDirectory, "Resources", "test-video.mp4"));
+        FileInfo fileInfo = new(Path.Combine(AppContext.BaseDirectory, "Resources", Constants.TESTFILE_VIDEO));
 
         // act
         StartMultipartUploadFileResponse startMultipartUploadFileResponse = await StartMultipartUpload(fileInfo, cancellationToken);
@@ -79,7 +80,7 @@ public class MultipartUploadFileTests : FileServiceBaseClass
         // arrange
         CancellationToken cancellationToken = new CancellationTokenSource().Token;
 
-        FileInfo fileInfo = new(Path.Combine(AppContext.BaseDirectory, "Resources", "test-video.mp4"));
+        FileInfo fileInfo = new(Path.Combine(AppContext.BaseDirectory, "Resources", Constants.TESTFILE_VIDEO));
 
         // act
         StartMultipartUploadFileResponse startMultipartUploadFileResponse = await StartMultipartUpload(fileInfo, cancellationToken);
@@ -116,7 +117,7 @@ public class MultipartUploadFileTests : FileServiceBaseClass
     {
         CancellationToken cancellationToken = new CancellationTokenSource().Token;
 
-        FileInfo fileInfo = new(Path.Combine(AppContext.BaseDirectory, "Resources", "test-video.mp4"));
+        FileInfo fileInfo = new(Path.Combine(AppContext.BaseDirectory, "Resources", Constants.TESTFILE_VIDEO));
 
         // act
         StartMultipartUploadFileResponse startMultipartUploadFileResponse = await StartMultipartUpload(fileInfo, cancellationToken);
@@ -142,7 +143,7 @@ public class MultipartUploadFileTests : FileServiceBaseClass
     {
         CancellationToken cancellationToken = new CancellationTokenSource().Token;
 
-        FileInfo fileInfo = new(Path.Combine(AppContext.BaseDirectory, "Resources", "test-video.mp4"));
+        FileInfo fileInfo = new(Path.Combine(AppContext.BaseDirectory, "Resources", Constants.TESTFILE_VIDEO));
 
         // act
         StartMultipartUploadFileResponse startMultipartUploadFileResponse = await StartMultipartUpload(fileInfo, cancellationToken);

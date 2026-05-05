@@ -1,6 +1,7 @@
 ﻿using Amazon.S3;
 using Amazon.S3.Model;
 using CSharpFunctionalExtensions;
+using DirectoryService.Dtos;
 using DirectoryService.FilesStorage;
 using DirectoryService.Models;
 using DirectoryService.VOs;
@@ -115,7 +116,7 @@ public class S3Provider : IS3Provider
         }
     }
 
-    public async Task<Result<MediaUrl, Error>> GenerateDownloadUrlAsync(StorageKey key)
+    public async Task<Result<MediaUrl, Error>> GetDownloadUrlAsync(StorageKey key)
     {
         var request = new GetPreSignedUrlRequest
         {
@@ -138,7 +139,7 @@ public class S3Provider : IS3Provider
         }
     }
 
-    public async Task<Result<IReadOnlyList<MediaUrl>, Errors>> GenerateDownloadUrlsAsync(IEnumerable<StorageKey> keys)
+    public async Task<Result<IReadOnlyList<MediaUrl>, Errors>> GetDownloadUrlsAsync(IEnumerable<StorageKey> keys)
     {
             IEnumerable<Task<Result<MediaUrl, Error>>> tasks = keys
                 .Select(async key =>
@@ -147,7 +148,7 @@ public class S3Provider : IS3Provider
 
                     try
                     {
-                      return await GenerateDownloadUrlAsync(key);
+                      return await GetDownloadUrlAsync(key);
                     }
                     finally
                     {

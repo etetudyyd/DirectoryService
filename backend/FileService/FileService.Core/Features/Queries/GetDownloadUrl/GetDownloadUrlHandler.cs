@@ -11,7 +11,7 @@ using Microsoft.AspNetCore.Routing;
 using Microsoft.Extensions.Logging;
 using Shared.SharedKernel;
 
-namespace DirectoryService.Features.Queries.GenerateDownloadUrl;
+namespace DirectoryService.Features.Queries.GetDownloadUrl;
 
 public class GenerateDownloadUrlEndpoint : IEndpoint
 {
@@ -19,32 +19,32 @@ public class GenerateDownloadUrlEndpoint : IEndpoint
     {
         app.MapGet("/files/download/url/{*path}", async Task<EndpointResult<string>>(
             [FromRoute] string path,
-            [FromServices] GenerateDownloadUrlHandler handler,
+            [FromServices] GetDownloadUrlHandler handler,
             CancellationToken cancellationToken) =>
         {
-            var query = new GenerateDownloadUrlQuery(path);
+            var query = new GetDownloadUrlQuery(path);
             return await handler.Handle(query, cancellationToken);
         }).DisableAntiforgery();
     }
 }
 
-public class GenerateDownloadUrlHandler : IQueryHandler<string, GenerateDownloadUrlQuery>
+public class GetDownloadUrlHandler : IQueryHandler<string, GetDownloadUrlQuery>
 {
     private readonly IS3Provider _s3Provider;
-    private readonly IValidator<GenerateDownloadUrlQuery> _validator;
-    private readonly ILogger<GenerateDownloadUrlHandler> _logger;
+    private readonly IValidator<GetDownloadUrlQuery> _validator;
+    private readonly ILogger<GetDownloadUrlHandler> _logger;
 
-    public GenerateDownloadUrlHandler(
+    public GetDownloadUrlHandler(
         IS3Provider s3Provider,
-        ILogger<GenerateDownloadUrlHandler> logger,
-        IValidator<GenerateDownloadUrlQuery> validator)
+        ILogger<GetDownloadUrlHandler> logger,
+        IValidator<GetDownloadUrlQuery> validator)
     {
         _s3Provider = s3Provider;
         _logger = logger;
         _validator = validator;
     }
 
-    public async Task<Result<string, Errors>> Handle(GenerateDownloadUrlQuery query, CancellationToken cancellationToken)
+    public async Task<Result<string, Errors>> Handle(GetDownloadUrlQuery query, CancellationToken cancellationToken)
     {
         var validatorResult = await _validator.ValidateAsync(query, cancellationToken);
         if (!validatorResult.IsValid)
@@ -59,7 +59,7 @@ public class GenerateDownloadUrlHandler : IQueryHandler<string, GenerateDownload
 
         var storageKey = StorageKey.Create(bucket, prefix, key).Value;
 
-        var downloadResult = await _s3Provider.GenerateDownloadUrlAsync(storageKey);
+        var downloadResult = await _s3Provider.GetDownloadUrlAsync(storageKey);
 
         if (downloadResult.IsFailure)
         {

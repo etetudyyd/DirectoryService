@@ -59,16 +59,16 @@ public abstract class MediaAsset
         return UnitResult.Success<Error>();
     }
 
-    public UnitResult<Error> MarkReady(StorageKey finalyKey, DateTime timestamp)
+    public UnitResult<Error> MarkReady(StorageKey finalKey, DateTime timestamp)
     {
-        if (Status is not MediaStatus.UPLOADING)
+        if (Status is not MediaStatus.UPLOADED)
         {
             return GeneralErrors.General.ValueIsInvalid(nameof(Status));
         }
 
         Status = MediaStatus.READY;
         UpdatedAt = timestamp;
-        FinalKey = finalyKey;
+        FinalKey = finalKey;
 
         return UnitResult.Success<Error>();
 

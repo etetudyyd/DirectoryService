@@ -1,6 +1,7 @@
 ﻿using Core.Abstractions;
 using CSharpFunctionalExtensions;
 using DirectoryService.Assets;
+using DirectoryService.Dtos;
 using DirectoryService.FilesStorage;
 using DirectoryService.Models;
 using Framework.Endpoints;
@@ -59,7 +60,7 @@ public class GetMediaAssetInfoHandler : IQueryHandler<MediaAssetInfoDto?, GetMed
 
         if (mediaAsset.Status is MediaStatus.READY)
         {
-            (_, bool isFailure, MediaUrl? presignedUrl, Error? error) = await _s3Provider.GenerateDownloadUrlAsync(mediaAsset.RawKey);
+            (_, bool isFailure, MediaUrl? presignedUrl, Error? error) = await _s3Provider.GetDownloadUrlAsync(mediaAsset.RawKey);
             if (isFailure)
                 return error.ToErrors();
 

@@ -1,4 +1,6 @@
-﻿namespace DirectoryService.Responses;
+﻿using DirectoryService.Dtos;
+
+namespace DirectoryService.Responses;
 
 public record StartMultipartUploadFileResponse(
     Guid MediaAssetId,

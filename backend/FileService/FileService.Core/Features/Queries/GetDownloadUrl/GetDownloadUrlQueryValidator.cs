@@ -4,11 +4,11 @@ using DirectoryService.VOs;
 using FluentValidation;
 using Shared.SharedKernel;
 
-namespace DirectoryService.Features.Queries.GenerateDownloadUrl;
+namespace DirectoryService.Features.Queries.GetDownloadUrl;
 
-public class GenerateDownloadUrlQueryValidator : AbstractValidator<GenerateDownloadUrlQuery>
+public class GetDownloadUrlQueryValidator : AbstractValidator<GetDownloadUrlQuery>
 {
-    public GenerateDownloadUrlQueryValidator()
+    public GetDownloadUrlQueryValidator()
     {
         RuleFor(x => x.Path)
             .NotEmpty()

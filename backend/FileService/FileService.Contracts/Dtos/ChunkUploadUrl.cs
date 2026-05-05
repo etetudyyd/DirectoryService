@@ -1,4 +1,4 @@
-﻿namespace DirectoryService;
+﻿namespace DirectoryService.Dtos;
 
 public record ChunkUploadUrl(
     int PartNumber,
