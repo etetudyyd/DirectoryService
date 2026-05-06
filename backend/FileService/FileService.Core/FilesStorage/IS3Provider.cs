@@ -1,4 +1,5 @@
 ﻿using CSharpFunctionalExtensions;
+using DirectoryService.Dtos;
 using DirectoryService.Models;
 using DirectoryService.Responses;
 using DirectoryService.VOs;
@@ -16,9 +17,9 @@ public interface IS3Provider
 
     Task<Result<string, Error>> GenerateUploadUrlAsync(StorageKey key, MediaData mediaData);
 
-    Task<Result<MediaUrl, Error>> GenerateDownloadUrlAsync(StorageKey key);
+    Task<Result<MediaUrl, Error>> GetDownloadUrlAsync(StorageKey key);
 
-    Task<Result<IReadOnlyList<MediaUrl>, Errors>> GenerateDownloadUrlsAsync(IEnumerable<StorageKey> keys);
+    Task<Result<IReadOnlyList<MediaUrl>, Errors>> GetDownloadUrlsAsync(IEnumerable<StorageKey> keys);
 
     Task<Result<string, Error>> StartMultipartUploadAsync(StorageKey key, MediaData mediaData, CancellationToken cancellationToken);
 

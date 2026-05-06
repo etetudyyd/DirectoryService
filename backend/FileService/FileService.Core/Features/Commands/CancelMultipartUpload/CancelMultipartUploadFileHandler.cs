@@ -70,12 +70,12 @@ public class CancelMultipartUploadFileHandler : ICommandHandler<CancelMultipartU
             return error.ToErrors();
         }
 
-        var abortUploadResult = await _s3Provider
+        var cancelUploadResult = await _s3Provider
             .AbortMultipartUploadAsync(mediaAsset.RawKey, request.UploadId, cancellationToken);
-        if (abortUploadResult.IsFailure)
+        if (cancelUploadResult.IsFailure)
         {
-            _logger.LogInformation("Can`t abort uploading the media asset {mediaAssetId}", mediaAsset.Id);
-            return abortUploadResult.Error.ToErrors();
+            _logger.LogInformation("Can`t cancel uploading the media asset {mediaAssetId}", mediaAsset.Id);
+            return cancelUploadResult.Error.ToErrors();
         }
 
         var deleteMediaAssetResult = await _mediaAssetRepository

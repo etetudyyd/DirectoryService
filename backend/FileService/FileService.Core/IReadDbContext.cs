@@ -4,6 +4,6 @@ namespace DirectoryService;
 
 public interface IReadDbContext
 {
-    IQueryable<MediaAsset> MediaAssetsQuery { get; }
+    IQueryable<MediaAsset> MediaAssetsRead { get; }
 
 }

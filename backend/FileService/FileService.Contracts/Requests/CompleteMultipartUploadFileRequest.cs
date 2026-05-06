@@ -1,4 +1,6 @@
-﻿namespace DirectoryService.Requests;
+﻿using DirectoryService.Dtos;
+
+namespace DirectoryService.Requests;
 
 public record CompleteMultipartUploadFileRequest(
     Guid MediaAssetId,

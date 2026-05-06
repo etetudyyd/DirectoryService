@@ -13,7 +13,7 @@ public static class DependencyInjectionExtensions
             .AddSerilogLogging(configuration, "FileService")
             .AddOpenApiSpec("FileService", "v1")
             .AddEndpoints(typeof(DependencyInjectionCoreExtensions).Assembly)
-            .AddInfrastructureServices(configuration)
+            .AddInfrastructurePostgres(configuration)
             .AddS3(configuration);
 
         services

@@ -14,7 +14,8 @@ public class FileServiceDbContext : DbContext, IReadDbContext
 
     public DbSet<MediaAsset> MediaAssets => Set<MediaAsset>();
 
-    public IQueryable<MediaAsset> MediaAssetsQuery => MediaAssets.AsQueryable().AsNoTracking();
+    public IQueryable<MediaAsset> MediaAssetsRead => MediaAssets.AsQueryable().AsNoTracking();
+
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

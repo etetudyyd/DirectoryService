@@ -71,6 +71,12 @@ public class GetChunkUploadUrlFileHandler : ICommandHandler<GetChunkUploadUrlFil
             return error.ToErrors();
         }
 
+        if (request.PartNumber > mediaAsset.MediaData.ExpectedChunksCount)
+        {
+            _logger.LogInformation("Part number is out of bounds");
+            return GeneralErrors.General.ValueIsInvalid("Part number is out of bounds").ToErrors();
+        }
+
         var generateUrlResult = await _s3Provider
             .GenerateChunkUploadUrl(
                 mediaAsset.RawKey,

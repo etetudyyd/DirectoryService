@@ -5,6 +5,6 @@ namespace DirectoryService.FilesStorage;
 
 public interface IChunkSizeCalculator
 {
-    Result<(long ChunkSize, int TotalChunks), Error> Calculate(
+    Result<(int ChunkSize, int TotalChunks), Error> Calculate(
         long fileSize);
 }

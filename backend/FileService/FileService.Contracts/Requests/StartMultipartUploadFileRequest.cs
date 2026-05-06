@@ -6,4 +6,5 @@ public record StartMultipartUploadFileRequest(
     string ContentType,
     long Size,
     string Context,
-    Guid ContextId);
+    Guid ContextId
+   );
