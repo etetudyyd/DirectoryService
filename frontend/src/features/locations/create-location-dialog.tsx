@@ -13,7 +13,8 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useCreateLocation } from "./model/use-create-location";
-import { BuildingIcon, MapPinIcon, ClockIcon, UsersIcon, AlertCircleIcon, PlusIcon } from "lucide-react";
+import { BuildingIcon, MapPinIcon, ClockIcon, UsersIcon, AlertCircleIcon, PlusIcon, Building } from "lucide-react";
+import DepartmentItemSelector from "../../widgets/departments/department-item-selector";
 
 type Props = {
   open: boolean;
@@ -52,13 +53,15 @@ export function CreateLocationDialog({ open, onOpenChange }: Props) {
       apartment: "",
     },
     timeZone: "",
-    departmentsIds: [] as string[],
+    departmentsIds: [],
   };
 
   const {
     register,
     handleSubmit,
     reset,
+    setValue,
+    watch,
     formState: { errors, isValid },
   } = useForm<CreateLocationData>({
     defaultValues: initalData,
@@ -67,8 +70,22 @@ export function CreateLocationDialog({ open, onOpenChange }: Props) {
 
   const { createLocation, isPending, error, isError } = useCreateLocation();
 
+  const departmentsIds = watch("departmentsIds") || [];
+
+
+  const handleDepartmentsChange = (newDepartmentsIds: string[]) => {
+    setValue("departmentsIds", newDepartmentsIds, {
+      shouldValidate: true,
+      shouldDirty: true,
+    });
+  };
+
   const onSubmit = async (data: CreateLocationData) => {
-    createLocation(data, {
+    createLocation({ 
+      ...data,
+        departmentsIds: departmentsIds,
+      },
+      {
       onSuccess: () => {
         reset(initalData);
         onOpenChange(false);
@@ -118,11 +135,6 @@ export function CreateLocationDialog({ open, onOpenChange }: Props) {
 
           {/* Basic Information */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <BuildingIcon className="h-5 w-5 text-blue-400" />
-              <h3 className="text-lg font-semibold text-white">Basic Information</h3>
-            </div>
-            
             <div className="grid gap-4">
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-gray-300">
@@ -170,12 +182,7 @@ export function CreateLocationDialog({ open, onOpenChange }: Props) {
           </div>
 
           {/* Address Information */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <MapPinIcon className="h-5 w-5 text-green-400" />
-              <h3 className="text-lg font-semibold text-white">Address Details</h3>
-            </div>
-            
+          <div className="space-y-4">                       
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="region" className="text-gray-300 text-sm">
@@ -314,43 +321,23 @@ export function CreateLocationDialog({ open, onOpenChange }: Props) {
           </div>
 
           {/* Departments */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <UsersIcon className="h-5 w-5 text-purple-400" />
-              <h3 className="text-lg font-semibold text-white">Departments</h3>
-            </div>
-            
+          <div className="space-y-4">                       
             <div className="space-y-2">
-              <Label htmlFor="departmentsIds" className="text-gray-300">
-                Department IDs (comma-separated)
-              </Label>
-              <Input
-                id="departmentsIds"
-                type="text"
-                placeholder="e.g., dept-001, dept-002, dept-003 (optional)"
-                className={`bg-gray-900 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500/20 ${
-                  errors.departmentsIds ? "border-red-500 focus:border-red-500 focus:ring-red-500/20" : ""
-                }`}
-                {...register("departmentsIds", {
-                  setValueAs: (value) => {
-                    if (typeof value !== "string") return [];
-                    return value
-                      .split(",")
-                      .map((id) => id.trim())
-                      .filter(Boolean);
-                  },
-                })}
-              />
-              <p className="text-gray-500 text-sm">
-                Enter department IDs separated by commas. Leave empty if no departments assigned yet.
-              </p>
-              {errors.departmentsIds && (
-                <p className="text-red-400 text-sm flex items-center gap-1">
-                  <AlertCircleIcon className="h-4 w-4" />
-                  {errors.departmentsIds.message}
-                </p>
-              )}
-            </div>
+                <Label htmlFor="departmentsIds" className="text-gray-300">
+                    Departments
+                       </Label>
+                            <div className="relative group">
+                              <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10">
+                                <Building className="h-4 w-4 text-gray-400 group-hover:text-gray-300 transition-colors" />
+                              </div>
+                              <div className="pl-10">
+                                <DepartmentItemSelector
+                                  selectedItemsIds={departmentsIds}
+                                  onDepartmentChange={handleDepartmentsChange}
+                                />
+                              </div>
+                            </div>
+                          </div>               
           </div>
 
           {/* Footer */}

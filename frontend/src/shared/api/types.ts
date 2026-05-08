@@ -4,10 +4,9 @@ export type PaginationResponse<T> = {
   page: number;
   pageSize: number;
   totalPages: number;
-};
-
-export type DictionaryResponse = {
-  items: DictionaryItemResponse[];
+  parentId: string;
+  sortBy: string;
+  sortDirection: string;
 };
 
 export type DictionaryItemResponse = {

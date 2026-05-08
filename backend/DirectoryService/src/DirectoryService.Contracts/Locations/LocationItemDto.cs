@@ -1,16 +1,18 @@
-﻿namespace DirectoryService.Departments;
+﻿namespace DirectoryService.Locations;
 
-public record DepartmentItemDto
+public record LocationItemDto
 {
     public Guid Id { get; init; }
 
     public string Name { get; init; } = string.Empty;
 
-    public string Identifier { get; init; } = string.Empty;
+    public string TimeZone { get; init; } = string.Empty;
+
+    public required AddressDto Address { get; set; }
 
     public bool IsActive { get; init; }
 
-    public int LocationCount { get; set; }
+    public int DepartmentCount { get; set; }
 
     public DateTime CreatedAt { get; init; }
 

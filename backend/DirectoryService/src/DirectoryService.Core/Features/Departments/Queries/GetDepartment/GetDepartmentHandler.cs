@@ -1,6 +1,7 @@
 ﻿using Core.Abstractions;
 using CSharpFunctionalExtensions;
 using DirectoryService.Database;
+using DirectoryService.Departments;
 using DirectoryService.Departments.Responses;
 using DirectoryService.ValueObjects.Department;
 using Microsoft.EntityFrameworkCore;

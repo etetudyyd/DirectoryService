@@ -1,3 +1,7 @@
+import DepartmentsList from "@/features/departments/departments-list";
+
 export default function Departments() {
-    return <div>Departments Page</div>;
+    return(
+        <DepartmentsList />
+    );
 }

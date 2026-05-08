@@ -1,4 +1,4 @@
-﻿namespace DirectoryService.Departments.Responses;
+﻿namespace DirectoryService.Departments;
 
 public record DepartmentResponse
 {

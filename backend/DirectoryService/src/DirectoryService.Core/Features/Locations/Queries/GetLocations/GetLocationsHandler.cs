@@ -102,7 +102,7 @@ public class GetLocationsHandler : IQueryHandler<PaginationResponse<LocationDto>
                 return location;
             },
             param: parameters);
-    
+
     _logger.LogInformation("Found {totalItems} locations", totalItems);
 
     return new PaginationResponse<LocationDto>(

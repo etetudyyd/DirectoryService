@@ -1,70 +1,61 @@
 "use client";
 
-import { Position } from "@/entities/positions/types";
-import { useGetGlobalSearch } from "@/shared/stored/global-search-store";
-import { useGetPositionsFilter } from "./model/position-filters-store";
-import { usePositionsList } from "./model/use-positions-list";
-import { useCreatePosition } from "./model/use-create-position";
 import { Button } from "@/shared/components/ui/button";
-import { AlertCircleIcon, MapPinIcon, PlusIcon, Search, X } from "lucide-react";
-import { Spinner } from "@/shared/components/ui/spinner";
-import PositionCard from "../../widgets/positions/position-card";
-import { useState } from "react";
-import { CreatePositionDialog } from "./create-position-dialog";
-import { Input } from "@/shared/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/shared/components/ui/select";
+import { AlertCircleIcon, Filter, MapPinIcon, PlusIcon, Search, X } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
 import { Badge } from "@/shared/components/ui/badge";
-import DepartmentItemSelector from "../../widgets/departments/department-item-selector";
-import {
-  setFilterIsActive,
-  setFilterPositionsDepartmentIds,
-  setFilterSearch,
-} from "./model/position-filters-store";
-import { UpdatePositionDialog } from "./update-position-dialog";
+import { Spinner } from "@/shared/components/ui/spinner";
+import { useState } from "react";
+import { Department } from "@/entities/departments/types";
+import { useGetGlobalSearch } from "@/shared/stored/global-search-store";
+import { Input } from "@/shared/components/ui/input";
+import { setFilterDepartmentLocationsIds, setFilterIsActive, setFilterSearch, useGetDepartmentsFilter } from "./model/department-filters-store";
+import DepartmentCard from "@/widgets/departments/department-card";
+import { useDepartmentsList } from "./model/use-departments-list";
+import LocationItemSelector from "@/widgets/locations/locations-item-selector";
 
-export default function PositionsList() {
-  const { departmentsIds, search, isActive, pageSize } =
-    useGetPositionsFilter(); 
-  const globalSearch = useGetGlobalSearch();
-
-  const [createOpen, setCreateOpen] = useState(false);
-  const [updateOpen, setUpdateOpen] = useState(false);
-  const [selectedPosition, setSelectedPosition] = useState<Position | null>(
-    null,
-  );
+export default function DepartmentsList() {
+     const { locationsIds, search, isActive, pageSize } =
+        useGetDepartmentsFilter();
+      const globalSearch = useGetGlobalSearch();
+    
+      const [createOpen, setCreateOpen] = useState(false);
+      const [updateOpen, setUpdateOpen] = useState(false);
+      const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(
+        null,
+      );
+    
+  const [sortBy, setSortBy] = useState("path");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
 
   const {
-    positions = [],
+    departments = [],
     isPending,
     error,
     isError,
     cursorRef,
     isFetchingNextPage,
-  } = usePositionsList({
-    departmentsIds,
+  } = useDepartmentsList({
+    locationsIds,
     search: search == "" ? globalSearch.search : search,
     isActive,
     pageSize,
-  });
-
-  const { error: createError } = useCreatePosition();
-
-  return (
-    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    parentId: "",
+    sortBy,
+    sortDirection,
+      });
+    
+    //  const { error: createError } = useCreateDepartment();
+return(
+     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header Section */}
       <div className="flex flex-col lg:flex-row gap-6 lg:items-center lg:justify-between mb-8">
         <div className="space-y-2">
           <h1 className="text-3xl font-bold tracking-tight text-white">
-            Positions
+            Departments
           </h1>
           <p className="text-gray-400">
-            Manage all your positions in one place
+            Manage all your departments in one place
           </p>
         </div>
 
@@ -75,7 +66,7 @@ export default function PositionsList() {
           size="default"
         >
           <PlusIcon className="h-5 w-5 mr-2" />
-          Add Position
+          Add Department
         </Button>
       </div>
 
@@ -89,7 +80,7 @@ export default function PositionsList() {
                 <Input
                   value={search}
                   onChange={(e) => setFilterSearch(e.target.value)}
-                  placeholder="Search positions..."
+                  placeholder="Search departments..."
                   className="pl-9 h-11 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 w-full"
                 />
               </div>
@@ -99,9 +90,9 @@ export default function PositionsList() {
             <div className="flex flex-col sm:flex-row gap-3 sm:items-center shrink-0">
               {/* Departments Filter */}
               <div className="sm:w-68">
-                <DepartmentItemSelector
-                  selectedItemsIds={departmentsIds}
-                  onDepartmentChange={setFilterPositionsDepartmentIds}
+                <LocationItemSelector
+                  selectedItemsIds={locationsIds}
+                  onDepartmentChange={setFilterDepartmentLocationsIds}
                 />
               </div>
 
@@ -121,7 +112,7 @@ export default function PositionsList() {
                     else setFilterIsActive(false);
                   }}
                 >
-                  <SelectTrigger className="h-11 bg-gray-800 border-gray-700 text-white w-full">
+                  <SelectTrigger className="h-11 bg-gray-800 border-gray-700 text-white w-full flex items-center justify-between px-3">
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent className="bg-gray-900 border-gray-800">
@@ -137,11 +128,53 @@ export default function PositionsList() {
                   </SelectContent>
                 </Select>
               </div>
+
+              <div className="rounded-md p-2 mb-3 border border-gray-800">
+              
+              <div className="flex items-center gap-2">
+                {/* Sort By Filter */}
+                <div className="sm:w-24">
+                  <Select value={sortBy} onValueChange={setSortBy}>
+                    <SelectTrigger className="h-11 bg-gray-800 border-gray-700 text-white w-full flex items-center justify-between px-3">
+                      <SelectValue placeholder="Sort By" />                 
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-900 border-gray-800">
+                      <SelectItem value="path" className="hover:bg-gray-800">
+                        Path
+                      </SelectItem>
+                      <SelectItem value="name" className="hover:bg-gray-800">
+                        Name
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                {/* Sort Direction Filter */}
+                <div className="sm:w-12">
+                  <Select
+                    value={sortDirection}
+                    onValueChange={(value) => setSortDirection(value as "asc" | "desc")}
+                  >
+                    <SelectTrigger className="h-9 bg-gray-800 border-gray-700 text-white w-full flex items-center justify-between px-2">
+                      <SelectValue placeholder="Direction" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-gray-900 border-gray-800">
+                      <SelectItem value="asc" className="hover:bg-gray-800">
+                        ↑
+                      </SelectItem>
+                      <SelectItem value="desc" className="hover:bg-gray-800">
+                        ↓
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+</div>
+              </div>
             </div>
           </div>
 
           {/* Active Filters Badges */}
-          {(search || departmentsIds?.length || isActive !== undefined) && (
+          {(search || locationsIds?.length || isActive !== undefined) && (
             <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-gray-800">
               <span className="text-sm text-gray-400">Active filters:</span>
 
@@ -160,7 +193,7 @@ export default function PositionsList() {
                 </Badge>
               )}
 
-              {departmentsIds?.map((id) => (
+              {locationsIds?.map((id) => (
                 <Badge
                   key={id}
                   variant="secondary"
@@ -169,8 +202,8 @@ export default function PositionsList() {
                   Dept: {id.substring(0, 8)}...
                   <button
                     onClick={() => {
-                      const newIds = departmentsIds.filter((dId) => dId !== id);
-                      setFilterPositionsDepartmentIds(newIds);
+                      const newIds = locationsIds.filter((dId) => dId !== id);
+                      setFilterDepartmentLocationsIds(newIds);
                     }}
                     className="ml-1 hover:bg-gray-700 rounded-full p-0.5"
                   >
@@ -204,7 +237,7 @@ export default function PositionsList() {
             <AlertCircleIcon className="h-5 w-5 text-red-400 mr-3" />
             <div>
               <p className="text-red-300 font-medium">
-                Error loading positions
+                Error loading departments
               </p>
               <p className="text-red-400 text-sm mt-1">
                 {error?.message ??
@@ -215,41 +248,41 @@ export default function PositionsList() {
         </div>
       )}
 
-      {createError && (
+      {/*{createError && (
         <div className="mb-6 p-4 bg-red-900/20 border border-red-800 rounded-lg">
           <div className="flex items-center">
             <AlertCircleIcon className="h-5 w-5 text-red-400 mr-3" />
             <p className="text-red-300">{createError.message}</p>
           </div>
         </div>
-      )}
+      )}*/}
 
-      {/* Positions Grid */}
+       {/* Departments Grid */}
       <section className="mb-10">
         {isPending ? (
           <div className="flex flex-col justify-center items-center min-h-100">
             <Spinner className="h-12 w-12 text-blue-900 mb-4" />
             <p className="text-gray-400">Loading...</p>
           </div>
-        ) : positions.length === 0 && !isError ? (
+        ) : departments.length === 0 && !isError ? (
           <div className="flex flex-col items-center justify-center py-16 px-4 border-2 border-dashed border-gray-700 rounded-2xl bg-gray-900/50">
             <MapPinIcon className="h-16 w-16 text-gray-600 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-white mb-2">
-              No positions found
+              No departments found
             </h3>
             <p className="text-gray-400 mb-6 text-center max-w-md">
-              {search || departmentsIds?.length || isActive !== undefined
-                ? "No positions match your current filters. Try adjusting your search criteria."
-                : "Get started by adding your first position"}
+              {search || locationsIds?.length || isActive !== undefined
+                ? "No departments match your current filters. Try adjusting your search criteria."
+                : "Get started by adding your first department"}
             </p>
             <Button
               onClick={() => setCreateOpen(true)}
               className="bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
             >
               <PlusIcon className="h-5 w-5 mr-2" />
-              {search || departmentsIds?.length || isActive !== undefined
-                ? "Clear filters and add position"
-                : "Add First Position"}
+              {search || locationsIds?.length || isActive !== undefined
+                ? "Clear filters and add department"
+                : "Add First Department"}
             </Button>
           </div>
         ) : (
@@ -259,20 +292,20 @@ export default function PositionsList() {
               <div className="text-gray-400 text-sm">
                 Showing{" "}
                 <span className="text-white font-semibold">
-                  {positions.length}
+                  {departments.length}
                 </span>{" "}
-                position{positions.length !== 1 ? "s" : ""}
+                department{departments.length !== 1 ? "s" : ""}
               </div>
             </div>
 
             {/* Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-5 gap-6">
-              {positions.map((position) => (
-                <PositionCard
-                  key={position.id}
-                  position={position}
+              {departments.map((department) => (
+                <DepartmentCard
+                  key={department.id}
+                  department={department}
                   onEdit={() => {
-                    setSelectedPosition(position);
+                    setSelectedDepartment(department);
                     setUpdateOpen(true);
                   }}
                 />
@@ -283,16 +316,16 @@ export default function PositionsList() {
       </section>
 
       {/* Dialogs */}
-      <CreatePositionDialog open={createOpen} onOpenChange={setCreateOpen} />
+       {/*<CreateDepartmentDialog open={createOpen} onOpenChange={setCreateOpen} />*/}
 
-      {selectedPosition && (
-        <UpdatePositionDialog
-          key={selectedPosition.id}
-          position={selectedPosition}
+      {/*{selectedDepartment && (
+        <UpdateDepartmentDialog
+          key={selectedDepartment.id}
+          position={selectedDepartment}
           open={updateOpen}
           onOpenChange={setUpdateOpen}
         />
-      )}
+      )}*/}
       {/* Infinite Scroll Loader */}
       <div ref={cursorRef} className="py-6">
         {isFetchingNextPage && (
@@ -304,6 +337,6 @@ export default function PositionsList() {
           </div>
         )}
       </div>
-    </main>
-  );
+      </main>
+);
 }

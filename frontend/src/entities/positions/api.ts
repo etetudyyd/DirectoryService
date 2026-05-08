@@ -108,6 +108,7 @@ export const positionsQueryOptions = {
         positionsApi.getPositions({ page: page, pageSize: pageSize }),
     });
   },
+  
   getPositionsInfinityOptions: (filter: PositionsFilterState) => {
     return infiniteQueryOptions({
       queryKey: [positionsQueryOptions.baseKey, filter],

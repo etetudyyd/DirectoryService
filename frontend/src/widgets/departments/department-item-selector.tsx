@@ -2,33 +2,33 @@ import { DictionaryItemResponse } from "@/shared/api/types";
 import { Spinner } from "@/shared/components/ui/spinner";
 import { MultiSelect } from "@/shared/components/ui/multi-select";
 import React from "react";
-import { useDepartmentDictionary } from "./model/use-departments-dictionary";
+import { useDepartmentDictionary } from "../../features/departments/model/use-departments-dictionary";
 
 const PAGE_SIZE = 3;
-type DepartmentProps = {
-  selectedDepartmentIds?: string[];
-  excludeDepartmentIds?: string[];
-  onDepartmentChange: (departmentIds: string[]) => void;
+type Props = {
+  selectedItemsIds?: string[];
+  excludeItemsIds?: string[];
+  onDepartmentChange: (itemIds: string[]) => void;
 };
 
-export default function DepartmentsSelectItem({
-  selectedDepartmentIds,
-  excludeDepartmentIds,
-  onDepartmentChange,
-}: DepartmentProps) {
+export default function DepartmentItemSelector({
+  selectedItemsIds: selectedItemsIds,
+  excludeItemsIds: excludeItemsIds,
+  onDepartmentChange: onItemChange,
+}: Props) {
   const {
-    departments: selectedDepartments,
+    items: selectedItems,
     isPending: isSelectedPending,
     isError: isSelectedError,
   } = useDepartmentDictionary({
     pageSize: PAGE_SIZE,
     departmentsIds:
-      selectedDepartmentIds && selectedDepartmentIds.length > 0
-        ? selectedDepartmentIds
+      selectedItemsIds && selectedItemsIds.length > 0
+        ? selectedItemsIds
         : undefined,
   });
   const {
-    departments: allDepartments,
+    items: allItems,
     isPending: isAllPending,
     isError: isAllError,
     error: allError,
@@ -39,72 +39,72 @@ export default function DepartmentsSelectItem({
     pageSize: PAGE_SIZE,
   });
 
-  const combinedDepartments = React.useMemo(() => {
-    const allDeptMap = new Map<string, boolean>();
+  const combinedItems = React.useMemo(() => {
+    const allItemsMap = new Map<string, boolean>();
     const result: DictionaryItemResponse[] = [];
 
-    if (selectedDepartments) {
-      selectedDepartments.forEach((dept) => {
-        if (!allDeptMap.has(dept.id)) {
-          result.push(dept);
-          allDeptMap.set(dept.id, true);
+    if (selectedItems) {
+      selectedItems.forEach((item) => {
+        if (!allItemsMap.has(item.id)) {
+          result.push(item);
+          allItemsMap.set(item.id, true);
         }
       });
     }
 
-    if (allDepartments) {
-      allDepartments.forEach((dept) => {
-        if (!allDeptMap.has(dept.id)) {
+    if (allItems) {
+      allItems.forEach((dept) => {
+        if (!allItemsMap.has(dept.id)) {
           result.push(dept);
-          allDeptMap.set(dept.id, true);
+          allItemsMap.set(dept.id, true);
         }
       });
     }
 
     let filteredResult = result;
-    if (excludeDepartmentIds && excludeDepartmentIds.length > 0) {
-      filteredResult = result.filter((dept) => !excludeDepartmentIds.includes(dept.id));
+    if (excludeItemsIds && excludeItemsIds.length > 0) {
+      filteredResult = result.filter((dept) => !excludeItemsIds.includes(dept.id));
     }
 
     return filteredResult;
-  }, [selectedDepartments, allDepartments, excludeDepartmentIds]);
+  }, [selectedItems, allItems, excludeItemsIds]);
 
   const multiSelectOptions = React.useMemo(() => {
-    return combinedDepartments.map((dept) => ({
+    return combinedItems.map((dept) => ({
       value: dept.id,
       label: dept.name,
     }));
-  }, [combinedDepartments]);
+  }, [combinedItems]);
 
   const filteredDefaultValues = React.useMemo(() => {
-    if (!selectedDepartmentIds || !selectedDepartmentIds.length) return [];
+    if (!selectedItemsIds || !selectedItemsIds.length) return [];
     const availableIds = new Set(multiSelectOptions.map(option => option.value));
-    return selectedDepartmentIds.filter(id => availableIds.has(id));
-  }, [selectedDepartmentIds, multiSelectOptions]);
+    return selectedItemsIds.filter(id => availableIds.has(id));
+  }, [selectedItemsIds, multiSelectOptions]);
 
   const showComponent =
     !isAllPending &&
     !isAllError &&
     !isSelectedPending &&
     !isSelectedError &&
-    combinedDepartments &&
-    combinedDepartments.length > 0;
+    combinedItems &&
+    combinedItems.length > 0;
 
   return (
     <>
       {isAllPending && <Spinner />}
       {!isAllPending && allError && (
         <p className="text-red-500">
-          Error of loading departments: {allError?.message}
+          Error of loading items: {allError?.message}
         </p>
       )}
       {showComponent && (
         <MultiSelect
           className="flex-1"
           options={multiSelectOptions}
-          onValueChange={onDepartmentChange}
+          onValueChange={onItemChange}
           defaultValue={filteredDefaultValues}
-          placeholder="Select department"
+          placeholder="Select"
           searchPlaceholder="Search..."
           morePlaceholder="more"
           notFoundPlaceholder="empty"
@@ -119,10 +119,9 @@ export default function DepartmentsSelectItem({
         !isAllError &&
         !isSelectedPending &&
         !isSelectedError &&
-        combinedDepartments &&
-        combinedDepartments.length === 0 && (
+        combinedItems &&
+        combinedItems.length === 0 && (
           <p className="text-muted-foreground">
-            All available departments have already added!
           </p>
         )}
     </>

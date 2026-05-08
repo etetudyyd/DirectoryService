@@ -35,7 +35,7 @@ import { useGetPosition } from "@/features/positions/model/use-get-position";
 import { DetailsLoadingSkeleton } from "@/widgets/details-loading-skeleton";
 import { UpdatePositionDialog } from "@/features/positions/update-position-dialog";
 import { toast } from "sonner";
-import DepartmentsSelectItem from "@/features/departments/departments-select-filter";
+import DepartmentItemSelector from "@/widgets/departments/department-item-selector";
 import { setFilterPositionsDepartmentIds } from "@/features/positions/model/position-filters-store";
 import { useUpdatePositionDepartments } from "@/features/positions/model/update-position-departments";
 import { DeleteConfirmationDialog } from "@/features/delete-confirmation-dialog";
@@ -402,8 +402,8 @@ export default function PositionDetailsPage() {
             <CardContent className="space-y-4">
               {isUpdateDepts ? (
                 <>
-                  <DepartmentsSelectItem
-                    selectedDepartmentIds={selectedDeptIds}
+                  <DepartmentItemSelector
+                    selectedItemsIds={selectedDeptIds}
                     onDepartmentChange={handleDepartmentChange}
                   />
                 </>

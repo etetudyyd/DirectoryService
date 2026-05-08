@@ -1,29 +1,29 @@
-import { Search, Filter, X } from "lucide-react";
-import {
-  setFilterIsActive,
-  setFilterPositionsDepartmentIds,
-  setFilterSearch,
-  useGetPositionsFilter,
-} from "./model/position-filters-store";
-import { Input } from "@/shared/components/ui/input";
 import {
   Select,
-  SelectContent,
   SelectItem,
+  SelectContent,
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/ui/select";
-import DepartmentItemSelector from "../../widgets/departments/department-item-selector";
+import {
+  setFilterIsActive,
+  setFilterLocationsDepartmentIds,
+  setFilterSearch as setFilterSearch,
+  useGetLocationsFilter,
+} from "./model/location-filters-store";
+import { Input } from "@/shared/components/ui/input";
+import { Filter, Search, X } from "lucide-react";
 import { Button } from "@/shared/components/ui/button";
 import { Badge } from "@/shared/components/ui/badge";
+import DepartmentItemSelector from "../../widgets/departments/department-item-selector";
 
-export function PositionsFilter() {
-  const { departmentsIds, search, isActive } = useGetPositionsFilter();
+export function LocationsFilter() {
+  const {departmentsIds, search, isActive } = useGetLocationsFilter();
 
   const hasActiveFilters = search || departmentsIds?.length || isActive !== undefined;
 
   return (
-    <div className="w-full space-y-4">
+     <div className="w-full space-y-4">
       {/* Main Filters Row */}
       <div className="flex flex-col lg:flex-row gap-3">
         {/* Search Input */}
@@ -39,9 +39,9 @@ export function PositionsFilter() {
 
         {/* Departments Filter */}
         <div className="flex-1 min-w-62.5">
-          <SelectItem
-            selectedDepartmentIds={departmentsIds}
-            onDepartmentChange={setFilterPositionsDepartmentIds}
+          <DepartmentItemSelector
+            selectedItemsIds={departmentsIds}
+            onDepartmentChange={setFilterLocationsDepartmentIds}
           />
         </div>
 
@@ -93,7 +93,7 @@ export function PositionsFilter() {
             size="sm"
             onClick={() => {
               setFilterSearch("");
-              setFilterPositionsDepartmentIds([]);
+              setFilterLocationsDepartmentIds([]);
               setFilterIsActive(undefined);
             }}
             className="h-10 shrink-0"
@@ -127,7 +127,7 @@ export function PositionsFilter() {
               <button
                 onClick={() => {
                   const newIds = departmentsIds.filter(dId => dId !== id);
-                  setFilterPositionsDepartmentIds(newIds);
+                  setFilterLocationsDepartmentIds(newIds);
                 }}
                 className="ml-1 hover:bg-secondary/80 rounded-full p-0.5"
               >

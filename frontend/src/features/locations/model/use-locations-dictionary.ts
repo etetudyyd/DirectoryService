@@ -1,8 +1,8 @@
-import { departmentsQueryOptions } from "@/entities/departments/api";
+import { locationsQueryOptions } from "@/entities/locations/api";
 import { useInfiniteQuery } from "@tanstack/react-query";
-import { DepartmentDictionaryState } from "./department-filters-store";
+import { LocationDictionaryState } from "./location-filters-store";
 
-export function useDepartmentDictionary(filter: DepartmentDictionaryState) {
+export function useLocationDictionary(filter: LocationDictionaryState) {
   const {
     data,
     isPending,
@@ -13,7 +13,7 @@ export function useDepartmentDictionary(filter: DepartmentDictionaryState) {
     isFetchingNextPage,
     hasNextPage,
   } = useInfiniteQuery({
-    ...departmentsQueryOptions.getDepartmentDictionaryInfinityOptions({
+    ...locationsQueryOptions.getLocationDictionaryInfinityOptions({
       ...filter,
     }),
   });

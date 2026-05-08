@@ -1,5 +1,25 @@
+import { DictionaryItemResponse } from "@/shared/api/types";
+
 export type Department = {
     id: string;
+    name: string;
+    identifier: string;
+    path: string;
+    parentId?: string;
+    depth: number;
+    childrenCount: number;
+    locationCount: number;
+    positionCount: number;
+    isActive: boolean;
+    createdAt: Date;
+    updatedAt: Date;
+    deletedAt: Date | null;
+    locationsIds: string[];
+    positionsIds:string[];
+}
+
+export type DepartmentDetails = {
+    departmentId: string;
     name: string;
     identifier: string;
     path: string;
@@ -10,13 +30,8 @@ export type Department = {
     createdAt: Date;
     updatedAt: Date;
     deletedAt: Date | null;
+    locations: DictionaryItemResponse[];
+    positions: DictionaryItemResponse[];
 }
-
-// пока что тут, потом перенесу в стор, когда будет готов
-export type DepartmentDictionaryState = {
-  search?: string;
-  departmentsIds?: string[];
-  pageSize: number;
-};
 
 

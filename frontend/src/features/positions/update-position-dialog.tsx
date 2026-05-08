@@ -113,13 +113,6 @@ export function UpdatePositionDialog({ position, open, onOpenChange }: Props) {
 
           {/* Basic Information */}
           <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <BuildingIcon className="h-5 w-5 text-blue-400" />
-              <h3 className="text-lg font-semibold text-white">
-                Basic Information
-              </h3>
-            </div>
-
             <div className="grid gap-4">
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-gray-300">
