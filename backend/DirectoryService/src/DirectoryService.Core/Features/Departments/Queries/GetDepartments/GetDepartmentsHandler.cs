@@ -23,8 +23,8 @@ public class GetDepartmentsHandler : IQueryHandler<PaginationResponse<Department
     }
 
     public async Task<Result<PaginationResponse<DepartmentItemDto>, Errors>> Handle(
-    GetDepartmentsQuery query,
-    CancellationToken cancellationToken)
+        GetDepartmentsQuery query,
+        CancellationToken cancellationToken)
 {
     var connection = await _transactionManager.GetDbConnectionAsync(cancellationToken);
 

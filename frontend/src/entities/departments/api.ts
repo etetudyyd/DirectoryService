@@ -47,7 +47,7 @@ export type UpdateDepartmentLocationsRequest = {
 export type CreateDepartmentRequest = {
     name: string;
     identifier: string;
-    parentId: string;
+    parentId?: string | null;
     locationsIds: string[];
 }
 
@@ -92,7 +92,7 @@ getRootDepartments: async (request: GetRootDepartmentsRequest) => {
 
   createDepartment: async (request: CreateDepartmentRequest) => {
     const response = await apiClient.post<Envelope<Department>>(
-      routes.departments,
+      `${routes.departments}/create`,
       request,
     );
     return response.data;

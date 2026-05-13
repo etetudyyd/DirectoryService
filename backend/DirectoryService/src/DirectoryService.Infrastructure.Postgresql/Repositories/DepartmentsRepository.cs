@@ -104,6 +104,22 @@ public class DepartmentsRepository : IDepartmentsRepository
         return department;
     }
 
+    public async Task<bool> IsNameUniqueAsync(DepartmentName name, CancellationToken cancellationToken)
+    {
+        bool isDepartmentExists = await _dbContext.Departments
+            .AnyAsync(p => p.Name == name, cancellationToken);
+
+        return isDepartmentExists;
+    }
+
+    public async Task<bool> IsIdentifierUniqueAsync(Identifier identifier, CancellationToken cancellationToken)
+    {
+        bool isDepartmentExists = await _dbContext.Departments
+            .AnyAsync(p => p.Identifier == identifier, cancellationToken);
+
+        return isDepartmentExists;
+    }
+
     public async Task<UnitResult<Error>> BulkDeleteDepartmentLocationsAsync(
         Guid departmentId,
         CancellationToken cancellationToken)

@@ -9,13 +9,13 @@ const PAGE_SIZE = 3;
 type Props = {
   selectedItemsIds?: string[];
   excludeItemsIds?: string[];
-  onDepartmentChange: (itemIds: string[]) => void;
+  onLocationChange: (itemIds: string[]) => void;
 };
 
 export default function LocationItemSelector({
   selectedItemsIds: selectedItemsIds,
   excludeItemsIds: excludeItemsIds,
-  onDepartmentChange: onItemChange,
+  onLocationChange: onItemChange,
 }: Props) {
   const {
     items: selectedItems,

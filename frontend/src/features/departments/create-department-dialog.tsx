@@ -1,94 +1,85 @@
+import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { useCreatePosition } from "./model/use-create-position";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/shared/components/ui/dialog";
-import {
-  AlertCircleIcon,
-  Building,
-  BuildingIcon,
-  PlusIcon,
-} from "lucide-react";
-import { Label } from "@/shared/components/ui/label";
-import { Input } from "@/shared/components/ui/input";
+import { useCreateDepartment } from "./model/use-create-department";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/shared/components/ui/dialog";
 import { Button } from "@/shared/components/ui/button";
-import DepartmentItemSelector from "../../widgets/departments/department-item-selector";
+import { Input } from "@/shared/components/ui/input";
+import { PlusIcon, AlertCircleIcon, Building, LocateIcon } from "lucide-react";
+import LocationItemSelector from "@/widgets/locations/locations-item-selector";
+import { Label } from "@/shared/components/ui/label";
+import DepartmentItemSelector from "@/widgets/departments/department-item-selector";
 
 type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 };
 
-const createPositionSchema = z.object({
+const createDepartmentSchema = z.object({
   name: z
     .string()
     .nonempty("Name is cannot be empty")
     .min(3, "Name is has to be at least 3 characters long")
     .max(100, "Name must be at most 100 characters"),
-  description: z
+    identifier: z
     .string()
-    .max(1000, "Description must be at most 1000 characters"),
-  departmentsIds: z.array(
-    z.string().nonempty("Department has to be not empty"),
-  ),
+    .nonempty("Identifier cannot be empty")
+    .min(3, "Identifier has to be at least 3 characters long")
+    .max(100, "Identifier must be at most 100 characters"),
+  parentId: z.string().optional().nullable(),
+  locationsIds: z.array(z.string().nonempty("Location has to be not empty")),
 });
 
-type CreatePositionData = z.infer<typeof createPositionSchema>;
+type CreateDepartmentData = z.infer<typeof createDepartmentSchema>;
 
-export function CreatePositionDialog({ open, onOpenChange }: Props) {
-  const initalData: CreatePositionData = {
+export function CreateDepartmentDialog({ open, onOpenChange }: Props) {
+const initalData: CreateDepartmentData = {
     name: "",
-    description: "",
-    departmentsIds: [],
+    identifier: "",
+    parentId: "",
+    locationsIds: [],
   };
 
-  const {
-    register,
-    handleSubmit,
-    reset,
-    setValue,
-    watch,
-    formState: { errors, isValid },
-  } = useForm<CreatePositionData>({
-    defaultValues: initalData,
-    resolver: zodResolver(createPositionSchema),
-  });
-
-  const { createPosition, isPending, error, isError } = useCreatePosition();
-
-  const departmentsIds = watch("departmentsIds") || [];
-
-  const handleDepartmentsChange = (newDepartmentsIds: string[]) => {
-    setValue("departmentsIds", newDepartmentsIds, {
-      shouldValidate: true,
-      shouldDirty: true,
+   const {
+      register,
+      handleSubmit,
+      reset,
+      setValue,
+      watch,
+      formState: { errors, isValid },
+    } = useForm<CreateDepartmentData>({
+      defaultValues: initalData,
+      resolver: zodResolver(createDepartmentSchema),
     });
-  };
 
-  const onSubmit = async (data: CreatePositionData) => {
-    createPosition(
-      {
-        ...data,
-        departmentsIds: departmentsIds,
-      },
-      {
-        onSuccess: () => {
-          reset(initalData);
-          onOpenChange(false);
-        },
-      },
-    );
-  };
+     const { createDepartment, isPending, error, isError } = useCreateDepartment();
+    
+      const locationsIds = watch("locationsIds") || [];
+    
+    
+      const handleLocationsChange = (newLocationsIds: string[]) => {
+        setValue("locationsIds", newLocationsIds, {
+          shouldValidate: true,
+          shouldDirty: true,
+        });
+      };
+    
+      const onSubmit = async (data: CreateDepartmentData) => {
+        createDepartment({ 
+          ...data,
+          parentId: data.parentId || null,
+          locationsIds: locationsIds,
+          },
+          {
+          onSuccess: () => {
+            reset(initalData);
+            onOpenChange(false);
+          },
+        });
+      };
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+      return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto p-0 bg-linear-to-b from-gray-900 to-black border-gray-800">
         {/* Header */}
         <DialogHeader className="p-6 pb-4 border-b border-gray-800 bg-gray-900/50">
@@ -98,17 +89,17 @@ export function CreatePositionDialog({ open, onOpenChange }: Props) {
             </div>
             <div>
               <DialogTitle className="text-xl font-bold text-white">
-                Create New Position
+                Create New Department
               </DialogTitle>
               <DialogDescription className="text-gray-400">
-                Add a new position to the system
+                Add a new department to the system
               </DialogDescription>
             </div>
           </div>
         </DialogHeader>
 
         <form
-          id="createPosition"
+          id="createDepartment"
           className="p-6 space-y-6"
           onSubmit={handleSubmit(onSubmit)}
         >
@@ -137,7 +128,7 @@ export function CreatePositionDialog({ open, onOpenChange }: Props) {
                 <Input
                   id="name"
                   type="text"
-                  placeholder="Enter position name (e.g., Developer, HR)"
+                  placeholder="Enter department name"
                   className={`bg-gray-900 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500/20 ${
                     errors.name
                       ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
@@ -154,46 +145,64 @@ export function CreatePositionDialog({ open, onOpenChange }: Props) {
               </div>
 
               <div className="space-y-2">
-                <Label
-                  htmlFor="description"
-                  className="text-gray-300 flex items-center gap-2"
-                >
-                  Description
+                <Label htmlFor="identifier" className="text-gray-300">
+                  Identifier *
                 </Label>
-                <textarea
-                  id="description"
-                  placeholder="Enter position description (optional)"
-                  className={`min-h-25 w-full px-3 py-2 bg-gray-900 border border-gray-700 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500/20 rounded-md ${
-                    errors.description
+                <Input
+                  id="identifier"
+                  type="text"
+                  placeholder="Enter identifier"
+                  className={`bg-gray-900 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500/20 ${
+                    errors.identifier
                       ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
                       : ""
                   }`}
-                  {...register("description")}
+                  {...register("identifier")}
                 />
-                {errors.description && (
+                {errors.identifier && (
                   <p className="text-red-400 text-sm flex items-center gap-1">
                     <AlertCircleIcon className="h-4 w-4" />
-                    {errors.description.message}
+                    {errors.identifier.message}
                   </p>
                 )}
-                <p className="text-gray-500 text-sm">
-                  Optional description of the position's responsibilities and
-                  requirements
-                </p>
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="departmentsIds" className="text-gray-300">
-                  Departments
+                <Label htmlFor="parentId" className="text-gray-300">
+                  Parent Department
                 </Label>
                 <div className="relative group">
                   <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10">
                     <Building className="h-4 w-4 text-gray-400 group-hover:text-gray-300 transition-colors" />
                   </div>
                   <div className="pl-10">
-                    <DepartmentItemSelector
-                      selectedItemsIds={departmentsIds}
-                      onDepartmentChange={handleDepartmentsChange}
+                <DepartmentItemSelector
+                  selectedItemsIds={watch("parentId") ? [watch("parentId") as string] : []}
+                  onDepartmentChange={(newParentId) => {
+                    setValue("parentId", newParentId[0] || "", {
+                      shouldValidate: true,
+                      shouldDirty: true,
+                    });
+                  }}
+                  
+                />
+                </div>
+                </div>
+              </div>
+
+
+              <div className="space-y-2">
+                <Label htmlFor="locationsIds" className="text-gray-300">
+                  Locations
+                </Label>
+                <div className="relative group">
+                  <div className="absolute left-3 top-1/2 -translate-y-1/2 z-10">
+                    <LocateIcon className="h-4 w-4 text-gray-400 group-hover:text-gray-300 transition-colors" />
+                  </div>
+                  <div className="pl-10">
+                    <LocationItemSelector
+                      selectedItemsIds={locationsIds}
+                      onLocationChange={handleLocationsChange}
                     />
                   </div>
                 </div>
@@ -224,13 +233,13 @@ export function CreatePositionDialog({ open, onOpenChange }: Props) {
               ) : (
                 <>
                   <PlusIcon className="h-4 w-4 mr-2" />
-                  Create Position
+                  Create Department
                 </>
               )}
             </Button>
           </DialogFooter>
         </form>
       </DialogContent>
-    </Dialog>
-  );
+    </Dialog>);
+    
 }

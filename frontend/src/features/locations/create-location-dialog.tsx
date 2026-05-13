@@ -13,7 +13,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { useCreateLocation } from "./model/use-create-location";
-import { BuildingIcon, MapPinIcon, ClockIcon, UsersIcon, AlertCircleIcon, PlusIcon, Building } from "lucide-react";
+import { ClockIcon, AlertCircleIcon, PlusIcon, Building } from "lucide-react";
 import DepartmentItemSelector from "../../widgets/departments/department-item-selector";
 
 type Props = {

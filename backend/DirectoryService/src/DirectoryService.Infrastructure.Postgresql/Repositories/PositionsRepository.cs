@@ -110,10 +110,10 @@ public class PositionsRepository : IPositionsRepository
 
     public async Task<bool> IsNameUniqueAsync(PositionName name, CancellationToken cancellationToken)
     {
-        bool position = await _dbContext.Positions
+        bool isPositionExists = await _dbContext.Positions
             .AnyAsync(p => p.Name == name, cancellationToken);
 
-        return position;
+        return isPositionExists;
     }
 
     public async Task<UnitResult<Error>> BulkDeleteInactivePositionsAsync(

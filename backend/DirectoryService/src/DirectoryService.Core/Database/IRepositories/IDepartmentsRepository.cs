@@ -21,6 +21,10 @@ public interface IDepartmentsRepository
 
     Task<Result<Department, Error>> GetWithLocationsAndPositionsBy(Expression<Func<Department, bool>> predicate, CancellationToken cancellationToken = default);
 
+    Task<bool> IsNameUniqueAsync(DepartmentName name, CancellationToken cancellationToken);
+
+    Task<bool> IsIdentifierUniqueAsync(Identifier identifier, CancellationToken cancellationToken);
+
     Task<UnitResult<Error>> BulkDeleteDepartmentLocationsAsync(Guid departmentId, CancellationToken cancellationToken);
 
     Task<Result<List<Guid>, Error>> GetActiveDepartmentIdsAsync(Guid[] departmentIds, CancellationToken cancellationToken);

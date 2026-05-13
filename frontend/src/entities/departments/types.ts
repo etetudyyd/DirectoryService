@@ -5,7 +5,7 @@ export type Department = {
     name: string;
     identifier: string;
     path: string;
-    parentId?: string;
+    parentId?: string | null;
     depth: number;
     childrenCount: number;
     locationCount: number;
@@ -23,7 +23,7 @@ export type DepartmentDetails = {
     name: string;
     identifier: string;
     path: string;
-    parentId?: string;
+    parentId?: string | null;
     depth: number;
     childrenCount: number;
     isActive: boolean;

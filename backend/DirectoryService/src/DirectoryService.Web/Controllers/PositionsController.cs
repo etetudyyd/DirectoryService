@@ -1,5 +1,4 @@
 ﻿using Core.Abstractions;
-using DirectoryService.Entities;
 using DirectoryService.Features.Positions.Commands.CreatePosition;
 using DirectoryService.Features.Positions.Commands.DeactivatePosition;
 using DirectoryService.Features.Positions.Commands.UpdatePosition;
