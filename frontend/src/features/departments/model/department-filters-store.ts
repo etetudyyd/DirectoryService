@@ -8,7 +8,7 @@ export type DepartmentsFilterState = {
   search: string;
   isActive?: boolean;
   pageSize: number;
-  parentId: string;
+  parentId?: string | null;
   sortBy: string;
   sortDirection: string;
 };
@@ -33,7 +33,7 @@ type DepartmentsFilterStore = DepartmentsFilterState & Actions;
 const initialState: DepartmentsFilterState = {
   search: "",
   locationsIds: [],
-  parentId: "",
+  parentId: null,
   isActive: undefined,
   pageSize: 20,
   sortBy: "name",
@@ -47,7 +47,7 @@ const useDepartmentsFilterStore = create<DepartmentsFilterStore>()(
       setLocationsIds: (ids: DepartmentsFilterState["locationsIds"]) => 
         set(() => ({locationsIds: ids})),
       setParentId: (parentId: DepartmentsFilterState["parentId"]) => 
-        set(() => ({parentId: parentId.trim() || ""})),
+        set(() => ({parentId: parentId?.trim() || null})),
       setSearch: (input: DepartmentsFilterState["search"]) =>
         set(() => ({ search: input.trim() || "" })),
       setIsActive: (isActive: DepartmentsFilterState["isActive"]) =>

@@ -10,7 +10,11 @@ public record DepartmentItemDto
 
     public bool IsActive { get; init; }
 
+    public int ChildrenCount { get; set; }
+
     public int LocationCount { get; set; }
+
+    public int PositionCount { get; set; }
 
     public DateTime CreatedAt { get; init; }
 

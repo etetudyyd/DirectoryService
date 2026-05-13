@@ -105,7 +105,7 @@ export default function LocationItemSelector({
           options={multiSelectOptions}
           onValueChange={onItemChange}
           defaultValue={filteredDefaultValues}
-          placeholder="Select"
+          placeholder="Select locations"
           searchPlaceholder="Search..."
           morePlaceholder="more"
           notFoundPlaceholder="empty"
@@ -123,6 +123,7 @@ export default function LocationItemSelector({
         combinedItems &&
         combinedItems.length === 0 && (
           <p className="text-muted-foreground">
+            No locations available
           </p>
         )}
     </>

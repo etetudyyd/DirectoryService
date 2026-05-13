@@ -4,7 +4,7 @@ import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/shared/components/ui/card";
 import { Separator } from "@/shared/components/ui/separator";
 import routes from "@/shared/routes";
-import { Calendar, Edit2Icon, LetterText, Trash, Users } from "lucide-react";
+import { Building, Calendar, Edit2Icon, IdCardIcon, LetterText, Locate, Trash, Users } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -102,7 +102,7 @@ export default function DepartmentCard({ department, onEdit }: Props) {
           <div className="space-y-3">
             {/* Address */}
             <div className="flex items-start gap-2">
-              <LetterText className="h-4 w-4 text-slate-400 mt-0.5 shrink-0" />
+              <IdCardIcon className="h-4 w-4 text-slate-400 mt-0.5 shrink-0" />
               <p className="text-sm text-slate-300">{department.identifier}</p>
             </div>
 
@@ -111,15 +111,33 @@ export default function DepartmentCard({ department, onEdit }: Props) {
             {/* Info grid */}
             <div className="grid grid-cols-2 gap-3">
               <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-slate-400 shrink-0" />
+                <Building className="h-4 w-4 text-slate-400 shrink-0" />
                 <div className="min-w-0">
                   <p className="text-xs text-slate-500">Childs</p>
                   <p className="text-sm text-slate-300">
-                    {department.childrenCount} {department.childrenCount === 1 ? "dept" : "depts"}
+                    {department.childrenCount} {department.childrenCount === 1}
+                  </p>
+              </div>
+              </div>
+              <div className="flex items-center gap-2">
+                <Locate className="h-4 w-4 text-slate-400 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-xs text-slate-500">Locations</p>
+                  <p className="text-sm text-slate-300">
+                    {department.locationCount} {department.locationCount === 1}
                   </p>
                 </div>
               </div>
-
+              <div className="flex items-center gap-2">
+                 <Users className="h-4 w-4 text-slate-400 shrink-0" />
+                <div className="min-w-0">
+                  <p className="text-xs text-slate-500">Positions</p>
+                  <p className="text-sm text-slate-300">
+                    {department.positionCount} {department.positionCount === 1}
+                  </p>               
+                </div>
+              </div>
+              
               <div className="flex items-center gap-2 col-span-2">
                 <Calendar className="h-4 w-4 text-slate-400 shrink-0" />
                 <div className="min-w-0">

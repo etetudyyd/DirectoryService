@@ -31,7 +31,7 @@ export function useDepartmentsList({
       search: debouncedSearch,
       isActive,
       pageSize: pageSize,
-      parentId,
+      parentId: parentId == "" ? undefined : parentId,
       sortBy,
       sortDirection
     }),

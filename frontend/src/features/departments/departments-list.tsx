@@ -15,6 +15,7 @@ import { useDepartmentsList } from "./model/use-departments-list";
 import LocationItemSelector from "@/widgets/locations/locations-item-selector";
 import { useCreateDepartment } from "./model/use-create-department";
 import { CreateDepartmentDialog } from "./create-department-dialog";
+import DepartmentItemSelector from "@/widgets/departments/department-item-selector";
 
 export default function DepartmentsList() {
      const { locationsIds, search, isActive, pageSize } =
@@ -29,6 +30,7 @@ export default function DepartmentsList() {
     
   const [sortBy, setSortBy] = useState("path");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [parentId, setSortByParentId] = useState<string | null>(null);
 
   const {
     departments = [],
@@ -42,7 +44,7 @@ export default function DepartmentsList() {
     search: search == "" ? globalSearch.search : search,
     isActive,
     pageSize,
-    parentId: "",
+    parentId,
     sortBy,
     sortDirection,
       });
@@ -73,107 +75,122 @@ return(
       </div>
 
       {/* Filters Section */}
-      <div className="bg-gray-900/50 rounded-xl p-6 mb-8 border border-gray-800">
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full">
-            <div className="flex-1 min-w-0">
+      <div className="bg-gray-900/50 rounded-lg p-3 mb-6 border border-gray-800">
+        <div className="flex flex-col gap-3">
+          {/* Filter Row */}
+          <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center flex-wrap">
+            {/* Search */}
+            <div className="flex-1 min-w-0 sm:min-w-48">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
                 <Input
                   value={search}
                   onChange={(e) => setFilterSearch(e.target.value)}
-                  placeholder="Search departments..."
-                  className="pl-9 h-11 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 w-full"
+                  placeholder="Search..."
+                  className="pl-9 h-9 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 text-sm"
                 />
               </div>
             </div>
 
-            {/* Остальные фильтры в ряд */}
-            <div className="flex flex-col sm:flex-row gap-3 sm:items-center shrink-0">
-              {/* Departments Filter */}
-              <div className="sm:w-68">
-                <LocationItemSelector
-                  selectedItemsIds={locationsIds}
-                  onLocationChange={setFilterDepartmentLocationsIds}
-                />
-              </div>
-
-              {/* Status Filter */}
-              <div className="sm:w-24">
-                <Select
-                  value={
-                    isActive === undefined
-                      ? "all"
-                      : isActive
-                        ? "active"
-                        : "inactive"
-                  }
-                  onValueChange={(value) => {
-                    if (value === "all") setFilterIsActive(undefined);
-                    else if (value === "active") setFilterIsActive(true);
-                    else setFilterIsActive(false);
-                  }}
-                >
-                  <SelectTrigger className="h-11 bg-gray-800 border-gray-700 text-white w-full flex items-center justify-between px-3">
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-gray-900 border-gray-800">
-                    <SelectItem value="all" className="hover:bg-gray-800">
-                      All
-                    </SelectItem>
-                    <SelectItem value="active" className="hover:bg-gray-800">
-                      Active
-                    </SelectItem>
-                    <SelectItem value="inactive" className="hover:bg-gray-800">
-                      Inactive
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div className="rounded-md p-2 mb-3 border border-gray-800">
-              
-              <div className="flex items-center gap-2">
-                {/* Sort By Filter */}
-                <div className="sm:w-24">
-                  <Select value={sortBy} onValueChange={setSortBy}>
-                    <SelectTrigger className="h-11 bg-gray-800 border-gray-700 text-white w-full flex items-center justify-between px-3">
-                      <SelectValue placeholder="Sort By" />                 
-                    </SelectTrigger>
-                    <SelectContent className="bg-gray-900 border-gray-800">
-                      <SelectItem value="path" className="hover:bg-gray-800">
-                        Path
-                      </SelectItem>
-                      <SelectItem value="name" className="hover:bg-gray-800">
-                        Name
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Sort Direction Filter */}
-                <div className="sm:w-12">
-                  <Select
-                    value={sortDirection}
-                    onValueChange={(value) => setSortDirection(value as "asc" | "desc")}
-                  >
-                    <SelectTrigger className="h-9 bg-gray-800 border-gray-700 text-white w-full flex items-center justify-between px-2">
-                      <SelectValue placeholder="Direction" />
-                    </SelectTrigger>
-                    <SelectContent className="bg-gray-900 border-gray-800">
-                      <SelectItem value="asc" className="hover:bg-gray-800">
-                        ↑
-                      </SelectItem>
-                      <SelectItem value="desc" className="hover:bg-gray-800">
-                        ↓
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-</div>
-              </div>
+            {/* Locations Filter */}
+            <div className="sm:w-auto sm:flex-shrink-0">
+              <LocationItemSelector
+                selectedItemsIds={locationsIds}
+                onLocationChange={setFilterDepartmentLocationsIds}
+              />
             </div>
+
+            {/* Status Filter */}
+            <div className="w-24">
+              <Select
+                value={
+                  isActive === undefined
+                    ? "all"
+                    : isActive
+                      ? "active"
+                      : "inactive"
+                }
+                onValueChange={(value) => {
+                  if (value === "all") setFilterIsActive(undefined);
+                  else if (value === "active") setFilterIsActive(true);
+                  else setFilterIsActive(false);
+                }}
+              >
+                <SelectTrigger className="h-9 bg-gray-800 border-gray-700 text-white text-sm px-2">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-900 border-gray-800">
+                  <SelectItem value="all" className="hover:bg-gray-800">
+                    All
+                  </SelectItem>
+                  <SelectItem value="active" className="hover:bg-gray-800">
+                    Active
+                  </SelectItem>
+                  <SelectItem value="inactive" className="hover:bg-gray-800">
+                    Inactive
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+           
           </div>
+
+          {/* Sort Row */}
+          <div className="flex flex-col sm:flex-row gap-6 items-stretch sm:items-center">
+            <span className="text-sm text-gray-400 sm:block hidden">Sort by:</span>
+        
+          {/* Parent Department Filter */}
+            <div className="sm:flex-shrink-0">
+              <div className="h-9 flex items-center px-2">
+                <DepartmentItemSelector
+                  selectedItemsIds={parentId ? [parentId] : []}
+                  onDepartmentChange={(ids) => setSortByParentId(ids.length > 0 ? ids[0] : null)}
+                />
+              </div>
+            </div>
+
+            {/* Sort Direction Filter */}
+            <div className="w-full sm:w-16">
+              <Select
+                value={sortDirection}
+                onValueChange={(value) => setSortDirection(value as "asc" | "desc")}
+              >
+                <SelectTrigger className="h-9 bg-gray-800 border-gray-700 text-white text-sm px-2">
+                  <SelectValue placeholder="Dir" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-900 border-gray-800">
+                  <SelectItem value="asc" className="hover:bg-gray-800">
+                    ↑ Asc
+                  </SelectItem>
+                  <SelectItem value="desc" className="hover:bg-gray-800">
+                    ↓ Desc
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+             {/* Sort By Filter */}
+            <div className="w-full sm:w-24">
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="h-9 bg-gray-800 border-gray-700 text-white text-sm px-2">
+                  <SelectValue placeholder="Sort" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-900 border-gray-800">
+                  <SelectItem value="path" className="hover:bg-gray-800">
+                    Path
+                  </SelectItem>
+                  <SelectItem value="name" className="hover:bg-gray-800">
+                    Name
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+
+            
+          </div>
+        </div>
 
           {/* Active Filters Badges */}
           {(search || locationsIds?.length || isActive !== undefined) && (
@@ -231,7 +248,7 @@ return(
             </div>
           )}
         </div>
-      </div>
+        
       {/* Error Messages */}
       {isError && (
         <div className="mb-6 p-4 bg-red-900/20 border border-red-800 rounded-lg">
@@ -243,7 +260,7 @@ return(
               </p>
               <p className="text-red-400 text-sm mt-1">
                 {error?.message ??
-                  "Unable to fetch locations. Please try again."}
+                  "Unable to fetch departments. Please try again."}
               </p>
             </div>
           </div>

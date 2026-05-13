@@ -199,7 +199,7 @@ export const departmentsQueryOptions = {
       }: {
         page: number;
         pageSize: number;
-        parentId: string;
+        parentId: string | null;
         sortBy: string;
         sortDirection: string;
       }) => {

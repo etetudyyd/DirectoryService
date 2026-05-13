@@ -98,49 +98,68 @@ public class GetDepartmentsHandler : IQueryHandler<PaginationResponse<Department
 
     int totalItems = 0;
 
-    var items = await connection.QueryAsync<DepartmentItemDto, int, int, DepartmentItemDto>(
+    var items = await connection.QueryAsync<
+        DepartmentItemDto,
+        int,
+        int,
+        int,
+        int,
+        DepartmentItemDto>(
         $"""
-        SELECT
-            d.id,
-            d.name,
-            d.identifier,
-            d.path,
-            d.is_active as IsActive,
-            d.created_at as CreatedAt,
-            d.updated_at as UpdatedAt,
-            d.deleted_at as DeletedAt,
+         SELECT
+             d.id,
+             d.name,
+             d.identifier,
+             d.path,
+             d.is_active as IsActive,
+             d.created_at as CreatedAt,
+             d.updated_at as UpdatedAt,
+             d.deleted_at as DeletedAt,
 
-            COALESCE((
-                SELECT COUNT(DISTINCT dl.location_id)
-                FROM {Constants.DEPARTMENT_LOCATIONS_TABLE_ROUTE} dl
-                WHERE dl.department_id = d.id
-            ), 0)::INTEGER as locationCount,
+             -- CHILDREN COUNT
+             (
+                 SELECT COUNT(*)
+                 FROM {Constants.DEPARTMENT_TABLE_ROUTE} child
+                 WHERE child.parent_id = d.id
+             )::INTEGER as childrenCount,
 
-            CAST(COUNT(*) OVER() AS INT) AS total_count
+             -- LOCATION COUNT
+             (
+                 SELECT COUNT(*)
+                 FROM {Constants.DEPARTMENT_LOCATIONS_TABLE_ROUTE} dl
+                 WHERE dl.department_id = d.id
+             )::INTEGER as locationCount,
 
-        FROM {Constants.DEPARTMENT_TABLE_ROUTE} d
-        {joinsClause}
-        {whereClause}
+             -- POSITION COUNT
+             (
+                 SELECT COUNT(*)
+                 FROM {Constants.DEPARTMENT_POSITIONS_TABLE_ROUTE} dp
+                 WHERE dp.department_id = d.id
+             )::INTEGER as positionCount,
 
-        GROUP BY
-            d.id,
-            d.name,
-            d.identifier,
-            d.path,
-            d.is_active,
-            d.created_at,
-            d.updated_at,
-            d.deleted_at
+             CAST(COUNT(*) OVER() AS INT) AS total_count
 
-        ORDER BY {orderBy} {sortDirection}
+         FROM {Constants.DEPARTMENT_TABLE_ROUTE} d
+         {joinsClause}
+         {whereClause}
 
-        LIMIT @page_size
-        OFFSET @offset;
-        """,
-        splitOn: "locationCount,total_count",
-        map: (department, locationCount, totalCount) =>
+         ORDER BY {orderBy} {sortDirection}
+
+         LIMIT @page_size
+         OFFSET @offset;
+         """,
+        splitOn: "childrenCount,locationCount,positionCount,total_count",
+        map: (
+            department,
+            childrenCount,
+            locationCount,
+            positionCount,
+            totalCount) =>
         {
+            department.ChildrenCount = childrenCount;
             department.LocationCount = locationCount;
+            department.PositionCount = positionCount;
+
             totalItems = totalCount;
 
             return department;

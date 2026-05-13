@@ -11,7 +11,6 @@ import { Location } from "@/entities/locations/types";
 import { UpdateLocationDialog } from "./update-location-dialog";
 import { AlertCircleIcon, MapPinIcon, PlusIcon, Search, X } from "lucide-react";
 import { setFilterIsActive, setFilterLocationsDepartmentIds, setFilterSearch, useGetLocationsFilter } from "./model/location-filters-store";
-import { LocationsFilter } from "./locations-filters";
 import { useGetGlobalSearch } from "@/shared/stored/global-search-store";
 import LocationCard from "@/widgets/locations/location-card";
 import { Input } from "@/shared/components/ui/input";
@@ -66,7 +65,9 @@ export default function LocationsList() {
           size="default"
         >
           <PlusIcon className="h-5 w-5 mr-2" />
-          Add Location
+         {search || departmentsIds?.length || isActive !== undefined
+                ? "Clear filters and add location"
+                : "Add First Location"}
         </Button>
       </div>
 
@@ -116,15 +117,15 @@ export default function LocationsList() {
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent className="bg-gray-900 border-gray-800">
-                    <DepartmentItemSelector value="all" className="hover:bg-gray-800">
+                    <SelectItem value="all" className="hover:bg-gray-800">
                       All
-                    </DepartmentItemSelector>
-                    <DepartmentItemSelector value="active" className="hover:bg-gray-800">
+                    </SelectItem>
+                    <SelectItem value="active" className="hover:bg-gray-800">
                       Active
-                    </DepartmentItemSelector>
-                    <DepartmentItemSelector value="inactive" className="hover:bg-gray-800">
+                    </SelectItem>
+                    <SelectItem value="inactive" className="hover:bg-gray-800">
                       Inactive
-                    </DepartmentItemSelector>
+                    </SelectItem>
                   </SelectContent>
                 </Select>
               </div>

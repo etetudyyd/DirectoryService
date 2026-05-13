@@ -104,7 +104,7 @@ export default function DepartmentItemSelector({
           options={multiSelectOptions}
           onValueChange={onItemChange}
           defaultValue={filteredDefaultValues}
-          placeholder="Select"
+          placeholder="Select departments"
           searchPlaceholder="Search..."
           morePlaceholder="more"
           notFoundPlaceholder="empty"
@@ -122,6 +122,7 @@ export default function DepartmentItemSelector({
         combinedItems &&
         combinedItems.length === 0 && (
           <p className="text-muted-foreground">
+            No departments available
           </p>
         )}
     </>
