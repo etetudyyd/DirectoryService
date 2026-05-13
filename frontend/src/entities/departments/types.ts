@@ -19,7 +19,7 @@ export type Department = {
 }
 
 export type DepartmentDetails = {
-    departmentId: string;
+    id: string;
     name: string;
     identifier: string;
     path: string;

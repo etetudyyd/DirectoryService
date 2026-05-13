@@ -16,18 +16,19 @@ import LocationItemSelector from "@/widgets/locations/locations-item-selector";
 import { useCreateDepartment } from "./model/use-create-department";
 import { CreateDepartmentDialog } from "./create-department-dialog";
 import DepartmentItemSelector from "@/widgets/departments/department-item-selector";
+import { UpdateDepartmentDialog } from "./update-department-dialog";
 
 export default function DepartmentsList() {
-     const { locationsIds, search, isActive, pageSize } =
-        useGetDepartmentsFilter();
-      const globalSearch = useGetGlobalSearch();
-    
-      const [createOpen, setCreateOpen] = useState(false);
-      const [updateOpen, setUpdateOpen] = useState(false);
-      const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(
-        null,
-      );
-    
+  const { locationsIds, search, isActive, pageSize } =
+    useGetDepartmentsFilter();
+  const globalSearch = useGetGlobalSearch();
+
+  const [createOpen, setCreateOpen] = useState(false);
+  const [updateOpen, setUpdateOpen] = useState(false);
+  const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(
+    null,
+  );
+
   const [sortBy, setSortBy] = useState("path");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
   const [parentId, setSortByParentId] = useState<string | null>(null);
@@ -47,11 +48,12 @@ export default function DepartmentsList() {
     parentId,
     sortBy,
     sortDirection,
-      });
-    
-      const { error: createError } = useCreateDepartment();
-return(
-     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  });
+
+  const { error: createError } = useCreateDepartment();
+
+  return (
+    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header Section */}
       <div className="flex flex-col lg:flex-row gap-6 lg:items-center lg:justify-between mb-8">
         <div className="space-y-2">
@@ -100,6 +102,14 @@ return(
               />
             </div>
 
+            {/* Parent Department Filter */}
+            <div className="sm:w-auto sm:flex-shrink-0">
+              <DepartmentItemSelector
+                selectedItemsIds={parentId ? [parentId] : []}
+                onDepartmentChange={(ids) => setSortByParentId(ids.length > 0 ? ids[0] : null)}
+              />
+            </div>
+
             {/* Status Filter */}
             <div className="w-24">
               <Select
@@ -133,22 +143,12 @@ return(
               </Select>
             </div>
 
-           
+
           </div>
 
           {/* Sort Row */}
           <div className="flex flex-col sm:flex-row gap-6 items-stretch sm:items-center">
             <span className="text-sm text-gray-400 sm:block hidden">Sort by:</span>
-        
-          {/* Parent Department Filter */}
-            <div className="sm:flex-shrink-0">
-              <div className="h-9 flex items-center px-2">
-                <DepartmentItemSelector
-                  selectedItemsIds={parentId ? [parentId] : []}
-                  onDepartmentChange={(ids) => setSortByParentId(ids.length > 0 ? ids[0] : null)}
-                />
-              </div>
-            </div>
 
             {/* Sort Direction Filter */}
             <div className="w-full sm:w-16">
@@ -170,7 +170,7 @@ return(
               </Select>
             </div>
 
-             {/* Sort By Filter */}
+            {/* Sort By Filter */}
             <div className="w-full sm:w-24">
               <Select value={sortBy} onValueChange={setSortBy}>
                 <SelectTrigger className="h-9 bg-gray-800 border-gray-700 text-white text-sm px-2">
@@ -183,72 +183,72 @@ return(
                   <SelectItem value="name" className="hover:bg-gray-800">
                     Name
                   </SelectItem>
+                  <SelectItem value="createdAt" className="hover:bg-gray-800">
+                    Date Created
+                  </SelectItem>
                 </SelectContent>
               </Select>
             </div>
-
-
-            
           </div>
         </div>
 
-          {/* Active Filters Badges */}
-          {(search || locationsIds?.length || isActive !== undefined) && (
-            <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-gray-800">
-              <span className="text-sm text-gray-400">Active filters:</span>
+        {/* Active Filters Badges */}
+        {(search || locationsIds?.length || isActive !== undefined) && (
+          <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-gray-800">
+            <span className="text-sm text-gray-400">Active filters:</span>
 
-              {search && (
-                <Badge
-                  variant="secondary"
-                  className="gap-1 bg-gray-800 text-gray-300 border-gray-700"
+            {search && (
+              <Badge
+                variant="secondary"
+                className="gap-1 bg-gray-800 text-gray-300 border-gray-700"
+              >
+                Search: "{search}"
+                <button
+                  onClick={() => setFilterSearch("")}
+                  className="ml-1 hover:bg-gray-700 rounded-full p-0.5"
                 >
-                  Search: "{search}"
-                  <button
-                    onClick={() => setFilterSearch("")}
-                    className="ml-1 hover:bg-gray-700 rounded-full p-0.5"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
-              )}
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
 
-              {locationsIds?.map((id) => (
-                <Badge
-                  key={id}
-                  variant="secondary"
-                  className="gap-1 bg-gray-800 text-gray-300 border-gray-700"
+            {locationsIds?.map((id) => (
+              <Badge
+                key={id}
+                variant="secondary"
+                className="gap-1 bg-gray-800 text-gray-300 border-gray-700"
+              >
+                Dept: {id.substring(0, 8)}...
+                <button
+                  onClick={() => {
+                    const newIds = locationsIds.filter((dId) => dId !== id);
+                    setFilterDepartmentLocationsIds(newIds);
+                  }}
+                  className="ml-1 hover:bg-gray-700 rounded-full p-0.5"
                 >
-                  Dept: {id.substring(0, 8)}...
-                  <button
-                    onClick={() => {
-                      const newIds = locationsIds.filter((dId) => dId !== id);
-                      setFilterDepartmentLocationsIds(newIds);
-                    }}
-                    className="ml-1 hover:bg-gray-700 rounded-full p-0.5"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
-              ))}
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            ))}
 
-              {isActive !== undefined && (
-                <Badge
-                  variant="secondary"
-                  className="gap-1 bg-gray-800 text-gray-300 border-gray-700"
+            {isActive !== undefined && (
+              <Badge
+                variant="secondary"
+                className="gap-1 bg-gray-800 text-gray-300 border-gray-700"
+              >
+                Status: {isActive ? "Active" : "Inactive"}
+                <button
+                  onClick={() => setFilterIsActive(undefined)}
+                  className="ml-1 hover:bg-gray-700 rounded-full p-0.5"
                 >
-                  Status: {isActive ? "Active" : "Inactive"}
-                  <button
-                    onClick={() => setFilterIsActive(undefined)}
-                    className="ml-1 hover:bg-gray-700 rounded-full p-0.5"
-                  >
-                    <X className="h-3 w-3" />
-                  </button>
-                </Badge>
-              )}
-            </div>
-          )}
-        </div>
-        
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
+          </div>
+        )}
+      </div>
+
       {/* Error Messages */}
       {isError && (
         <div className="mb-6 p-4 bg-red-900/20 border border-red-800 rounded-lg">
@@ -276,7 +276,7 @@ return(
         </div>
       )}
 
-       {/* Departments Grid */}
+      {/* Departments Grid */}
       <section className="mb-10">
         {isPending ? (
           <div className="flex flex-col justify-center items-center min-h-100">
@@ -334,17 +334,16 @@ return(
         )}
       </section>
 
-      
-       <CreateDepartmentDialog open={createOpen} onOpenChange={setCreateOpen} />
+      <CreateDepartmentDialog open={createOpen} onOpenChange={setCreateOpen} />
 
-      {/*{selectedDepartment && (
+      {selectedDepartment && (
         <UpdateDepartmentDialog
           key={selectedDepartment.id}
-          position={selectedDepartment}
+          department={selectedDepartment}
           open={updateOpen}
           onOpenChange={setUpdateOpen}
         />
-      )}*/}
+      )}
       {/* Infinite Scroll Loader */}
       <div ref={cursorRef} className="py-6">
         {isFetchingNextPage && (
@@ -356,6 +355,6 @@ return(
           </div>
         )}
       </div>
-      </main>
-);
+    </main>
+  );
 }

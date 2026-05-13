@@ -1,5 +1,6 @@
 import { Department } from "@/entities/departments/types";
 import { DeleteConfirmationDialog } from "@/features/delete-confirmation-dialog";
+import { useDeleteDepartment } from "@/features/departments/model/use-delete-department";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/shared/components/ui/card";
 import { Separator } from "@/shared/components/ui/separator";
@@ -36,7 +37,7 @@ const formatDateTime = (date: Date | string | null) => {
 };
 
 export default function DepartmentCard({ department, onEdit }: Props) {
-  //const { deletePosition, isPending } = useDeleteDepartment();
+  const { deleteDepartment, isPending } = useDeleteDepartment();
 
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -44,7 +45,7 @@ export default function DepartmentCard({ department, onEdit }: Props) {
   const handleDelete = async () => {
     setLoading(true);
     try {
-      //await deletePosition(department.departmentId);
+      await deleteDepartment(department.id);
     } finally {
       setLoading(false);
       setDeleteOpen(false);
@@ -89,9 +90,8 @@ export default function DepartmentCard({ department, onEdit }: Props) {
             <div className="shrink-0">
               <div className="flex flex-col items-end">
                 <div
-                  className={`h-2.5 w-2.5 rounded-full mb-1 ${
-                    department.isActive ? "bg-emerald-500" : "bg-red-400"
-                  }`}
+                  className={`h-2.5 w-2.5 rounded-full mb-1 ${department.isActive ? "bg-emerald-500" : "bg-red-400"
+                    }`}
                 />
               </div>
             </div>
@@ -117,7 +117,7 @@ export default function DepartmentCard({ department, onEdit }: Props) {
                   <p className="text-sm text-slate-300">
                     {department.childrenCount} {department.childrenCount === 1}
                   </p>
-              </div>
+                </div>
               </div>
               <div className="flex items-center gap-2">
                 <Locate className="h-4 w-4 text-slate-400 shrink-0" />
@@ -129,15 +129,15 @@ export default function DepartmentCard({ department, onEdit }: Props) {
                 </div>
               </div>
               <div className="flex items-center gap-2">
-                 <Users className="h-4 w-4 text-slate-400 shrink-0" />
+                <Users className="h-4 w-4 text-slate-400 shrink-0" />
                 <div className="min-w-0">
                   <p className="text-xs text-slate-500">Positions</p>
                   <p className="text-sm text-slate-300">
                     {department.positionCount} {department.positionCount === 1}
-                  </p>               
+                  </p>
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-2 col-span-2">
                 <Calendar className="h-4 w-4 text-slate-400 shrink-0" />
                 <div className="min-w-0">
@@ -149,27 +149,27 @@ export default function DepartmentCard({ department, onEdit }: Props) {
               {/* Updated or Deleted */}
               {department.isActive
                 ? department.updatedAt && (
-                    <div className="flex items-center gap-2 col-span-2">
-                      <Calendar className="h-4 w-4 text-blue-400 shrink-0" />
-                      <div className="min-w-0">
-                        <p className="text-xs text-blue-500">Updated</p>
-                        <p className="text-sm text-blue-300">
-                          {formattedUpdatedAt}
-                        </p>
-                      </div>
+                  <div className="flex items-center gap-2 col-span-2">
+                    <Calendar className="h-4 w-4 text-blue-400 shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-xs text-blue-500">Updated</p>
+                      <p className="text-sm text-blue-300">
+                        {formattedUpdatedAt}
+                      </p>
                     </div>
-                  )
+                  </div>
+                )
                 : department.deletedAt && (
-                    <div className="flex items-center gap-2 col-span-2">
-                      <Calendar className="h-4 w-4 text-amber-400 shrink-0" />
-                      <div className="min-w-0">
-                        <p className="text-xs text-amber-500">Deleted</p>
-                        <p className="text-sm text-amber-300">
-                          {formattedDeletedAt}
-                        </p>
-                      </div>
+                  <div className="flex items-center gap-2 col-span-2">
+                    <Calendar className="h-4 w-4 text-amber-400 shrink-0" />
+                    <div className="min-w-0">
+                      <p className="text-xs text-amber-500">Deleted</p>
+                      <p className="text-sm text-amber-300">
+                        {formattedDeletedAt}
+                      </p>
                     </div>
-                  )}
+                  </div>
+                )}
             </div>
           </div>
         </CardContent>
@@ -180,7 +180,7 @@ export default function DepartmentCard({ department, onEdit }: Props) {
               variant="outline"
               size="sm"
               onClick={handleEdit}
-              //disabled={isPending}
+              disabled={isPending}
               className="gap-2 border-slate-700/50 text-slate-400 hover:text-blue-400 hover:border-blue-700/50 hover:bg-blue-900/20 transition-all duration-200"
             >
               <Edit2Icon className="h-4 w-4" />
@@ -191,7 +191,7 @@ export default function DepartmentCard({ department, onEdit }: Props) {
               variant="outline"
               size="sm"
               onClick={handleDeleteClick}
-              //disabled={isPending}
+              disabled={isPending}
               className="gap-2 border-slate-700/50 text-slate-400 hover:text-red-400 hover:border-red-700/50 hover:bg-red-900/20 transition-all duration-200"
             >
               <Trash className="h-4 w-4" />
