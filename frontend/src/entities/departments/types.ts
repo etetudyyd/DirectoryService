@@ -1,4 +1,4 @@
-import { DictionaryItemResponse } from "@/shared/api/types";
+import { Location } from "../locations/types";
 import { Position } from "../positions/types";
 
 export type Department = {
@@ -32,6 +32,7 @@ export type DepartmentDetails = {
     updatedAt: Date;
     deletedAt: Date | null;
     positions: Position[];
+    locations: Location[];
 }
 
 

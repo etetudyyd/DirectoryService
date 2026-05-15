@@ -54,26 +54,26 @@ export default function LocationItemSelector({
     }
 
     if (allItems) {
-      allItems.forEach((dept) => {
-        if (!allItemsMap.has(dept.id)) {
-          result.push(dept);
-          allItemsMap.set(dept.id, true);
+      allItems.forEach((loc) => {
+        if (!allItemsMap.has(loc.id)) {
+          result.push(loc);
+          allItemsMap.set(loc.id, true);
         }
       });
     }
 
     let filteredResult = result;
     if (excludeItemsIds && excludeItemsIds.length > 0) {
-      filteredResult = result.filter((dept) => !excludeItemsIds.includes(dept.id));
+      filteredResult = result.filter((loc) => !excludeItemsIds.includes(loc.id));
     }
 
     return filteredResult;
   }, [selectedItems, allItems, excludeItemsIds]);
 
   const multiSelectOptions = React.useMemo(() => {
-    return combinedItems.map((dept) => ({
-      value: dept.id,
-      label: dept.name,
+    return combinedItems.map((loc) => ({
+      value: loc.id,
+      label: loc.name,
     }));
   }, [combinedItems]);
 

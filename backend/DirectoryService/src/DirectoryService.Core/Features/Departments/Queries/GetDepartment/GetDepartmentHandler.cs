@@ -60,6 +60,28 @@ public class GetDepartmentHandler : IQueryHandler<GetDepartmentByIdResponse, Get
                         DeletedAt = dp.Position.DeletedAt,
                     })
                     .ToList(),
+                Locations = d.DepartmentLocations
+                    .Where(dl => dl.Location.DeletedAt == null)
+                    .Select(dl => new LocationItemDto
+                    {
+                        Id = dl.Location.Id.Value,
+                        Name = dl.Location.Name.Value,
+                        Address = new AddressDto
+                        {
+                            Apartment = dl.Location.Address.Apartment,
+                            City = dl.Location.Address.City,
+                            House = dl.Location.Address.House,
+                            PostalCode = dl.Location.Address.PostalCode,
+                            Street = dl.Location.Address.Street,
+                            Region = dl.Location.Address.Region,
+                        },
+                        TimeZone = dl.Location.Timezone.Value,
+                        IsActive = dl.Location.IsActive,
+                        CreatedAt = dl.Location.CreatedAt,
+                        UpdatedAt = dl.Location.UpdatedAt,
+                        DeletedAt = dl.Location.DeletedAt,
+                    })
+                .ToList(),
             })
             .FirstOrDefaultAsync(cancellationToken);
 

@@ -40,7 +40,7 @@ export type GetChildrenDepartmentsRequest = {
 }
 
 export type UpdateDepartmentLocationsRequest = {
-  departmentsId: string;
+  departmentId: string;
   locationsIds: string[];
 };
 
@@ -114,7 +114,7 @@ getRootDepartments: async (request: GetRootDepartmentsRequest) => {
     request: UpdateDepartmentLocationsRequest,
   ) => {
     const response = await apiClient.put<Envelope<Department>>(
-      `${routes.positions}/${request.departmentsId}${routes.locations}`,
+      `${routes.departments}/${request.departmentId}${routes.locations}`,
       request,
     );
     return response.data;

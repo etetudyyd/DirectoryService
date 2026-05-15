@@ -33,7 +33,7 @@ const createLocationSchema = z.object({
     street: z.string().nonempty("Street is has to be not empty"),
     house: z.string().nonempty("House is has to be not empty"),
     postalCode: z.string().nonempty("Postal code has to be not empty"),
-    apartment: z.string().nonempty("Apartment has to be not empty"),
+    apartment: z.string().nonempty("Apartment has to be not empty").nullable(),
   }),
   timeZone: z.string().nonempty("Timezone has to be not empty"),
   departmentsIds: z.array(z.string().nonempty("Department has to be not empty")),

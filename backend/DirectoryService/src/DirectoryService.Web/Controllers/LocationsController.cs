@@ -1,5 +1,4 @@
 ﻿using Core.Abstractions;
-using DirectoryService.Entities;
 using DirectoryService.Features.Locations.Commands.CreateLocation;
 using DirectoryService.Features.Locations.Commands.DeactivateLocation;
 using DirectoryService.Features.Locations.Commands.UpdateLocation;
@@ -18,7 +17,7 @@ namespace DirectoryService.Controllers;
 [Route("api/locations")]
 public class LocationsController : ControllerBase
 {
-    [HttpPost("/create")]
+    [HttpPost]
     public async Task<EndpointResult<Guid>> Create(
         [FromServices] ICommandHandler<Guid, CreateLocationCommand> handler,
         [FromBody] CreateLocationRequest request,

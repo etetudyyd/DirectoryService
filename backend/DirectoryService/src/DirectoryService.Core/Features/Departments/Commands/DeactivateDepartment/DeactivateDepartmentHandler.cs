@@ -3,6 +3,7 @@ using Core.Validation;
 using CSharpFunctionalExtensions;
 using DirectoryService.Database.IRepositories;
 using DirectoryService.Database.ITransactions;
+using DirectoryService.ValueObjects.Department;
 using FluentValidation;
 using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Logging;
@@ -52,7 +53,7 @@ public class DeactivateDepartmentHandler : ICommandHandler<Guid, DeactivateDepar
             return error.ToErrors();
 
         var departmentResult = await _departmentsRepository
-            .GetBy(x => x.Id.Value == command.Id, cancellationToken);
+            .GetBy(x => x.Id == new DepartmentId(command.Id), cancellationToken);
         if (departmentResult.IsFailure)
         {
             transaction.Rollback(cancellationToken);

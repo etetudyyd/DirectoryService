@@ -20,6 +20,9 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbP
 import { buildBreadcrumbs } from "@/shared/lib/breadcrumbs/buildBreadcrumbs";
 import React from "react";
 import Link from "next/link";
+import { useUpdateDepartmentLocations } from "@/features/departments/model/use-department-locations";
+import LocationItemSelector from "@/widgets/locations/locations-item-selector";
+import { Separator } from "@/shared/components/ui/separator";
 
 export default function DepartmentDetailsPage() {
 
@@ -50,12 +53,12 @@ export default function DepartmentDetailsPage() {
         useGetChildrenDepartment(departmentId);
 
 
-    {/*     const {
+    const {
         updateDepartmentLocations,
         isError: isUpdateError,
         error: updateError,
         isPending: isUpdatePending,
-    } = useUpdateDepartmentLocations(); */}
+    } = useUpdateDepartmentLocations();
 
     const handleDelete = async () => {
         setLoading(true);
@@ -102,19 +105,19 @@ export default function DepartmentDetailsPage() {
     }
 
     // Инициализируем selectedLocationIds при первом рендере и когда department загружен
-    // const currentLocIds = department.locations?.map((position) => position.id) || [];
+    const currentLocIds = department.locations?.map((location) => location.id) || [];
 
     // Инициализируем selectedLocIds только один раз, когда position загружен и selectedLocIds пустой
-    //  if (selectedLocIds.length === 0 && currentLocIds.length > 0) {
-    //      setSelectedLocIds(currentLocIds);
-    //   }
+    if (selectedLocIds.length === 0 && currentLocIds.length > 0) {
+        setSelectedLocIds(currentLocIds);
+    }
 
-    //   const handleEditClick = () => {
-    // При начале редактирования устанавливаем текущие значения
-    //       setSelectedLocIds(currentLocIds);
-    //setIsUpdateLocs(true);
-    //    };
-    {/*
+    const handleEditClick = () => {
+        // При начале редактирования устанавливаем текущие значения
+        setSelectedLocIds(currentLocIds);
+        setIsUpdateLocs(true);
+    };
+
     const handleSave = async () => {
         try {
             await updateDepartmentLocations({
@@ -134,10 +137,10 @@ export default function DepartmentDetailsPage() {
         setSelectedLocIds(currentLocIds);
         setIsUpdateLocs(false);
     };
-*/}
+
     // Обработчик изменений в селекторе
-    const handleDepartmentChange = (departmentIds: string[]) => {
-        setSelectedLocIds(departmentIds);
+    const handleLocationChange = (locationIds: string[]) => {
+        setSelectedLocIds(locationIds);
     };
 
     // Format dates
@@ -266,16 +269,16 @@ export default function DepartmentDetailsPage() {
                 </Alert>
             )}
 
-            {/* Alert if update error 
-      {isUpdateError && (
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertTitle>Update Failed</AlertTitle>
-          <AlertDescription>
-            {updateError?.message || "Failed to update departments"}
-          </AlertDescription>
-        </Alert>
-      )}*/}
+            {/* Alert if update error */}
+            {isUpdateError && (
+                <Alert variant="destructive">
+                    <AlertCircle className="h-4 w-4" />
+                    <AlertTitle>Update Failed</AlertTitle>
+                    <AlertDescription>
+                        {updateError?.message || "Failed to update departments"}
+                    </AlertDescription>
+                </Alert>
+            )}
 
             {/* Main content */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -447,7 +450,7 @@ export default function DepartmentDetailsPage() {
                 <div className="space-y-6">
 
                     {/* Locations Card */}
-                    {/*
+                    
                     
                     <Card>
                         <CardHeader>
@@ -528,7 +531,7 @@ export default function DepartmentDetailsPage() {
                                 </div>
                             </div>
                         </CardContent>
-                    </Card>*/}
+                    </Card>
 
                     {/* Positions Card */}
                     <Card>
