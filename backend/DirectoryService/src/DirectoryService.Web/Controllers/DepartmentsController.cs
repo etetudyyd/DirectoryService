@@ -69,9 +69,9 @@ public class DepartmentsController : ControllerBase
     }
 
     [HttpGet("{departmentId:guid}")]
-    public async Task<EndpointResult<DepartmentResponse>> Get(
-        [FromServices] IQueryHandler<DepartmentResponse, GetDepartmentQuery> handler,
-        [FromQuery] Guid departmentId,
+    public async Task<EndpointResult<GetDepartmentByIdResponse>> GetById(
+        [FromServices] IQueryHandler<GetDepartmentByIdResponse, GetDepartmentQuery> handler,
+        [FromRoute] Guid departmentId,
         CancellationToken cancellationToken)
     {
         var query = new GetDepartmentQuery(departmentId);
@@ -101,7 +101,7 @@ public class DepartmentsController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<EndpointResult<PaginationResponse<DepartmentItemDto>>> GetDepartments(
+    public async Task<EndpointResult<PaginationResponse<DepartmentItemDto>>> Get(
         [FromServices] IQueryHandler<PaginationResponse<DepartmentItemDto>,
             GetDepartmentsQuery> handler,
         [FromQuery] GetDepartmentsRequest request,

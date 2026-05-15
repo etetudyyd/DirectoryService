@@ -4,6 +4,7 @@ import { departmentsQueryOptions } from "@/entities/departments/api";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { RefCallback, useCallback } from "react";
 import { EnvelopeError } from "@/shared/api/errors";
+import useCursorRef from "@/shared/hooks/use-cursor-ref";
 
 export function useDepartmentsList({
     locationsIds,
@@ -37,25 +38,11 @@ export function useDepartmentsList({
     }),
   });
 
-  const cursorRef: RefCallback<HTMLDivElement> = useCallback(
-      (el) => {
-        const observer = new IntersectionObserver(
-          (entries) => {
-            if (entries[0].isIntersecting && !isFetchingNextPage && hasNextPage) {
-              fetchNextPage();
-            }
-          },
-          { threshold: 0.5 },
-        );
-  
-        if (el) {
-          observer.observe(el);
-  
-          return () => observer.disconnect();
-        }
-      },
-      [fetchNextPage, hasNextPage, isFetchingNextPage],
-    );
+  const cursorRef = useCursorRef({
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  });
   
     return {
       departments: data?.items,

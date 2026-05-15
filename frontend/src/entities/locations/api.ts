@@ -122,6 +122,9 @@ export const locationsQueryOptions = {
           page: data.pages[0]?.page ?? 1,
           pageSize: data.pages[0]?.pageSize ?? filter.pageSize,
           totalPages: data.pages[0]?.totalPages ?? 0,
+          parentId: data.pages[0]?.parentId ?? "",
+          sortBy: data.pages[0]?.sortBy ?? "",
+          sortDirection: data.pages[0]?.sortDirection ?? "",
         };
       },
     });
@@ -151,6 +154,9 @@ export const locationsQueryOptions = {
               page: data.pages[0]?.page ?? 1,
               pageSize: data.pages[0]?.pageSize ?? filter.pageSize,
               totalPages: data.pages[0]?.totalPages ?? 0,
+              parentId: data.pages[0]?.parentId ?? "",
+              sortBy: data.pages[0]?.sortBy ?? "",
+              sortDirection: data.pages[0]?.sortDirection ?? "",
             }),
           });
         },

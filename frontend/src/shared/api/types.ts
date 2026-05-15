@@ -13,3 +13,7 @@ export type DictionaryItemResponse = {
   id: string;
   name: string;
 };
+
+export const PAGE_SIZE = 8;
+
+export const PREFETCH = 4;

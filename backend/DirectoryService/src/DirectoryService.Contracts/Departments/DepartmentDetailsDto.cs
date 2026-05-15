@@ -1,6 +1,9 @@
-﻿namespace DirectoryService.Departments;
+﻿using DirectoryService.Locations;
+using DirectoryService.Positions;
 
-public record DepartmentResponse
+namespace DirectoryService.Departments;
+
+public record DepartmentDetailsDto
 {
     public Guid Id { get; init; }
 
@@ -16,15 +19,17 @@ public record DepartmentResponse
 
     public bool IsActive { get; init; }
 
+    public int LocationsCount { get; init; }
+
+    public int PositionsCount { get; init; }
+
     public DateTime CreatedAt { get; init; }
 
     public DateTime UpdatedAt { get; init; }
 
     public DateTime? DeletedAt { get; init; }
 
-    //public IReadOnlyList<DepartmentItemDto> ChildrenDepartments { get; init; }
+    public IReadOnlyList<LocationItemDto> Locations { get; init; } = [];
 
-    //public IReadOnlyList<DepartmentLocation> DepartmentLocations { get; init; }
-
-    //public IReadOnlyList<DepartmentPosition> DepartmentPositions { get; init; }
+    public IReadOnlyList<PositionItemDto> Positions { get; init; } = [];
 }

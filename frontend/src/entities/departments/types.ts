@@ -1,4 +1,5 @@
 import { DictionaryItemResponse } from "@/shared/api/types";
+import { Position } from "../positions/types";
 
 export type Department = {
     id: string;
@@ -25,13 +26,12 @@ export type DepartmentDetails = {
     path: string;
     parentId?: string | null;
     depth: number;
-    childrenCount: number;
     isActive: boolean;
+    positionsCount: number; 
     createdAt: Date;
     updatedAt: Date;
     deletedAt: Date | null;
-    locations: DictionaryItemResponse[];
-    positions: DictionaryItemResponse[];
+    positions: Position[];
 }
 
 

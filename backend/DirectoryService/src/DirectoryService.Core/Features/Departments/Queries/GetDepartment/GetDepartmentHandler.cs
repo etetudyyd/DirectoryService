@@ -3,6 +3,8 @@ using CSharpFunctionalExtensions;
 using DirectoryService.Database;
 using DirectoryService.Departments;
 using DirectoryService.Departments.Responses;
+using DirectoryService.Locations;
+using DirectoryService.Positions;
 using DirectoryService.ValueObjects.Department;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Hybrid;
@@ -11,7 +13,7 @@ using Shared.SharedKernel;
 
 namespace DirectoryService.Features.Departments.Queries.GetDepartment;
 
-public class GetDepartmentHandler : IQueryHandler<DepartmentResponse, GetDepartmentQuery>
+public class GetDepartmentHandler : IQueryHandler<GetDepartmentByIdResponse, GetDepartmentQuery>
 {
     private readonly IReadDbContext _readDbContext;
     private readonly ILogger<GetDepartmentHandler> _logger;
@@ -27,30 +29,48 @@ public class GetDepartmentHandler : IQueryHandler<DepartmentResponse, GetDepartm
         _readDbContext = readDbContext;
     }
 
-    public async Task<Result<DepartmentResponse, Errors>> Handle(GetDepartmentQuery query, CancellationToken cancellationToken)
+    public async Task<Result<GetDepartmentByIdResponse, Errors>> Handle(GetDepartmentQuery query, CancellationToken cancellationToken)
     {
-        var department = await _readDbContext.DepartmentsRead
-            .FirstOrDefaultAsync(x => x.Id == new DepartmentId(query.DepartmentId), cancellationToken);
-        if (department is null)
+        var departmentDto = await _readDbContext.DepartmentsRead
+            .Where(d => d.Id == new DepartmentId(query.DepartmentId))
+            .Select(d => new DepartmentDetailsDto
+            {
+                Id = d.Id.Value,
+                Name = d.Name.Value,
+                Identifier = d.Identifier.Value,
+                Path = d.Path.Value,
+                ParentId = d.ParentId!.Value,
+                Depth = d.Depth,
+                IsActive = d.IsActive,
+                LocationsCount = d.DepartmentLocations.Count,
+                PositionsCount = d.DepartmentPositions.Count,
+                CreatedAt = d.CreatedAt,
+                UpdatedAt = d.UpdatedAt,
+                DeletedAt = d.DeletedAt,
+                Positions = d.DepartmentPositions
+                    .Where(dp => dp.Position.DeletedAt == null)
+                    .Select(dp => new PositionItemDto
+                    {
+                        Id = dp.Position.Id.Value,
+                        Name = dp.Position.Name.Value,
+                        Description = dp.Position.Description.Value,
+                        IsActive = dp.Position.IsActive,
+                        CreatedAt = dp.Position.CreatedAt,
+                        UpdatedAt = dp.Position.UpdatedAt,
+                        DeletedAt = dp.Position.DeletedAt,
+                    })
+                    .ToList(),
+            })
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (departmentDto is null)
         {
             return Error.NotFound("department.not.found", "Department not found")
                 .ToErrors();
         }
 
-        _logger.LogInformation("Get department by id: {Id}", department.Id);
+        _logger.LogInformation("Get department by id: {Id}", departmentDto.Id);
 
-        return new DepartmentResponse
-        {
-            Id = department.Id.Value,
-            Name = department.Name.Value,
-            Identifier = department.Identifier.Value,
-            Path = department.Path.Value,
-            ParentId = department.ParentId?.Value,
-            Depth = department.Depth,
-            IsActive = department.IsActive,
-            CreatedAt = department.CreatedAt,
-            UpdatedAt = department.UpdatedAt,
-            DeletedAt = department.DeletedAt,
-        };
+        return new GetDepartmentByIdResponse(departmentDto);
     }
 }

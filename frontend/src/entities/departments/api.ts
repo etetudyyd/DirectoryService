@@ -1,5 +1,5 @@
 import { apiClient } from "@/shared/api/axios-instance";
-import { DictionaryItemResponse, PaginationResponse } from "@/shared/api/types";
+import { DictionaryItemResponse, PAGE_SIZE, PaginationResponse } from "@/shared/api/types";
 import { Envelope } from "@/shared/api/envelope";
 import routes from "@/shared/routes";
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
@@ -174,21 +174,7 @@ export const departmentsQueryOptions = {
       });
     },
 
-    getChildrenDepartmentsOptions: ({
-      parentId,
-      page,
-      pageSize
-    }: {
-      parentId: string;
-      page: number;
-      pageSize: number;
-    }) => {
-      return queryOptions({
-        queryKey: [departmentsQueryOptions.baseKey, { page }],
-        queryFn: () =>
-          departmentsApi.getChildrenDepartments({ parentId: parentId, page: page, pageSize: pageSize }),
-      });
-    },
+     
 
     getDepartmentsOptions: ({
         page,
@@ -206,7 +192,37 @@ export const departmentsQueryOptions = {
         return queryOptions({
           queryKey: [departmentsQueryOptions.baseKey, { page }],
           queryFn: () =>
-            departmentsApi.getDepartments({ page: page, pageSize: pageSize, parentId: parentId, sortBy: sortBy, sortDirection: sortDirection}),
+            departmentsApi.getDepartments({ page: page, pageSize: pageSize, parentId: parentId ?? undefined, sortBy: sortBy, sortDirection: sortDirection}),
+        });
+      },
+
+     getChildrenDepartmentsInfinityOptions : (parentId: string) => {
+        return infiniteQueryOptions({
+          queryKey: [departmentsQueryOptions.baseKey, parentId, "children"],
+          queryFn: ({ pageParam }) => {
+            return departmentsApi.getChildrenDepartments({
+              parentId: parentId,
+              page: pageParam,
+              pageSize: PAGE_SIZE,
+            });
+          },
+          initialPageParam: 1,
+          getNextPageParam: (response) => {
+            if (!response || response.page >= response.totalPages) return undefined;
+            return response.page + 1;
+          },
+          select: (data): PaginationResponse<Department> => {
+            return {
+              items: data.pages.flatMap((page) => page?.items ?? []),
+              totalItems: data.pages[0]?.totalItems ?? 0,
+              page: data.pages[0]?.page ?? 1,
+              pageSize: data.pages[0]?.pageSize ??  PAGE_SIZE,
+              totalPages: data.pages[0]?.totalPages ?? 0,
+              parentId: data.pages[0]?.parentId ??  "",
+              sortBy: data.pages[0]?.sortBy ?? "",
+              sortDirection: data.pages[0]?.sortDirection ?? "",
+            };
+          },
         });
       },
       
@@ -216,6 +232,7 @@ export const departmentsQueryOptions = {
           queryFn: ({ pageParam }) => {
             return departmentsApi.getDepartments({
               ...filter,
+              parentId: filter.parentId ?? undefined,
               page: pageParam,
             });
           },
@@ -229,9 +246,9 @@ export const departmentsQueryOptions = {
               items: data.pages.flatMap((page) => page?.items ?? []),
               totalItems: data.pages[0]?.totalItems ?? 0,
               page: data.pages[0]?.page ?? 1,
-              pageSize: data.pages[0]?.pageSize ?? filter.pageSize,
+              pageSize: data.pages[0]?.pageSize ?? filter.pageSize ?? PAGE_SIZE,
               totalPages: data.pages[0]?.totalPages ?? 0,
-              parentId: data.pages[0]?.parentId ?? filter.parentId,
+              parentId: data.pages[0]?.parentId ?? filter.parentId ?? "",
               sortBy: data.pages[0]?.sortBy ?? filter.sortBy,
               sortDirection: data.pages[0]?.sortDirection ?? filter.sortDirection,
             };
@@ -261,7 +278,7 @@ export const departmentsQueryOptions = {
             items: data.pages.flatMap((page) => page?.items ?? []),
             totalItems: data.pages[0]?.totalItems ?? 0,
             page: data.pages[0]?.page ?? 1,
-            pageSize: data.pages[0]?.pageSize ?? filter.pageSize,
+            pageSize: data.pages[0]?.pageSize ?? filter.pageSize ?? PAGE_SIZE,
             totalPages: data.pages[0]?.totalPages ?? 0,
             parentId: "",
             sortBy: "",
