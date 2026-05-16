@@ -99,6 +99,7 @@ public sealed class Location : ISoftDeletable
         if(IsActive)
             return Error.Failure("location.error.delete", "location is already active");
         IsActive = true;
+        DeletedAt = null;
 
         return UnitResult.Success<Error>();
     }

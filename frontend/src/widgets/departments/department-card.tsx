@@ -1,11 +1,12 @@
 import { Department } from "@/entities/departments/types";
 import { DeleteConfirmationDialog } from "@/features/delete-confirmation-dialog";
+import { useActivateDepartment } from "@/features/departments/model/use-activate-department";
 import { useDeleteDepartment } from "@/features/departments/model/use-delete-department";
 import { Button } from "@/shared/components/ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "@/shared/components/ui/card";
 import { Separator } from "@/shared/components/ui/separator";
 import routes from "@/shared/routes";
-import { Building, Calendar, Edit2Icon, IdCardIcon, LetterText, Locate, Trash, Users } from "lucide-react";
+import { Building, Calendar, Check, Edit2Icon, IdCardIcon, LetterText, Locate, Trash, Users } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 
@@ -38,6 +39,7 @@ const formatDateTime = (date: Date | string | null) => {
 
 export default function DepartmentCard({ department, onEdit }: Props) {
   const { deleteDepartment, isPending } = useDeleteDepartment();
+  const { activateDepartment, isPending: isActivatePending } = useActivateDepartment();
 
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -49,6 +51,15 @@ export default function DepartmentCard({ department, onEdit }: Props) {
     } finally {
       setLoading(false);
       setDeleteOpen(false);
+    }
+  };
+
+  const handleActivate = async () => {
+    setLoading(true);
+    try {
+      await activateDepartment(department.id);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -187,16 +198,29 @@ export default function DepartmentCard({ department, onEdit }: Props) {
               Edit
             </Button>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleDeleteClick}
-              disabled={isPending}
-              className="gap-2 border-slate-700/50 text-slate-400 hover:text-red-400 hover:border-red-700/50 hover:bg-red-900/20 transition-all duration-200"
-            >
-              <Trash className="h-4 w-4" />
-              Delete
-            </Button>
+            {department.isActive ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleDeleteClick}
+                disabled={isPending}
+                className="gap-2 border-slate-700/50 text-slate-400 hover:text-red-400 hover:border-red-700/50 hover:bg-red-900/20 transition-all duration-200"
+              >
+                <Trash className="h-4 w-4" />
+                Delete
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleActivate}
+                disabled={isActivatePending}
+                className="gap-2 border-slate-700/50 text-slate-400 hover:text-emerald-400 hover:border-emerald-700/50 hover:bg-emerald-900/20 transition-all duration-200"
+              >
+                <Check className="h-4 w-4" />
+                 Activate
+              </Button>
+            )}       
 
             <DeleteConfirmationDialog
               open={deleteOpen}

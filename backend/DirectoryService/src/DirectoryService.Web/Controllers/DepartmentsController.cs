@@ -2,6 +2,7 @@
 using DirectoryService.Departments;
 using DirectoryService.Departments.Requests;
 using DirectoryService.Departments.Responses;
+using DirectoryService.Features.Departments.Commands.ActivateDepartment;
 using DirectoryService.Features.Departments.Commands.CreateDepartment;
 using DirectoryService.Features.Departments.Commands.DeactivateDepartment;
 using DirectoryService.Features.Departments.Commands.RelocateDepartmentParent;
@@ -56,7 +57,7 @@ public class DepartmentsController : ControllerBase
         return await handler.Handle(query, cancellationToken);
     }
 
-    [HttpPatch("{departmentId:guid}")]
+    [HttpPatch("{departmentId:guid}/update")]
     public async Task<EndpointResult<Guid>> Update(
         [FromServices] ICommandHandler<Guid, UpdateDepartmentCommand> handler,
         [FromRoute] Guid departmentId,
@@ -142,6 +143,17 @@ public class DepartmentsController : ControllerBase
         CancellationToken cancellationToken)
     {
         var command = new RelocateDepartmentParentCommand(departmentId, request);
+        return await handler.Handle(command, cancellationToken);
+    }
+
+    [Route("{departmentId:Guid}")]
+    [HttpPatch]
+    public async Task<EndpointResult<Guid>> Activate(
+        [FromServices] ICommandHandler<Guid, ActivateDepartmentCommand> handler,
+        [FromRoute] Guid departmentId,
+        CancellationToken cancellationToken)
+    {
+        var command = new ActivateDepartmentCommand(departmentId);
         return await handler.Handle(command, cancellationToken);
     }
 

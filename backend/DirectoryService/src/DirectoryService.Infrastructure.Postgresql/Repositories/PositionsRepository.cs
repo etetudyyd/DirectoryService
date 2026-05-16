@@ -98,7 +98,6 @@ public class PositionsRepository : IPositionsRepository
 
                    FROM {Constants.POSITION_TABLE_ROUTE} 
                    WHERE id = {{0}}
-                   AND is_active = true
                    FOR UPDATE", id)
             .FirstOrDefaultAsync(cancellationToken);
 

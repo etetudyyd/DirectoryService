@@ -59,7 +59,7 @@ export const locationsApi = {
     timeZone
   }: UpdateLocationRequest): Promise<Envelope<Location>> => {
     const response = await apiClient.patch<Envelope<Location>>(
-      `${routes.locations}/${locationId}`,
+      `${routes.locations}/${locationId}/update`,
       { name, address, timeZone},
     );
     return response.data;
@@ -75,6 +75,12 @@ export const locationsApi = {
     });
 
     return response.data.result;
+  },
+   activateLocation: async (locationId: string) => {
+    const response = await apiClient.patch<Envelope<Location>>(
+      `${routes.locations}/${locationId}`,
+    );
+    return response.data;
   },
 
   deleteLocation: async (locationId: string) => {

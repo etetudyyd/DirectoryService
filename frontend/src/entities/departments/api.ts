@@ -104,7 +104,7 @@ getRootDepartments: async (request: GetRootDepartmentsRequest) => {
     identifier,
   }: UpdateDepartmentRequest): Promise<Envelope<Department>> => {
     const response = await apiClient.patch<Envelope<Department>>(
-      `${routes.departments}/${departmentId}`,
+      `${routes.departments}/${departmentId}/update`,
       { name, identifier },
     );
     return response.data;
@@ -130,6 +130,13 @@ getRootDepartments: async (request: GetRootDepartmentsRequest) => {
     });
 
     return response.data.result;
+  },
+
+  activateDepartment: async (departmentId: string) => {
+    const response = await apiClient.patch<Envelope<Department>>(
+      `${routes.departments}/${departmentId}`,
+    );
+    return response.data;
   },
 
   deleteDepartment: async (departmentId: string) => {

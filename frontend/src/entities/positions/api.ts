@@ -61,7 +61,7 @@ export const positionsApi = {
     description,
   }: UpdatePositionRequest): Promise<Envelope<Position>> => {
     const response = await apiClient.patch<Envelope<Position>>(
-      `${routes.positions}/${positionId}`,
+      `${routes.positions}/${positionId}/update`,
       { name, description },
     );
     return response.data;
@@ -73,6 +73,12 @@ export const positionsApi = {
     const response = await apiClient.put<Envelope<Position>>(
       `${routes.positions}/${request.positionId}${routes.departments}`,
       request,
+    );
+    return response.data;
+  },
+   activatePosition: async (positionId: string) => {
+    const response = await apiClient.patch<Envelope<Position>>(
+      `${routes.positions}/${positionId}`,
     );
     return response.data;
   },

@@ -1,5 +1,4 @@
 ﻿using Core.Abstractions;
-using Core.Validation;
 using CSharpFunctionalExtensions;
 using DirectoryService.Database.IRepositories;
 using DirectoryService.Database.ITransactions;
@@ -9,45 +8,33 @@ using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Logging;
 using Shared.SharedKernel;
 
-namespace DirectoryService.Features.Departments.Commands.DeactivateDepartment;
+namespace DirectoryService.Features.Departments.Commands.ActivateDepartment;
 
-public class DeactivateDepartmentHandler : ICommandHandler<Guid, DeactivateDepartmentCommand>
+public class ActivateDepartmentHandler : ICommandHandler<Guid, ActivateDepartmentCommand>
 {
     private readonly IDepartmentsRepository _departmentsRepository;
 
     private readonly ITransactionManager _transactionManager;
 
-    private readonly ILogger<DeactivateDepartmentHandler> _logger;
-
-    private readonly IValidator<DeactivateDepartmentCommand> _validator;
+    private readonly ILogger<ActivateDepartmentHandler> _logger;
 
     private readonly HybridCache _cache;
 
-    public DeactivateDepartmentHandler(
-        ILogger<DeactivateDepartmentHandler> logger,
-        IValidator<DeactivateDepartmentCommand> validator,
+    public ActivateDepartmentHandler(
         IDepartmentsRepository departmentsRepository,
-        ITransactionManager transactionManager, HybridCache cache)
+        ITransactionManager transactionManager,
+        ILogger<ActivateDepartmentHandler> logger,
+        HybridCache cache)
     {
-        _logger = logger;
-        _validator = validator;
         _departmentsRepository = departmentsRepository;
         _transactionManager = transactionManager;
+        _logger = logger;
         _cache = cache;
     }
 
-    public async Task<Result<Guid, Errors>> Handle(
-        DeactivateDepartmentCommand command,
-        CancellationToken cancellationToken)
+    public async Task<Result<Guid, Errors>> Handle(ActivateDepartmentCommand command, CancellationToken cancellationToken)
     {
-        var validationResult = await _validator.ValidateAsync(command, cancellationToken);
-        if (!validationResult.IsValid)
-        {
-            _logger.LogError("Invalid DepartmentDto");
-            return validationResult.ToErrors();
-        }
-
-        var (_, isFailure, transaction, error) = await _transactionManager
+        (_, bool isFailure, ITransactionScope? transaction, Error? error) = await _transactionManager
             .BeginTransactionAsync(cancellationToken);
         if (isFailure)
             return error.ToErrors();
@@ -72,7 +59,7 @@ public class DeactivateDepartmentHandler : ICommandHandler<Guid, DeactivateDepar
 
         string oldPath = department.Path.Value;
 
-        department.Deactivate();
+        department.Activate();
 
         var saveChangesResult = await _transactionManager
             .SaveChangesAsync(cancellationToken);
@@ -80,28 +67,27 @@ public class DeactivateDepartmentHandler : ICommandHandler<Guid, DeactivateDepar
             return saveChangesResult.Error.ToErrors();
 
         var updateChildDepartmentsPathResult = await _departmentsRepository
-            .UpdateChildDepartmentsPath(oldPath, department.Path.Value, department.Id.Value, cancellationToken);
+            .UpdateChildDepartmentsPath(
+                oldPath,
+                department.Path.Value,
+                department.Id.Value,
+                cancellationToken);
+
         if (updateChildDepartmentsPathResult.IsFailure)
         {
             transaction.Rollback(cancellationToken);
             return updateChildDepartmentsPathResult.Error.ToErrors();
         }
 
-        var deactivateConnectedLocationsResult = await _departmentsRepository
-            .DeactivateConnectedLocations(department.Id, cancellationToken);
-        if (deactivateConnectedLocationsResult.IsFailure)
+      /*
+       *   var updateChildDepartmentsPathResult = await _departmentsRepository
+            .UpdateChildDepartmentsPath(department, cancellationToken);
+        if (updateChildDepartmentsPathResult.IsFailure)
         {
             transaction.Rollback(cancellationToken);
-            return deactivateConnectedLocationsResult.Error.ToErrors();
+            return updateChildDepartmentsPathResult.Error.ToErrors();
         }
-
-        var deactivateConnectedPositions = await _departmentsRepository
-            .DeactivateConnectedPositions(department.Id, cancellationToken);
-        if (deactivateConnectedPositions.IsFailure)
-        {
-            transaction.Rollback(cancellationToken);
-            return deactivateConnectedPositions.Error.ToErrors();
-        }
+       */
 
         var commitResult = transaction.Commit(cancellationToken);
         if (commitResult.IsFailure)
@@ -109,9 +95,8 @@ public class DeactivateDepartmentHandler : ICommandHandler<Guid, DeactivateDepar
 
         await _cache.RemoveByTagAsync(Constants.DEPARTMENT_CACHE_PREFIX, cancellationToken);
 
-        _logger.LogInformation($"Department was deactivated with id{department.Id}");
+        _logger.LogInformation($"Department was activated with id{department.Id}");
 
         return department.Id.Value;
-
     }
 }

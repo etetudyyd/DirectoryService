@@ -132,12 +132,11 @@ public class LocationsRepository : ILocationsRepository
                         street       AS ""Address_Street""
                    FROM {Constants.LOCATION_TABLE_ROUTE} 
                    WHERE id = {{0}}
-                   AND is_active = true
                    FOR UPDATE", id)
             .FirstOrDefaultAsync(cancellationToken);
 
         if (location == null)
-            return Error.Failure("department.not.found", "Department not found");
+            return Error.Failure("location.not.found", "Location not found");
 
         return location;
     }

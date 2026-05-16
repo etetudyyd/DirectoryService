@@ -37,7 +37,7 @@ public interface IDepartmentsRepository
 
     Task<Result<Guid, Error>> RelocateDepartmentAsync(Department departmentUpdated, Path oldPath, CancellationToken cancellationToken);
 
-    Task<Result<Guid, Error>> UpdateChildDepartmentsPath(Department parent, CancellationToken cancellationToken);
+    Task<Result<Guid, Error>> UpdateChildDepartmentsPath(string oldPath, string newPath, Guid parentId, CancellationToken cancellationToken);
 
     Task<Result<Guid[], Error>> DeactivateConnectedLocations(DepartmentId departmentId, CancellationToken cancellationToken);
 

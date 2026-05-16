@@ -23,6 +23,7 @@ import Link from "next/link";
 import { useUpdateDepartmentLocations } from "@/features/departments/model/use-department-locations";
 import LocationItemSelector from "@/widgets/locations/locations-item-selector";
 import { Separator } from "@/shared/components/ui/separator";
+import { useActivateDepartment } from "@/features/departments/model/use-activate-department";
 
 export default function DepartmentDetailsPage() {
 
@@ -33,6 +34,7 @@ export default function DepartmentDetailsPage() {
     const [selectedLocIds, setSelectedLocIds] = useState<string[]>([]);
 
     const { deleteDepartment, isPending: isDeletePending } = useDeleteDepartment();
+    const { activateDepartment, isPending: isActivatePending } = useActivateDepartment();
     const [deleteOpen, setDeleteOpen] = useState(false);
     const [loading, setLoading] = useState(false);
 
@@ -67,6 +69,15 @@ export default function DepartmentDetailsPage() {
         } finally {
             setLoading(false);
             setDeleteOpen(false);
+        }
+    };
+
+      const handleActivate = async () => {
+        setLoading(true);
+        try {
+            await activateDepartment(department!.id);
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -604,7 +615,8 @@ export default function DepartmentDetailsPage() {
                             ) : (
                                 <Button
                                     className="w-full justify-start bg-green-600 hover:bg-green-700 text-white transition-colors"
-                                    onClick={() => { }}
+                                    onClick={handleActivate}
+                                    disabled={isActivatePending}
                                 >
                                     <CheckCircle className="h-4 w-4 mr-2" />
                                     Activate
