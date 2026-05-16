@@ -55,6 +55,14 @@ public sealed record Path
         return new Path(value.ToLower());
     }
 
+    public static Path CreateUpdated(string oldIdentifier, string newIdentifier, Path path)
+    {
+        string newPath = path.Value.Replace(
+            oldIdentifier,
+            newIdentifier);
+        return new Path(newPath);
+    }
+
     public static Path CreateDeleted(string oldIdentifier, Path path)
     {
         string newPath = path.Value.Replace(

@@ -79,16 +79,6 @@ public class ActivateDepartmentHandler : ICommandHandler<Guid, ActivateDepartmen
             return updateChildDepartmentsPathResult.Error.ToErrors();
         }
 
-      /*
-       *   var updateChildDepartmentsPathResult = await _departmentsRepository
-            .UpdateChildDepartmentsPath(department, cancellationToken);
-        if (updateChildDepartmentsPathResult.IsFailure)
-        {
-            transaction.Rollback(cancellationToken);
-            return updateChildDepartmentsPathResult.Error.ToErrors();
-        }
-       */
-
         var commitResult = transaction.Commit(cancellationToken);
         if (commitResult.IsFailure)
             return commitResult.Error.ToErrors();
