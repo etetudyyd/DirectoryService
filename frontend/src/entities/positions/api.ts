@@ -61,7 +61,7 @@ export const positionsApi = {
     description,
   }: UpdatePositionRequest): Promise<Envelope<Position>> => {
     const response = await apiClient.patch<Envelope<Position>>(
-      `${routes.positions}/${positionId}`,
+      `${routes.positions}/${positionId}/update`,
       { name, description },
     );
     return response.data;
@@ -73,6 +73,12 @@ export const positionsApi = {
     const response = await apiClient.put<Envelope<Position>>(
       `${routes.positions}/${request.positionId}${routes.departments}`,
       request,
+    );
+    return response.data;
+  },
+   activatePosition: async (positionId: string) => {
+    const response = await apiClient.patch<Envelope<Position>>(
+      `${routes.positions}/${positionId}`,
     );
     return response.data;
   },
@@ -108,6 +114,7 @@ export const positionsQueryOptions = {
         positionsApi.getPositions({ page: page, pageSize: pageSize }),
     });
   },
+  
   getPositionsInfinityOptions: (filter: PositionsFilterState) => {
     return infiniteQueryOptions({
       queryKey: [positionsQueryOptions.baseKey, filter],
@@ -129,6 +136,9 @@ export const positionsQueryOptions = {
           page: data.pages[0]?.page ?? 1,
           pageSize: data.pages[0]?.pageSize ?? filter.pageSize,
           totalPages: data.pages[0]?.totalPages ?? 0,
+          parentId: data.pages[0]?.parentId ?? "",
+          sortBy: data.pages[0]?.sortBy ?? "",
+          sortDirection: data.pages[0]?.sortDirection ?? "",
         };
       },
     });

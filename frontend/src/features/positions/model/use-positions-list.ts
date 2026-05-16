@@ -8,8 +8,13 @@ import { EnvelopeError } from "@/shared/api/errors";
 
 export const PAGE_SIZE = 5;
 
-export function usePositionsList({ departmentsIds, search, pageSize, isActive }: PositionsFilterState) {
-  
+export function usePositionsList({
+   departmentsIds,
+   search,
+   pageSize,
+   isActive 
+  }: PositionsFilterState) {
+     
   const [debouncedSearch] = useDebounce(search, 300);
 
   const {

@@ -104,6 +104,22 @@ public class DepartmentsRepository : IDepartmentsRepository
         return department;
     }
 
+    public async Task<bool> IsNameUniqueAsync(DepartmentName name, CancellationToken cancellationToken)
+    {
+        bool isDepartmentExists = await _dbContext.Departments
+            .AnyAsync(p => p.Name == name, cancellationToken);
+
+        return isDepartmentExists;
+    }
+
+    public async Task<bool> IsIdentifierUniqueAsync(Identifier identifier, CancellationToken cancellationToken)
+    {
+        bool isDepartmentExists = await _dbContext.Departments
+            .AnyAsync(p => p.Identifier == identifier, cancellationToken);
+
+        return isDepartmentExists;
+    }
+
     public async Task<UnitResult<Error>> BulkDeleteDepartmentLocationsAsync(
         Guid departmentId,
         CancellationToken cancellationToken)
@@ -153,30 +169,37 @@ public class DepartmentsRepository : IDepartmentsRepository
     }
 
     public async Task<Result<Guid, Error>> UpdateChildDepartmentsPath(
-        Department parent,
+        string oldPath,
+        string newPath,
+        Guid parentId,
         CancellationToken cancellationToken)
     {
-        string oldPath = parent.Path.Value
-            .Replace("deleted-", string.Empty);
-
         const string dapperSql = $"""
-                           UPDATE {Constants.DEPARTMENT_TABLE_ROUTE}
-                           SET path = REGEXP_REPLACE(path::text, @OldPath || '.*', @NewPath || substring(path::text, length(@OldPath)+1))::ltree
-                           WHERE path <@ @OldPath::ltree
-                             AND id != @ParentId
-                           """;
+                                  UPDATE {Constants.DEPARTMENT_TABLE_ROUTE}
+                                  SET path =
+                                      REGEXP_REPLACE(
+                                          path::text,
+                                          '^' || @OldPath,
+                                          @NewPath
+                                      )::ltree
+                                  WHERE path <@ @OldPath::ltree
+                                    AND id != @ParentId
+                                  """;
 
         var conn = _dbContext.Database.GetDbConnection();
 
-        await conn.ExecuteAsync(dapperSql, new
-        {
-            OldPath = oldPath,
-            NewPath = parent.Path.Value,
-            ParentId = parent.Id.Value,
-        });
+        await conn.ExecuteAsync(
+            dapperSql,
+            new
+            {
+                OldPath = oldPath,
+                NewPath = newPath,
+                ParentId = parentId,
+            });
 
-        return parent.Id.Value;
+        return parentId;
     }
+    
 
     public async Task<Result<Guid[], Error>> DeactivateConnectedLocations(
         DepartmentId departmentId,

@@ -1,6 +1,6 @@
 import { departmentsQueryOptions } from "@/entities/departments/api";
-import { DepartmentDictionaryState } from "@/entities/departments/types";
 import { useInfiniteQuery } from "@tanstack/react-query";
+import { DepartmentDictionaryState } from "./department-filters-store";
 
 export function useDepartmentDictionary(filter: DepartmentDictionaryState) {
   const {
@@ -18,7 +18,7 @@ export function useDepartmentDictionary(filter: DepartmentDictionaryState) {
     }),
   });
   return {
-    departments: data?.items,
+    items: data?.items,
     totalPages: data?.totalPages ?? undefined,
     currentPage: data?.page,
     isPending,

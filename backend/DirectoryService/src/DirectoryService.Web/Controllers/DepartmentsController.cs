@@ -2,12 +2,16 @@
 using DirectoryService.Departments;
 using DirectoryService.Departments.Requests;
 using DirectoryService.Departments.Responses;
+using DirectoryService.Features.Departments.Commands.ActivateDepartment;
 using DirectoryService.Features.Departments.Commands.CreateDepartment;
 using DirectoryService.Features.Departments.Commands.DeactivateDepartment;
 using DirectoryService.Features.Departments.Commands.RelocateDepartmentParent;
+using DirectoryService.Features.Departments.Commands.UpdateDepartment;
 using DirectoryService.Features.Departments.Commands.UpdateDepartmentLocations;
 using DirectoryService.Features.Departments.Queries.GetChildrenDepartments;
+using DirectoryService.Features.Departments.Queries.GetDepartment;
 using DirectoryService.Features.Departments.Queries.GetDepartments;
+using DirectoryService.Features.Departments.Queries.GetDepartmentsDictionary;
 using DirectoryService.Features.Departments.Queries.GetRootDepartments;
 using DirectoryService.Features.Departments.Queries.GetTopDepartmentsByPositions;
 using Framework.Endpoints;
@@ -19,7 +23,7 @@ namespace DirectoryService.Controllers;
 [Route("api/departments")]
 public class DepartmentsController : ControllerBase
 {
-    [HttpGet("{parentId:guid}")]
+    [HttpGet("{parentId:guid}/children")]
     public async Task<EndpointResult<PaginationResponse<DepartmentPrefetchResponse>>> GetChildrenDepartments(
         [FromServices] IQueryHandler<PaginationResponse<DepartmentPrefetchResponse>, GetChildrenDepartmentsQuery> handler,
         [FromRoute] Guid parentId,
@@ -53,6 +57,29 @@ public class DepartmentsController : ControllerBase
         return await handler.Handle(query, cancellationToken);
     }
 
+    [HttpPatch("{departmentId:guid}/update")]
+    public async Task<EndpointResult<Guid>> Update(
+        [FromServices] ICommandHandler<Guid, UpdateDepartmentCommand> handler,
+        [FromRoute] Guid departmentId,
+        [FromBody] UpdateDepartmentRequest request,
+        CancellationToken cancellationToken)
+    {
+        var command = new UpdateDepartmentCommand(departmentId, request);
+
+        return await handler.Handle(command, cancellationToken);
+    }
+
+    [HttpGet("{departmentId:guid}")]
+    public async Task<EndpointResult<GetDepartmentByIdResponse>> GetById(
+        [FromServices] IQueryHandler<GetDepartmentByIdResponse, GetDepartmentQuery> handler,
+        [FromRoute] Guid departmentId,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetDepartmentQuery(departmentId);
+
+        return await handler.Handle(query, cancellationToken);
+    }
+
     [HttpGet("top_positions")]
     public async Task<EndpointResult<GetTopDepartmentsByPositionsResponse>> GetTopDepartmentsByPosition(
         [FromServices] IQueryHandler<GetTopDepartmentsByPositionsResponse,
@@ -66,15 +93,26 @@ public class DepartmentsController : ControllerBase
     [HttpGet("dictionary")]
     public async Task<EndpointResult<PaginationResponse<DepartmentItemDto>>> GetDepartmentsDictionary(
         [FromServices] IQueryHandler<PaginationResponse<DepartmentItemDto>,
-            GetDepartmentsQuery> handler,
+            GetDepartmentsDictionaryQuery> handler,
         [FromQuery] GetDepartmentsDictionaryRequest request,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetDepartmentsDictionaryQuery(request);
+        return await handler.Handle(query, cancellationToken);
+    }
+
+    [HttpGet]
+    public async Task<EndpointResult<PaginationResponse<DepartmentItemDto>>> Get(
+        [FromServices] IQueryHandler<PaginationResponse<DepartmentItemDto>,
+            GetDepartmentsQuery> handler,
+        [FromQuery] GetDepartmentsRequest request,
         CancellationToken cancellationToken)
     {
         var query = new GetDepartmentsQuery(request);
         return await handler.Handle(query, cancellationToken);
     }
 
-    [HttpPost]
+    [HttpPost("create")]
     public async Task<EndpointResult<Guid>> Create(
         [FromServices] ICommandHandler<Guid, CreateDepartmentCommand> handler,
         [FromBody] CreateDepartmentRequest request,
@@ -105,6 +143,17 @@ public class DepartmentsController : ControllerBase
         CancellationToken cancellationToken)
     {
         var command = new RelocateDepartmentParentCommand(departmentId, request);
+        return await handler.Handle(command, cancellationToken);
+    }
+
+    [Route("{departmentId:Guid}")]
+    [HttpPatch]
+    public async Task<EndpointResult<Guid>> Activate(
+        [FromServices] ICommandHandler<Guid, ActivateDepartmentCommand> handler,
+        [FromRoute] Guid departmentId,
+        CancellationToken cancellationToken)
+    {
+        var command = new ActivateDepartmentCommand(departmentId);
         return await handler.Handle(command, cancellationToken);
     }
 

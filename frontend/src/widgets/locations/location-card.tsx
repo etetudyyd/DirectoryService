@@ -6,11 +6,12 @@ import {
 } from "@/shared/components/ui/card";
 import { Location } from "@/entities/locations/types";
 import { Button } from "@/shared/components/ui/button";
-import { Edit2Icon, Trash, Clock, Users, Calendar, Globe } from "lucide-react";
+import { Edit2Icon, Trash, Clock, Users, Calendar, Globe, Check } from "lucide-react";
 import { Separator } from "@/shared/components/ui/separator";
 import { useDeleteLocation } from "@/features/locations/model/use-delete-location";
 import { DeleteConfirmationDialog } from "@/features/delete-confirmation-dialog";
 import { useState } from "react";
+import { useActivateLocation } from "@/features/locations/model/use-activate-location";
 
 type Props = {
   location: Location;
@@ -41,8 +42,10 @@ const formatDateTime = (date: Date | string | null) => {
 
 export default function LocationCard({ location, onEdit }: Props) {
   const { deleteLocation, isPending } = useDeleteLocation();
+  const { activateLocation, isPending: isActivatePending } = useActivateLocation();
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+
   const handleDelete = async () => {
     setLoading(true);
     try {
@@ -50,6 +53,15 @@ export default function LocationCard({ location, onEdit }: Props) {
     } finally {
       setLoading(false);
       setDeleteOpen(false);
+    }
+  };
+
+  const handleActivate = async () => {
+    setLoading(true);
+    try {
+      await activateLocation(location.id);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -94,9 +106,8 @@ export default function LocationCard({ location, onEdit }: Props) {
           <div className="shrink-0">
             <div className="flex flex-col items-end">
               <div
-                className={`h-2.5 w-2.5 rounded-full mb-1 ${
-                  location.isActive ? "bg-emerald-500" : "bg-red-400"
-                }`}
+                className={`h-2.5 w-2.5 rounded-full mb-1 ${location.isActive ? "bg-emerald-500" : "bg-red-400"
+                  }`}
               />
             </div>
           </div>
@@ -153,27 +164,27 @@ export default function LocationCard({ location, onEdit }: Props) {
             {/* Updated or Deleted */}
             {location.isActive
               ? location.updatedAt && (
-                  <div className="flex items-center gap-2 col-span-2">
-                    <Calendar className="h-4 w-4 text-blue-400 shrink-0" />
-                    <div className="min-w-0">
-                      <p className="text-xs text-blue-500">Updated</p>
-                      <p className="text-sm text-blue-300">
-                        {formattedUpdatedAt}
-                      </p>
-                    </div>
+                <div className="flex items-center gap-2 col-span-2">
+                  <Calendar className="h-4 w-4 text-blue-400 shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-xs text-blue-500">Updated</p>
+                    <p className="text-sm text-blue-300">
+                      {formattedUpdatedAt}
+                    </p>
                   </div>
-                )
+                </div>
+              )
               : location.deletedAt && (
-                  <div className="flex items-center gap-2 col-span-2">
-                    <Calendar className="h-4 w-4 text-amber-400 shrink-0" />
-                    <div className="min-w-0">
-                      <p className="text-xs text-amber-500">Deleted</p>
-                      <p className="text-sm text-amber-300">
-                        {formattedDeletedAt}
-                      </p>
-                    </div>
+                <div className="flex items-center gap-2 col-span-2">
+                  <Calendar className="h-4 w-4 text-amber-400 shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-xs text-amber-500">Deleted</p>
+                    <p className="text-sm text-amber-300">
+                      {formattedDeletedAt}
+                    </p>
                   </div>
-                )}
+                </div>
+              )}
           </div>
         </div>
       </CardContent>
@@ -191,27 +202,40 @@ export default function LocationCard({ location, onEdit }: Props) {
             Edit
           </Button>
 
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleDeleteClick}
-            disabled={isPending}
-            className="gap-2 border-slate-700/50 text-slate-400 hover:text-red-400 hover:border-red-700/50 hover:bg-red-900/20 transition-all duration-200"
-          >
-            <Trash className="h-4 w-4" />
-            Delete
-          </Button>
+          {location.isActive ? (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleDeleteClick}
+              disabled={isPending}
+              className="gap-2 border-slate-700/50 text-slate-400 hover:text-red-400 hover:border-red-700/50 hover:bg-red-900/20 transition-all duration-200"
+            >
+              <Trash className="h-4 w-4" />
+              Delete
+            </Button>
+          ) : (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleActivate}
+              disabled={isActivatePending}
+              className="gap-2 border-slate-700/50 text-slate-400 hover:text-green-400 hover:border-green-700/50 hover:bg-green-900/20 transition-all duration-200"
+            >
+              <Check className="h-4 w-4" />
+              Activate
+            </Button>
+          )}
 
-          <DeleteConfirmationDialog
-            open={deleteOpen}
-            onOpenChange={setDeleteOpen}
-            onConfirm={handleDelete}
-            loading={loading}
-            title={`Delete "${location.name}"?`}
-            description="Are you sure you want to delete this location? This action cannot be undone."
-          />
-        </div>
-      </CardFooter>
-    </Card>
+        <DeleteConfirmationDialog
+          open={deleteOpen}
+          onOpenChange={setDeleteOpen}
+          onConfirm={handleDelete}
+          loading={loading}
+          title={`Delete "${location.name}"?`}
+          description="Are you sure you want to delete this location? This action cannot be undone."
+        />
+      </div>
+    </CardFooter>
+    </Card >
   );
 }

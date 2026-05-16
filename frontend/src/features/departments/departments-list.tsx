@@ -1,0 +1,360 @@
+"use client";
+
+import { Button } from "@/shared/components/ui/button";
+import { AlertCircleIcon, Filter, MapPinIcon, PlusIcon, Search, X } from "lucide-react";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/shared/components/ui/select";
+import { Badge } from "@/shared/components/ui/badge";
+import { Spinner } from "@/shared/components/ui/spinner";
+import { useState } from "react";
+import { Department } from "@/entities/departments/types";
+import { useGetGlobalSearch } from "@/shared/stored/global-search-store";
+import { Input } from "@/shared/components/ui/input";
+import { setFilterDepartmentLocationsIds, setFilterIsActive, setFilterSearch, useGetDepartmentsFilter } from "./model/department-filters-store";
+import DepartmentCard from "@/widgets/departments/department-card";
+import { useDepartmentsList } from "./model/use-departments-list";
+import LocationItemSelector from "@/widgets/locations/locations-item-selector";
+import { useCreateDepartment } from "./model/use-create-department";
+import { CreateDepartmentDialog } from "./create-department-dialog";
+import DepartmentItemSelector from "@/widgets/departments/department-item-selector";
+import { UpdateDepartmentDialog } from "./update-department-dialog";
+
+export default function DepartmentsList() {
+  const { locationsIds, search, isActive, pageSize } =
+    useGetDepartmentsFilter();
+  const globalSearch = useGetGlobalSearch();
+
+  const [createOpen, setCreateOpen] = useState(false);
+  const [updateOpen, setUpdateOpen] = useState(false);
+  const [selectedDepartment, setSelectedDepartment] = useState<Department | null>(
+    null,
+  );
+
+  const [sortBy, setSortBy] = useState("path");
+  const [sortDirection, setSortDirection] = useState<"asc" | "desc">("asc");
+  const [parentId, setSortByParentId] = useState<string | null>(null);
+
+  const {
+    departments = [],
+    isPending,
+    error,
+    isError,
+    cursorRef,
+    isFetchingNextPage,
+  } = useDepartmentsList({
+    locationsIds,
+    search: search == "" ? globalSearch.search : search,
+    isActive,
+    pageSize,
+    parentId,
+    sortBy,
+    sortDirection,
+  });
+
+  const { error: createError } = useCreateDepartment();
+
+  return (
+    <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {/* Header Section */}
+      <div className="flex flex-col lg:flex-row gap-6 lg:items-center lg:justify-between mb-8">
+        <div className="space-y-2">
+          <h1 className="text-3xl font-bold tracking-tight text-white">
+            Departments
+          </h1>
+          <p className="text-gray-400">
+            Manage all your departments in one place
+          </p>
+        </div>
+
+        <Button
+          onClick={() => setCreateOpen(true)}
+          disabled={isPending}
+          className="bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white shadow-lg hover:shadow-xl transition-all duration-200 shrink-0"
+          size="default"
+        >
+          <PlusIcon className="h-5 w-5 mr-2" />
+          Add Department
+        </Button>
+      </div>
+
+      {/* Filters Section */}
+      <div className="bg-gray-900/50 rounded-lg p-3 mb-6 border border-gray-800">
+        <div className="flex flex-col gap-3">
+          {/* Filter Row */}
+          <div className="flex flex-col sm:flex-row gap-2 items-stretch sm:items-center flex-wrap">
+            {/* Search */}
+            <div className="flex-1 min-w-0 sm:min-w-48">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                <Input
+                  value={search}
+                  onChange={(e) => setFilterSearch(e.target.value)}
+                  placeholder="Search..."
+                  className="pl-9 h-9 bg-gray-800 border-gray-700 text-white placeholder:text-gray-500 text-sm"
+                />
+              </div>
+            </div>
+
+            {/* Locations Filter */}
+            <div className="sm:w-auto sm:flex-shrink-0">
+              <LocationItemSelector
+                selectedItemsIds={locationsIds}
+                onLocationChange={setFilterDepartmentLocationsIds}
+              />
+            </div>
+
+            {/* Parent Department Filter */}
+            <div className="sm:w-auto sm:flex-shrink-0">
+              <DepartmentItemSelector
+                selectedItemsIds={parentId ? [parentId] : []}
+                onDepartmentChange={(ids) => setSortByParentId(ids.length > 0 ? ids[0] : null)}
+              />
+            </div>
+
+            {/* Status Filter */}
+            <div className="w-24">
+              <Select
+                value={
+                  isActive === undefined
+                    ? "all"
+                    : isActive
+                      ? "active"
+                      : "inactive"
+                }
+                onValueChange={(value) => {
+                  if (value === "all") setFilterIsActive(undefined);
+                  else if (value === "active") setFilterIsActive(true);
+                  else setFilterIsActive(false);
+                }}
+              >
+                <SelectTrigger className="h-9 bg-gray-800 border-gray-700 text-white text-sm px-2">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-900 border-gray-800">
+                  <SelectItem value="all" className="hover:bg-gray-800">
+                    All
+                  </SelectItem>
+                  <SelectItem value="active" className="hover:bg-gray-800">
+                    Active
+                  </SelectItem>
+                  <SelectItem value="inactive" className="hover:bg-gray-800">
+                    Inactive
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+
+          </div>
+
+          {/* Sort Row */}
+          <div className="flex flex-col sm:flex-row gap-6 items-stretch sm:items-center">
+            <span className="text-sm text-gray-400 sm:block hidden">Sort by:</span>
+
+            {/* Sort Direction Filter */}
+            <div className="w-full sm:w-16">
+              <Select
+                value={sortDirection}
+                onValueChange={(value) => setSortDirection(value as "asc" | "desc")}
+              >
+                <SelectTrigger className="h-9 bg-gray-800 border-gray-700 text-white text-sm px-2">
+                  <SelectValue placeholder="Dir" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-900 border-gray-800">
+                  <SelectItem value="asc" className="hover:bg-gray-800">
+                    ↑ Asc
+                  </SelectItem>
+                  <SelectItem value="desc" className="hover:bg-gray-800">
+                    ↓ Desc
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Sort By Filter */}
+            <div className="w-full sm:w-24">
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="h-9 bg-gray-800 border-gray-700 text-white text-sm px-2">
+                  <SelectValue placeholder="Sort" />
+                </SelectTrigger>
+                <SelectContent className="bg-gray-900 border-gray-800">
+                  <SelectItem value="path" className="hover:bg-gray-800">
+                    Path
+                  </SelectItem>
+                  <SelectItem value="name" className="hover:bg-gray-800">
+                    Name
+                  </SelectItem>
+                  <SelectItem value="createdAt" className="hover:bg-gray-800">
+                    Date Created
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+
+        {/* Active Filters Badges */}
+        {(search || locationsIds?.length || isActive !== undefined) && (
+          <div className="flex flex-wrap items-center gap-2 pt-4 border-t border-gray-800">
+            <span className="text-sm text-gray-400">Active filters:</span>
+
+            {search && (
+              <Badge
+                variant="secondary"
+                className="gap-1 bg-gray-800 text-gray-300 border-gray-700"
+              >
+                Search: "{search}"
+                <button
+                  onClick={() => setFilterSearch("")}
+                  className="ml-1 hover:bg-gray-700 rounded-full p-0.5"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
+
+            {locationsIds?.map((id) => (
+              <Badge
+                key={id}
+                variant="secondary"
+                className="gap-1 bg-gray-800 text-gray-300 border-gray-700"
+              >
+                Dept: {id.substring(0, 8)}...
+                <button
+                  onClick={() => {
+                    const newIds = locationsIds.filter((dId) => dId !== id);
+                    setFilterDepartmentLocationsIds(newIds);
+                  }}
+                  className="ml-1 hover:bg-gray-700 rounded-full p-0.5"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            ))}
+
+            {isActive !== undefined && (
+              <Badge
+                variant="secondary"
+                className="gap-1 bg-gray-800 text-gray-300 border-gray-700"
+              >
+                Status: {isActive ? "Active" : "Inactive"}
+                <button
+                  onClick={() => setFilterIsActive(undefined)}
+                  className="ml-1 hover:bg-gray-700 rounded-full p-0.5"
+                >
+                  <X className="h-3 w-3" />
+                </button>
+              </Badge>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Error Messages */}
+      {isError && (
+        <div className="mb-6 p-4 bg-red-900/20 border border-red-800 rounded-lg">
+          <div className="flex items-center">
+            <AlertCircleIcon className="h-5 w-5 text-red-400 mr-3" />
+            <div>
+              <p className="text-red-300 font-medium">
+                Error loading departments
+              </p>
+              <p className="text-red-400 text-sm mt-1">
+                {error?.message ??
+                  "Unable to fetch departments. Please try again."}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {createError && (
+        <div className="mb-6 p-4 bg-red-900/20 border border-red-800 rounded-lg">
+          <div className="flex items-center">
+            <AlertCircleIcon className="h-5 w-5 text-red-400 mr-3" />
+            <p className="text-red-300">{createError.message}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Departments Grid */}
+      <section className="mb-10">
+        {isPending ? (
+          <div className="flex flex-col justify-center items-center min-h-100">
+            <Spinner className="h-12 w-12 text-blue-900 mb-4" />
+            <p className="text-gray-400">Loading...</p>
+          </div>
+        ) : departments.length === 0 && !isError ? (
+          <div className="flex flex-col items-center justify-center py-16 px-4 border-2 border-dashed border-gray-700 rounded-2xl bg-gray-900/50">
+            <MapPinIcon className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-white mb-2">
+              No departments found
+            </h3>
+            <p className="text-gray-400 mb-6 text-center max-w-md">
+              {search || locationsIds?.length || isActive !== undefined
+                ? "No departments match your current filters. Try adjusting your search criteria."
+                : "Get started by adding your first department"}
+            </p>
+            <Button
+              onClick={() => setCreateOpen(true)}
+              className="bg-linear-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800"
+            >
+              <PlusIcon className="h-5 w-5 mr-2" />
+              {search || locationsIds?.length || isActive !== undefined
+                ? "Clear filters and add department"
+                : "Add First Department"}
+            </Button>
+          </div>
+        ) : (
+          <>
+            {/* Results Count */}
+            <div className="flex items-center justify-between mb-6">
+              <div className="text-gray-400 text-sm">
+                Showing{" "}
+                <span className="text-white font-semibold">
+                  {departments.length}
+                </span>{" "}
+                department{departments.length !== 1 ? "s" : ""}
+              </div>
+            </div>
+
+            {/* Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 3xl:grid-cols-5 gap-6">
+              {departments.map((department) => (
+                <DepartmentCard
+                  key={department.id}
+                  department={department}
+                  onEdit={() => {
+                    setSelectedDepartment(department);
+                    setUpdateOpen(true);
+                  }}
+                />
+              ))}
+            </div>
+          </>
+        )}
+      </section>
+
+      <CreateDepartmentDialog open={createOpen} onOpenChange={setCreateOpen} />
+
+      {selectedDepartment && (
+        <UpdateDepartmentDialog
+          key={selectedDepartment.id}
+          department={selectedDepartment}
+          open={updateOpen}
+          onOpenChange={setUpdateOpen}
+        />
+      )}
+      {/* Infinite Scroll Loader */}
+      <div ref={cursorRef} className="py-6">
+        {isFetchingNextPage && (
+          <div className="flex justify-center">
+            <div className="inline-flex items-center gap-3 px-6 py-3 bg-gray-800/50 rounded-full">
+              <Spinner className="h-6 w-6 text-blue-900" />
+              <span className="text-gray-400">Loading more...</span>
+            </div>
+          </div>
+        )}
+      </div>
+    </main>
+  );
+}

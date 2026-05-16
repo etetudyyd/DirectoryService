@@ -1,22 +1,38 @@
+import { Location } from "../locations/types";
+import { Position } from "../positions/types";
+
 export type Department = {
     id: string;
     name: string;
     identifier: string;
     path: string;
-    parentId?: string;
+    parentId?: string | null;
     depth: number;
     childrenCount: number;
+    locationCount: number;
+    positionCount: number;
     isActive: boolean;
     createdAt: Date;
     updatedAt: Date;
     deletedAt: Date | null;
+    locationsIds: string[];
+    positionsIds:string[];
 }
 
-// пока что тут, потом перенесу в стор, когда будет готов
-export type DepartmentDictionaryState = {
-  search?: string;
-  departmentsIds?: string[];
-  pageSize: number;
-};
+export type DepartmentDetails = {
+    id: string;
+    name: string;
+    identifier: string;
+    path: string;
+    parentId?: string | null;
+    depth: number;
+    isActive: boolean;
+    positionsCount: number; 
+    createdAt: Date;
+    updatedAt: Date;
+    deletedAt: Date | null;
+    positions: Position[];
+    locations: Location[];
+}
 
 

@@ -52,11 +52,27 @@ public class CreateDepartmentHandler : ICommandHandler<Guid, CreateDepartmentCom
         return nameResult.Error.ToErrors();
     }
 
+    bool isNameExists = await _departmentsRepository.IsNameUniqueAsync(nameResult.Value, cancellationToken);
+
+    if (isNameExists)
+    {
+        _logger.LogError("Name already exists");
+        return GeneralErrors.General.ValueAlreadyExists("Name").ToErrors();
+    }
+
     var identifierResult = Identifier.Create(command.DepartmentRequest.Identifier);
     if (identifierResult.IsFailure)
     {
         _logger.LogError("Invalid DepartmentDto.Identifier");
         return identifierResult.Error.ToErrors();
+    }
+
+    bool isIdentifierExists = await _departmentsRepository.IsIdentifierUniqueAsync(identifierResult.Value, cancellationToken);
+
+    if (isIdentifierExists)
+    {
+        _logger.LogError("Identifier already exists");
+        return GeneralErrors.General.ValueAlreadyExists("Identifier").ToErrors();
     }
 
     var departmentId = new DepartmentId(Guid.NewGuid());

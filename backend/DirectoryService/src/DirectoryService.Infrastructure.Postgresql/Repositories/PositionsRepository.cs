@@ -98,7 +98,6 @@ public class PositionsRepository : IPositionsRepository
 
                    FROM {Constants.POSITION_TABLE_ROUTE} 
                    WHERE id = {{0}}
-                   AND is_active = true
                    FOR UPDATE", id)
             .FirstOrDefaultAsync(cancellationToken);
 
@@ -110,10 +109,10 @@ public class PositionsRepository : IPositionsRepository
 
     public async Task<bool> IsNameUniqueAsync(PositionName name, CancellationToken cancellationToken)
     {
-        bool position = await _dbContext.Positions
+        bool isPositionExists = await _dbContext.Positions
             .AnyAsync(p => p.Name == name, cancellationToken);
 
-        return position;
+        return isPositionExists;
     }
 
     public async Task<UnitResult<Error>> BulkDeleteInactivePositionsAsync(

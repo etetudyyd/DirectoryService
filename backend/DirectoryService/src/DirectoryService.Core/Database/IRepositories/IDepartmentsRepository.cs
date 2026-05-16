@@ -21,6 +21,10 @@ public interface IDepartmentsRepository
 
     Task<Result<Department, Error>> GetWithLocationsAndPositionsBy(Expression<Func<Department, bool>> predicate, CancellationToken cancellationToken = default);
 
+    Task<bool> IsNameUniqueAsync(DepartmentName name, CancellationToken cancellationToken);
+
+    Task<bool> IsIdentifierUniqueAsync(Identifier identifier, CancellationToken cancellationToken);
+
     Task<UnitResult<Error>> BulkDeleteDepartmentLocationsAsync(Guid departmentId, CancellationToken cancellationToken);
 
     Task<Result<List<Guid>, Error>> GetActiveDepartmentIdsAsync(Guid[] departmentIds, CancellationToken cancellationToken);
@@ -33,7 +37,7 @@ public interface IDepartmentsRepository
 
     Task<Result<Guid, Error>> RelocateDepartmentAsync(Department departmentUpdated, Path oldPath, CancellationToken cancellationToken);
 
-    Task<Result<Guid, Error>> UpdateChildDepartmentsPath(Department parent, CancellationToken cancellationToken);
+    Task<Result<Guid, Error>> UpdateChildDepartmentsPath(string oldPath, string newPath, Guid parentId, CancellationToken cancellationToken);
 
     Task<Result<Guid[], Error>> DeactivateConnectedLocations(DepartmentId departmentId, CancellationToken cancellationToken);
 

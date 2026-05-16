@@ -3,5 +3,4 @@
 public record UpdateLocationRequest(
     string Name,
     AddressDto Address,
-    string Timezone,
-    Guid[] DepartmentsIds);
+    string Timezone);

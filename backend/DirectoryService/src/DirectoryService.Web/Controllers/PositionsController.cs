@@ -1,5 +1,5 @@
 ﻿using Core.Abstractions;
-using DirectoryService.Entities;
+using DirectoryService.Features.Positions.Commands.ActivatePosition;
 using DirectoryService.Features.Positions.Commands.CreatePosition;
 using DirectoryService.Features.Positions.Commands.DeactivatePosition;
 using DirectoryService.Features.Positions.Commands.UpdatePosition;
@@ -50,7 +50,7 @@ public class PositionsController : ControllerBase
         return await handler.Handle(query, cancellationToken);
     }
 
-    [HttpPatch("{positionId}")]
+    [HttpPatch("{positionId}/update")]
     public async Task<EndpointResult<Guid>> Update(
         [FromServices] ICommandHandler<Guid, UpdatePositionCommand> handler,
         [FromRoute] Guid positionId,
@@ -70,6 +70,16 @@ public class PositionsController : ControllerBase
         CancellationToken cancellationToken)
     {
         var command = new UpdatePositionDepartmentsCommand(positionId, request);
+        return await handler.Handle(command, cancellationToken);
+    }
+
+    [HttpPatch("{positionId:Guid}")]
+    public async Task<EndpointResult<Guid>> Activate(
+        [FromServices] ICommandHandler<Guid, ActivatePositionCommand> handler,
+        [FromRoute] Guid positionId,
+        CancellationToken cancellationToken)
+    {
+        var command = new ActivatePositionCommand(positionId);
         return await handler.Handle(command, cancellationToken);
     }
 

@@ -16,11 +16,7 @@ type Props = {
   onPageChange: (p: number) => void;
 };
 
-export default function LocationsPagination({
-  page,
-  totalPages,
-  onPageChange,
-}: Props) {
+export default function ItemsPagination({ page, totalPages, onPageChange }: Props) {
   if (totalPages <= 1) return null;
 
   return (
