@@ -15,7 +15,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/sha
 import { UpdateDepartmentDialog } from "@/features/departments/update-department-dialog";
 import { DeleteConfirmationDialog } from "@/features/delete-confirmation-dialog";
 import { Badge } from "@/shared/components/ui/badge";
-import { useGetChildrenDepartment } from "@/features/departments/model/use-get-children-departments";
+import { useDepartmentChildren } from "@/features/departments/model/use-department-children";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/shared/components/ui/breadcrumb";
 import { buildBreadcrumbs } from "@/shared/lib/breadcrumbs/buildBreadcrumbs";
 import React from "react";
@@ -52,7 +52,7 @@ export default function DepartmentDetailsPage() {
         cursorRef: childCursorRef,
         isFetchingNextPage: isChildFetchingNextPage
     } =
-        useGetChildrenDepartment(departmentId);
+        useDepartmentChildren(departmentId);
 
 
     const {
@@ -115,16 +115,13 @@ export default function DepartmentDetailsPage() {
         );
     }
 
-    // Инициализируем selectedLocationIds при первом рендере и когда department загружен
     const currentLocIds = department.locations?.map((location) => location.id) || [];
 
-    // Инициализируем selectedLocIds только один раз, когда position загружен и selectedLocIds пустой
     if (selectedLocIds.length === 0 && currentLocIds.length > 0) {
         setSelectedLocIds(currentLocIds);
     }
 
     const handleEditClick = () => {
-        // При начале редактирования устанавливаем текущие значения
         setSelectedLocIds(currentLocIds);
         setIsUpdateLocs(true);
     };
@@ -133,28 +130,24 @@ export default function DepartmentDetailsPage() {
         try {
             await updateDepartmentLocations({
                 departmentId: department!.id,
-                locationsIds: selectedLocIds, // Отправляем выбранные ID
+                locationsIds: selectedLocIds,
             });
 
             setIsUpdateLocs(false);
-            refetch(); // Обновляем данные позиции
+            refetch();
         } catch (error) {
-            // Ошибка обрабатывается в хуке
         }
     };
 
     const handleCancel = () => {
-        // Сбрасываем к исходным значениям
         setSelectedLocIds(currentLocIds);
         setIsUpdateLocs(false);
     };
 
-    // Обработчик изменений в селекторе
     const handleLocationChange = (locationIds: string[]) => {
         setSelectedLocIds(locationIds);
     };
 
-    // Format dates
     const formatDate = (date: Date) => {
         try {
             return new Intl.DateTimeFormat("en-US", {

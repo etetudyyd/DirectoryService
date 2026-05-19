@@ -1,12 +1,13 @@
 import { apiClient } from "@/shared/api/axios-instance";
-import { DictionaryItemResponse, PAGE_SIZE, PaginationResponse } from "@/shared/api/types";
+import { DictionaryItemResponse, PAGE_SIZE, PaginationResponse, PREFETCH } from "@/shared/api/types";
 import { Envelope } from "@/shared/api/envelope";
 import routes from "@/shared/routes";
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import {
   Department,
   DepartmentDetails,
-  
+  DepartmentTreeItem,
+
 } from "./types";
 import { DepartmentDictionaryState, DepartmentsFilterState } from "@/features/departments/model/department-filters-store";
 
@@ -19,7 +20,7 @@ export type GetDepartmentsDictionaryRequest = {
 export type GetDepartmentsRequest = {
   search?: string;
   ids?: string[];
-  parentId?: string; 
+  parentId?: string;
   isActive?: boolean;
   page?: number;
   pageSize?: number;
@@ -45,10 +46,10 @@ export type UpdateDepartmentLocationsRequest = {
 };
 
 export type CreateDepartmentRequest = {
-    name: string;
-    identifier: string;
-    parentId?: string | null;
-    locationsIds: string[];
+  name: string;
+  identifier: string;
+  parentId?: string | null;
+  locationsIds: string[];
 }
 
 export type UpdateDepartmentRequest = {
@@ -59,26 +60,26 @@ export type UpdateDepartmentRequest = {
 
 export const departmentsApi = {
 
-getRootDepartments: async (request: GetRootDepartmentsRequest) => {
+  getRootDepartments: async (request: GetRootDepartmentsRequest) => {
     const response = await apiClient.get<
-      Envelope<PaginationResponse<Department>>
-    >(routes.departments, { params: request });
+      Envelope<PaginationResponse<DepartmentTreeItem>>
+    >(`${routes.departments}/roots`, { params: request });
 
     return response.data.result;
   },
 
   getChildrenDepartments: async (request: GetChildrenDepartmentsRequest) => {
     const response = await apiClient.get<
-      Envelope<PaginationResponse<Department>>
-    >(routes.departments, { params: request });
+      Envelope<PaginationResponse<DepartmentTreeItem>>
+    >(`${routes.departments}/${request.parentId}/children`, { params: request });
 
     return response.data.result;
   },
 
-   getDepartments: async (request: GetDepartmentsRequest) => {
+  getDepartments: async (request: GetDepartmentsRequest) => {
     const response = await apiClient.get<
       Envelope<PaginationResponse<Department>>
-    >(routes.departments, { params: request });
+    >(`${routes.departments}`, { params: request });
 
     return response.data.result;
   },
@@ -150,7 +151,7 @@ getRootDepartments: async (request: GetRootDepartmentsRequest) => {
 export const departmentsQueryOptions = {
   baseKey: "departments",
 
-   getDepartmentOptions: (departmentId: string) => {
+  getDepartmentOptions: (departmentId: string) => {
     return queryOptions({
       queryKey: [departmentsQueryOptions.baseKey, departmentId],
       queryFn: () => departmentsApi.getDepartmentById(departmentId),
@@ -166,131 +167,210 @@ export const departmentsQueryOptions = {
   },
 
   getRootDepartmentsOptions: ({
-      page,
-      pageSize,
-      prefetch
-    }: {
-      page: number;
-      pageSize: number;
-      prefetch: number;
-    }) => {
-      return queryOptions({
-        queryKey: [departmentsQueryOptions.baseKey, { page }],
-        queryFn: () =>
-          departmentsApi.getRootDepartments({ page: page, pageSize: pageSize, prefetch: prefetch }),
-      });
-    },
+    page,
+    pageSize,
+    prefetch
+  }: {
+    page: number;
+    pageSize: number;
+    prefetch: number;
+  }) => {
+    return queryOptions({
+      queryKey: [departmentsQueryOptions.baseKey, { page }],
+      queryFn: () =>
+        departmentsApi.getRootDepartments({ page: page, pageSize: pageSize, prefetch: prefetch }),
+    });
+  },
 
-     
 
-    getDepartmentsOptions: ({
-        page,
-        pageSize,
+
+  getDepartmentsOptions: ({
+    page,
+    pageSize,
+    parentId,
+    sortBy,
+    sortDirection
+  }: {
+    page: number;
+    pageSize: number;
+    parentId: string | null;
+    sortBy: string;
+    sortDirection: string;
+  }) => {
+    return queryOptions({
+      queryKey: [departmentsQueryOptions.baseKey, { page }],
+      queryFn: () =>
+        departmentsApi.getDepartments({ page: page, pageSize: pageSize, parentId: parentId ?? undefined, sortBy: sortBy, sortDirection: sortDirection }),
+    });
+  },
+
+  getChildrenDepartmentsInfinityOptions: (
+    parentId: string,
+  ) => {
+    return infiniteQueryOptions({
+      queryKey: [
+        departmentsQueryOptions.baseKey,
         parentId,
-        sortBy,
-        sortDirection
-      }: {
-        page: number;
-        pageSize: number;
-        parentId: string | null;
-        sortBy: string;
-        sortDirection: string;
-      }) => {
-        return queryOptions({
-          queryKey: [departmentsQueryOptions.baseKey, { page }],
-          queryFn: () =>
-            departmentsApi.getDepartments({ page: page, pageSize: pageSize, parentId: parentId ?? undefined, sortBy: sortBy, sortDirection: sortDirection}),
+        "children",
+      ],
+
+      queryFn: ({ pageParam }) => {
+        return departmentsApi.getChildrenDepartments({
+          parentId,
+          page: pageParam,
+          pageSize: PAGE_SIZE,
         });
       },
 
-     getChildrenDepartmentsInfinityOptions : (parentId: string) => {
-        return infiniteQueryOptions({
-          queryKey: [departmentsQueryOptions.baseKey, parentId, "children"],
-          queryFn: ({ pageParam }) => {
-            return departmentsApi.getChildrenDepartments({
-              parentId: parentId,
-              page: pageParam,
-              pageSize: PAGE_SIZE,
-            });
-          },
-          initialPageParam: 1,
-          getNextPageParam: (response) => {
-            if (!response || response.page >= response.totalPages) return undefined;
-            return response.page + 1;
-          },
-          select: (data): PaginationResponse<Department> => {
-            return {
-              items: data.pages.flatMap((page) => page?.items ?? []),
-              totalItems: data.pages[0]?.totalItems ?? 0,
-              page: data.pages[0]?.page ?? 1,
-              pageSize: data.pages[0]?.pageSize ??  PAGE_SIZE,
-              totalPages: data.pages[0]?.totalPages ?? 0,
-              parentId: data.pages[0]?.parentId ??  "",
-              sortBy: data.pages[0]?.sortBy ?? "",
-              sortDirection: data.pages[0]?.sortDirection ?? "",
-            };
-          },
-        });
-      },
-      
-      getDepartmentsInfinityOptions: (filter: DepartmentsFilterState) => {
-        return infiniteQueryOptions({
-          queryKey: [departmentsQueryOptions.baseKey, filter],
-          queryFn: ({ pageParam }) => {
-            return departmentsApi.getDepartments({
-              ...filter,
-              parentId: filter.parentId ?? undefined,
-              page: pageParam,
-            });
-          },
-          initialPageParam: 1,
-          getNextPageParam: (response) => {
-            if (!response || response.page >= response.totalPages) return undefined;
-            return response.page + 1;
-          },
-          select: (data): PaginationResponse<Department> => {
-            return {
-              items: data.pages.flatMap((page) => page?.items ?? []),
-              totalItems: data.pages[0]?.totalItems ?? 0,
-              page: data.pages[0]?.page ?? 1,
-              pageSize: data.pages[0]?.pageSize ?? filter.pageSize ?? PAGE_SIZE,
-              totalPages: data.pages[0]?.totalPages ?? 0,
-              parentId: data.pages[0]?.parentId ?? filter.parentId ?? "",
-              sortBy: data.pages[0]?.sortBy ?? filter.sortBy,
-              sortDirection: data.pages[0]?.sortDirection ?? filter.sortDirection,
-            };
-          },
-        });
+      initialPageParam: 1,
+
+      getNextPageParam: (response) => {
+        if (
+          !response ||
+          response.page >= response.totalPages
+        ) {
+          return undefined;
+        }
+        return response.page + 1;
       },
 
-      getDepartmentDictionaryInfinityOptions: (
-        filter: DepartmentDictionaryState,
-      ) => {
-        return infiniteQueryOptions({
-          queryFn: ({ pageParam }) => {
-            return departmentsApi.getDepartmentsDictionary({
-              ...filter,
-              page: pageParam,
-            });
-          },
-          queryKey: [departmentsQueryOptions.baseKey, filter],
-          initialPageParam: 1,
-          getNextPageParam: (response) => {
-            return !response || response.page >= response.totalPages
-              ? undefined
-              : response.page + 1;
-          },
+      select: (
+        data,
+      ): PaginationResponse<DepartmentTreeItem> => {
+        return {
+          items: data.pages.flatMap(
+            (page) => page?.items ?? [],
+          ),
+          totalItems: data.pages[0]?.totalItems ?? 0,
+          page: data.pages[0]?.page ?? 1,
+          pageSize: data.pages[0]?.pageSize ?? PAGE_SIZE,
+          totalPages: data.pages[0]?.totalPages ?? 0,
+          parentId: data.pages[0]?.parentId ?? "",
+          sortBy: data.pages[0]?.sortBy ?? "",
+          sortDirection: data.pages[0]?.sortDirection ??"",
+        };
+      },
+    });
+  },
 
-          select: (data): PaginationResponse<DictionaryItemResponse> => ({
-            items: data.pages.flatMap((page) => page?.items ?? []),
-            totalItems: data.pages[0]?.totalItems ?? 0,
-            page: data.pages[0]?.page ?? 1,
-            pageSize: data.pages[0]?.pageSize ?? filter.pageSize ?? PAGE_SIZE,
-            totalPages: data.pages[0]?.totalPages ?? 0,
-            parentId: "",
-            sortBy: "",
-            sortDirection: "",
-          }),
+ /* getChildrenDepartmentsInfinityOptions: (parentId: string) => {
+    return infiniteQueryOptions({
+      queryKey: [departmentsQueryOptions.baseKey, parentId, "children"],
+      queryFn: ({ pageParam }) => {
+        return departmentsApi.getChildrenDepartments({
+          parentId: parentId,
+          page: pageParam,
+          pageSize: PAGE_SIZE,
         });
       },
-    };
+      initialPageParam: 1,
+      getNextPageParam: (response) => {
+        if (!response || response.page >= response.totalPages) return undefined;
+        return response.page + 1;
+      },
+      select: (data): PaginationResponse<Department> => {
+        return {
+          items: data.pages.flatMap((page) => page?.items ?? []),
+          totalItems: data.pages[0]?.totalItems ?? 0,
+          page: data.pages[0]?.page ?? 1,
+          pageSize: data.pages[0]?.pageSize ?? PAGE_SIZE,
+          totalPages: data.pages[0]?.totalPages ?? 0,
+          parentId: data.pages[0]?.parentId ?? "",
+          sortBy: data.pages[0]?.sortBy ?? "",
+          sortDirection: data.pages[0]?.sortDirection ?? "",
+        };
+      },
+    });
+  }, */
+
+  getRootDepartmentsInfinityOptions: () => {
+    return infiniteQueryOptions({
+      queryKey: [departmentsQueryOptions.baseKey, "root"],
+      queryFn: ({ pageParam }) => {
+        return departmentsApi.getRootDepartments({
+          prefetch: PREFETCH,
+          page: pageParam,
+          pageSize: PAGE_SIZE,
+        });
+      },
+      initialPageParam: 1,
+      getNextPageParam: (response) => {
+        if (!response || response.page >= response.totalPages) return undefined;
+        return response.page + 1;
+      },
+      select: (data): PaginationResponse<DepartmentTreeItem> => {
+        return {
+          items: data.pages.flatMap((page) => page?.items ?? []),
+          totalItems: data.pages[0]?.totalItems ?? 0,
+          page: data.pages[0]?.page ?? 1,
+          pageSize: data.pages[0]?.pageSize ?? PAGE_SIZE,
+          totalPages: data.pages[0]?.totalPages ?? 0,
+          parentId: data.pages[0]?.parentId ?? "",
+          sortBy: data.pages[0]?.sortBy ?? "",
+          sortDirection: data.pages[0]?.sortDirection ?? "",
+        };
+      },
+    });
+  },
+
+  getDepartmentsInfinityOptions: (filter: DepartmentsFilterState) => {
+    return infiniteQueryOptions({
+      queryKey: [departmentsQueryOptions.baseKey, filter],
+      queryFn: ({ pageParam }) => {
+        return departmentsApi.getDepartments({
+          ...filter,
+          parentId: filter.parentId ?? undefined,
+          page: pageParam,
+        });
+      },
+      initialPageParam: 1,
+      getNextPageParam: (response) => {
+        if (!response || response.page >= response.totalPages) return undefined;
+        return response.page + 1;
+      },
+      select: (data): PaginationResponse<Department> => {
+        return {
+          items: data.pages.flatMap((page) => page?.items ?? []),
+          totalItems: data.pages[0]?.totalItems ?? 0,
+          page: data.pages[0]?.page ?? 1,
+          pageSize: data.pages[0]?.pageSize ?? filter.pageSize ?? PAGE_SIZE,
+          totalPages: data.pages[0]?.totalPages ?? 0,
+          parentId: data.pages[0]?.parentId ?? filter.parentId ?? "",
+          sortBy: data.pages[0]?.sortBy ?? filter.sortBy,
+          sortDirection: data.pages[0]?.sortDirection ?? filter.sortDirection,
+        };
+      },
+    });
+  },
+
+  getDepartmentDictionaryInfinityOptions: (
+    filter: DepartmentDictionaryState,
+  ) => {
+    return infiniteQueryOptions({
+      queryFn: ({ pageParam }) => {
+        return departmentsApi.getDepartmentsDictionary({
+          ...filter,
+          page: pageParam,
+        });
+      },
+      queryKey: [departmentsQueryOptions.baseKey, filter],
+      initialPageParam: 1,
+      getNextPageParam: (response) => {
+        return !response || response.page >= response.totalPages
+          ? undefined
+          : response.page + 1;
+      },
+
+      select: (data): PaginationResponse<DictionaryItemResponse> => ({
+        items: data.pages.flatMap((page) => page?.items ?? []),
+        totalItems: data.pages[0]?.totalItems ?? 0,
+        page: data.pages[0]?.page ?? 1,
+        pageSize: data.pages[0]?.pageSize ?? filter.pageSize ?? PAGE_SIZE,
+        totalPages: data.pages[0]?.totalPages ?? 0,
+        parentId: "",
+        sortBy: "",
+        sortDirection: "",
+      }),
+    });
+  },
+};
