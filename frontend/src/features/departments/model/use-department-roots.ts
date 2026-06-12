@@ -1,5 +1,4 @@
 import { departmentsQueryOptions } from "@/entities/departments/api";
-import { EnvelopeError } from "@/shared/api/errors";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
 export function useDepartmentRoots() {
@@ -17,6 +16,9 @@ export function useDepartmentRoots() {
 
   return {
     departments: data?.items,
+    page: data?.page,
+    totalPages: data?.totalPages,
+    totalItems: data?.totalItems,
     isPending,
     error,
     isError,

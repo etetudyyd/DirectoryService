@@ -12,8 +12,9 @@ export function usePositionsList({
    departmentsIds,
    search,
    pageSize,
-   isActive 
-  }: PositionsFilterState) {
+   isActive,
+   enabled = true,
+  }: PositionsFilterState & { enabled?: boolean }) {
      
   const [debouncedSearch] = useDebounce(search, 300);
 
@@ -32,6 +33,7 @@ export function usePositionsList({
       isActive,
       pageSize: pageSize,
     }),
+    enabled,
   });
 
   const cursorRef: RefCallback<HTMLDivElement> = useCallback(

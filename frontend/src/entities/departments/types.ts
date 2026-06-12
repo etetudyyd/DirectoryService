@@ -1,4 +1,3 @@
-import { de } from 'zod/v4/locales';
 import { Location } from "../locations/types";
 import { Position } from "../positions/types";
 
@@ -44,6 +43,8 @@ export type DepartmentTreeItem = {
   parentId: string | null;
   depth: number;
   isActive: boolean;
+  createdAt: Date;
+  hasChildren?: boolean;
   hasMoreChildren: boolean;
   children?: DepartmentTreeItem[] | null;
 };

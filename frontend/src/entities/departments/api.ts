@@ -1,21 +1,24 @@
 import { apiClient } from "@/shared/api/axios-instance";
-import { DictionaryItemResponse, PAGE_SIZE, PaginationResponse, PREFETCH } from "@/shared/api/types";
+import {
+  DictionaryItemResponse,
+  normalizePaginationResponse,
+  PAGE_SIZE,
+  PaginationResponse,
+} from "@/shared/api/types";
 import { Envelope } from "@/shared/api/envelope";
 import routes from "@/shared/routes";
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
+import { Department, DepartmentDetails, DepartmentTreeItem } from "./types";
 import {
-  Department,
-  DepartmentDetails,
-  DepartmentTreeItem,
-
-} from "./types";
-import { DepartmentDictionaryState, DepartmentsFilterState } from "@/features/departments/model/department-filters-store";
+  DepartmentDictionaryState,
+  DepartmentsFilterState,
+} from "@/features/departments/model/department-filters-store";
 
 export type GetDepartmentsDictionaryRequest = {
   search?: string;
   page: number;
   pageSize: number;
-}
+};
 
 export type GetDepartmentsRequest = {
   search?: string;
@@ -26,19 +29,19 @@ export type GetDepartmentsRequest = {
   pageSize?: number;
   sortBy: string;
   sortDirection: string;
-}
+};
 
 export type GetRootDepartmentsRequest = {
   page: number;
   pageSize: number;
   prefetch: number;
-}
+};
 
 export type GetChildrenDepartmentsRequest = {
   parentId: string;
   page: number;
   pageSize: number;
-}
+};
 
 export type UpdateDepartmentLocationsRequest = {
   departmentId: string;
@@ -50,30 +53,35 @@ export type CreateDepartmentRequest = {
   identifier: string;
   parentId?: string | null;
   locationsIds: string[];
-}
+};
 
 export type UpdateDepartmentRequest = {
   departmentId: string;
   name: string;
   identifier: string;
-}
+};
 
 export const departmentsApi = {
-
   getRootDepartments: async (request: GetRootDepartmentsRequest) => {
     const response = await apiClient.get<
       Envelope<PaginationResponse<DepartmentTreeItem>>
     >(`${routes.departments}/roots`, { params: request });
 
-    return response.data.result;
+    return response.data.result
+      ? normalizePaginationResponse(response.data.result)
+      : response.data.result;
   },
 
   getChildrenDepartments: async (request: GetChildrenDepartmentsRequest) => {
     const response = await apiClient.get<
       Envelope<PaginationResponse<DepartmentTreeItem>>
-    >(`${routes.departments}/${request.parentId}/children`, { params: request });
+    >(`${routes.departments}/${request.parentId}/children`, {
+      params: request,
+    });
 
-    return response.data.result;
+    return response.data.result
+      ? normalizePaginationResponse(response.data.result)
+      : response.data.result;
   },
 
   getDepartments: async (request: GetDepartmentsRequest) => {
@@ -81,7 +89,9 @@ export const departmentsApi = {
       Envelope<PaginationResponse<Department>>
     >(`${routes.departments}`, { params: request });
 
-    return response.data.result;
+    return response.data.result
+      ? normalizePaginationResponse(response.data.result)
+      : response.data.result;
   },
 
   getDepartmentById: async (departmentId: string) => {
@@ -127,10 +137,12 @@ export const departmentsApi = {
     const response = await apiClient.get<
       Envelope<PaginationResponse<DictionaryItemResponse>>
     >(`${routes.departments}/dictionary`, {
-      params: request
+      params: request,
     });
 
-    return response.data.result;
+    return response.data.result
+      ? normalizePaginationResponse(response.data.result)
+      : response.data.result;
   },
 
   activateDepartment: async (departmentId: string) => {
@@ -163,13 +175,15 @@ export const departmentsQueryOptions = {
       Envelope<PaginationResponse<Department>>
     >(routes.departments, { params: request });
 
-    return response.data.result;
+    return response.data.result
+      ? normalizePaginationResponse(response.data.result)
+      : response.data.result;
   },
 
   getRootDepartmentsOptions: ({
     page,
     pageSize,
-    prefetch
+    prefetch,
   }: {
     page: number;
     pageSize: number;
@@ -178,18 +192,20 @@ export const departmentsQueryOptions = {
     return queryOptions({
       queryKey: [departmentsQueryOptions.baseKey, { page }],
       queryFn: () =>
-        departmentsApi.getRootDepartments({ page: page, pageSize: pageSize, prefetch: prefetch }),
+        departmentsApi.getRootDepartments({
+          page: page,
+          pageSize: pageSize,
+          prefetch: prefetch,
+        }),
     });
   },
-
-
 
   getDepartmentsOptions: ({
     page,
     pageSize,
     parentId,
     sortBy,
-    sortDirection
+    sortDirection,
   }: {
     page: number;
     pageSize: number;
@@ -200,18 +216,26 @@ export const departmentsQueryOptions = {
     return queryOptions({
       queryKey: [departmentsQueryOptions.baseKey, { page }],
       queryFn: () =>
-        departmentsApi.getDepartments({ page: page, pageSize: pageSize, parentId: parentId ?? undefined, sortBy: sortBy, sortDirection: sortDirection }),
+        departmentsApi.getDepartments({
+          page: page,
+          pageSize: pageSize,
+          parentId: parentId ?? undefined,
+          sortBy: sortBy,
+          sortDirection: sortDirection,
+        }),
     });
   },
 
   getChildrenDepartmentsInfinityOptions: (
     parentId: string,
+    initialPageParam = 1,
   ) => {
     return infiniteQueryOptions({
       queryKey: [
         departmentsQueryOptions.baseKey,
         parentId,
         "children",
+        initialPageParam,
       ],
 
       queryFn: ({ pageParam }) => {
@@ -222,57 +246,21 @@ export const departmentsQueryOptions = {
         });
       },
 
-      initialPageParam: 1,
+      initialPageParam,
 
       getNextPageParam: (response) => {
-        if (
-          !response ||
-          response.page >= response.totalPages
-        ) {
+        if (!response || response.page >= response.totalPages) {
           return undefined;
         }
+
         return response.page + 1;
       },
 
-      select: (
-        data,
-      ): PaginationResponse<DepartmentTreeItem> => {
-        return {
-          items: data.pages.flatMap(
-            (page) => page?.items ?? [],
-          ),
-          totalItems: data.pages[0]?.totalItems ?? 0,
-          page: data.pages[0]?.page ?? 1,
-          pageSize: data.pages[0]?.pageSize ?? PAGE_SIZE,
-          totalPages: data.pages[0]?.totalPages ?? 0,
-          parentId: data.pages[0]?.parentId ?? "",
-          sortBy: data.pages[0]?.sortBy ?? "",
-          sortDirection: data.pages[0]?.sortDirection ??"",
-        };
-      },
-    });
-  },
-
- /* getChildrenDepartmentsInfinityOptions: (parentId: string) => {
-    return infiniteQueryOptions({
-      queryKey: [departmentsQueryOptions.baseKey, parentId, "children"],
-      queryFn: ({ pageParam }) => {
-        return departmentsApi.getChildrenDepartments({
-          parentId: parentId,
-          page: pageParam,
-          pageSize: PAGE_SIZE,
-        });
-      },
-      initialPageParam: 1,
-      getNextPageParam: (response) => {
-        if (!response || response.page >= response.totalPages) return undefined;
-        return response.page + 1;
-      },
-      select: (data): PaginationResponse<Department> => {
+      select: (data): PaginationResponse<DepartmentTreeItem> => {
         return {
           items: data.pages.flatMap((page) => page?.items ?? []),
           totalItems: data.pages[0]?.totalItems ?? 0,
-          page: data.pages[0]?.page ?? 1,
+          page: data.pages[0]?.page ?? initialPageParam,
           pageSize: data.pages[0]?.pageSize ?? PAGE_SIZE,
           totalPages: data.pages[0]?.totalPages ?? 0,
           parentId: data.pages[0]?.parentId ?? "",
@@ -281,14 +269,14 @@ export const departmentsQueryOptions = {
         };
       },
     });
-  }, */
+  },
 
   getRootDepartmentsInfinityOptions: () => {
     return infiniteQueryOptions({
       queryKey: [departmentsQueryOptions.baseKey, "root"],
       queryFn: ({ pageParam }) => {
         return departmentsApi.getRootDepartments({
-          prefetch: PREFETCH,
+          prefetch: 0,
           page: pageParam,
           pageSize: PAGE_SIZE,
         });

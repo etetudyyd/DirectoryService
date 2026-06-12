@@ -1,8 +1,15 @@
 import axios from "axios";
 import { EnvelopeError, ErrorType } from "./errors";
 
+type EnvelopeErrorItem = {
+  type: ErrorType;
+  code: string;
+  message: string;
+  invalidField?: string | null;
+};
+
 export const apiClient = axios.create({
-  baseURL: "http://localhost:8090/api",
+  baseURL: process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8090/api",
   headers: { "Content-Type": "application/json" },
 
   paramsSerializer: {
@@ -21,7 +28,7 @@ apiClient.interceptors.response.use(
     ) {
       throw new EnvelopeError({
         type: data.errorList[0].type as ErrorType,
-        messages: data.errorList.map((e: any) => ({
+        messages: (data.errorList as EnvelopeErrorItem[]).map((e) => ({
           code: e.code,
           message: e.message,
           invalidField: e.invalidField ?? null,
@@ -42,7 +49,7 @@ apiClient.interceptors.response.use(
       ) {
         throw new EnvelopeError({
           type: data.errorList[0].type as ErrorType,
-          messages: data.errorList.map((e: any) => ({
+          messages: (data.errorList as EnvelopeErrorItem[]).map((e) => ({
             code: e.code,
             message: e.message,
             invalidField: e.invalidField ?? null,
