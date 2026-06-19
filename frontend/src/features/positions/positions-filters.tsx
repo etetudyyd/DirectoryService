@@ -39,8 +39,8 @@ export function PositionsFilter() {
 
         {/* Departments Filter */}
         <div className="flex-1 min-w-62.5">
-          <SelectItem
-            selectedDepartmentIds={departmentsIds}
+          <DepartmentItemSelector
+            selectedItemsIds={departmentsIds}
             onDepartmentChange={setFilterPositionsDepartmentIds}
           />
         </div>
@@ -111,7 +111,7 @@ export function PositionsFilter() {
           
           {search && (
             <Badge variant="secondary" className="gap-1">
-              Search: "{search}"
+              Search: &quot;{search}&quot;
               <button
                 onClick={() => setFilterSearch("")}
                 className="ml-1 hover:bg-secondary/80 rounded-full p-0.5"

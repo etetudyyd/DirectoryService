@@ -15,10 +15,12 @@ import {
 interface DeleteConfirmProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
   title?: string;
   description?: string;
   loading?: boolean;
+  confirmLabel?: string;
+  loadingLabel?: string;
 }
 
 export function DeleteConfirmationDialog({
@@ -28,6 +30,8 @@ export function DeleteConfirmationDialog({
   title = "Are you sure?",
   description = "This action cannot be undone.",
   loading = false,
+  confirmLabel = "Delete",
+  loadingLabel = "Deleting...",
 }: DeleteConfirmProps) {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -47,7 +51,7 @@ export function DeleteConfirmationDialog({
             disabled={loading}
             className="text-white bg-red-600 hover:bg-red-700"
           >
-            {loading ? "Deleting..." : "Delete"}
+            {loading ? loadingLabel : confirmLabel}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

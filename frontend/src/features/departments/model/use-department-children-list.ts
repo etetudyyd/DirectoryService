@@ -1,13 +1,10 @@
 import { departmentsQueryOptions } from "@/entities/departments/api";
 import { EnvelopeError } from "@/shared/api/errors";
+import useCursorRef from "@/shared/hooks/use-cursor-ref";
 import { useInfiniteQuery } from "@tanstack/react-query";
 
-export function useDepartmentChildren(
-  parentId: string,
-  options?: {
-    enabled?: boolean;
-    initialPageParam?: number;
-  },
+export function useDepartmentChildrenList(
+  parentId: string
 ) {
   const {
     data,
@@ -19,12 +16,16 @@ export function useDepartmentChildren(
     isFetchingNextPage,
   } = useInfiniteQuery({
     ...departmentsQueryOptions.getChildrenDepartmentsInfinityOptions(
-      parentId,
-      options?.initialPageParam ?? 1,
+      parentId
     ),
-
-    enabled: options?.enabled,
   });
+
+   const cursorRef = useCursorRef({
+      hasNextPage,
+      isFetchingNextPage,
+      fetchNextPage,
+    });
+    
 
   return {
     departments: data?.items ?? [],
@@ -33,8 +34,7 @@ export function useDepartmentChildren(
     isPending,
     error: error instanceof EnvelopeError ? error : undefined,
     isError,
-    fetchNextPage,
-    hasNextPage,
+    cursorRef,
     isFetchingNextPage,
   };
 }

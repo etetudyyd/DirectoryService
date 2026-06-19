@@ -12,7 +12,7 @@ export function useDeleteDepartment() {
         queryKey: [departmentsQueryOptions.baseKey],
       }),
     onSuccess: () => {
-      toast.success("Department deleted successfully");
+      toast.success("Department deactivated successfully");
     },
     onError: (error) => {
       if (error instanceof EnvelopeError) {
@@ -25,7 +25,7 @@ export function useDeleteDepartment() {
   });
 
   return {
-    deleteDepartment: mutation.mutate,
+    deleteDepartment: mutation.mutateAsync,
     isPending: mutation.isPending,
     error: mutation.error instanceof EnvelopeError ? mutation.error : undefined,
     isError: mutation.isError,

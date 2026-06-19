@@ -33,7 +33,7 @@ const createDepartmentSchema = z.object({
 type CreateDepartmentData = z.infer<typeof createDepartmentSchema>;
 
 export function CreateDepartmentDialog({ open, onOpenChange }: Props) {
-const initalData: CreateDepartmentData = {
+const initialData: CreateDepartmentData = {
     name: "",
     identifier: "",
     parentId: "",
@@ -48,7 +48,7 @@ const initalData: CreateDepartmentData = {
       watch,
       formState: { errors, isValid },
     } = useForm<CreateDepartmentData>({
-      defaultValues: initalData,
+      defaultValues: initialData,
       resolver: zodResolver(createDepartmentSchema),
     });
 
@@ -72,7 +72,7 @@ const initalData: CreateDepartmentData = {
           },
           {
           onSuccess: () => {
-            reset(initalData);
+            reset(initialData);
             onOpenChange(false);
           },
         });

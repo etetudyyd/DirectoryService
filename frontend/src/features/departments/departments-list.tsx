@@ -13,7 +13,6 @@ import { setFilterDepartmentLocationsIds, setFilterIsActive, setFilterSearch, us
 import DepartmentCard from "@/widgets/departments/department-card";
 import { useDepartmentsList } from "./model/use-departments-list";
 import LocationItemSelector from "@/widgets/locations/locations-item-selector";
-import { useCreateDepartment } from "./model/use-create-department";
 import { CreateDepartmentDialog } from "./create-department-dialog";
 import DepartmentItemSelector from "@/widgets/departments/department-item-selector";
 import { UpdateDepartmentDialog } from "./update-department-dialog";
@@ -49,8 +48,6 @@ export default function DepartmentsList() {
     sortBy,
     sortDirection,
   });
-
-  const { error: createError } = useCreateDepartment();
 
   return (
     <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -218,7 +215,7 @@ export default function DepartmentsList() {
                 variant="secondary"
                 className="gap-1 bg-gray-800 text-gray-300 border-gray-700"
               >
-                Dept: {id.substring(0, 8)}...
+                Loc: {id.substring(0, 8)}...
                 <button
                   onClick={() => {
                     const newIds = locationsIds.filter((dId) => dId !== id);
@@ -263,15 +260,6 @@ export default function DepartmentsList() {
                   "Unable to fetch departments. Please try again."}
               </p>
             </div>
-          </div>
-        </div>
-      )}
-
-      {createError && (
-        <div className="mb-6 p-4 bg-red-900/20 border border-red-800 rounded-lg">
-          <div className="flex items-center">
-            <AlertCircleIcon className="h-5 w-5 text-red-400 mr-3" />
-            <p className="text-red-300">{createError.message}</p>
           </div>
         </div>
       )}

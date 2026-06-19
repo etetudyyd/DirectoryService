@@ -104,7 +104,7 @@ public class DepartmentsRepository : IDepartmentsRepository
         return department;
     }
 
-    public async Task<bool> IsNameUniqueAsync(DepartmentName name, CancellationToken cancellationToken)
+    public async Task<bool> IsNameExistsAsync(DepartmentName name, CancellationToken cancellationToken)
     {
         bool isDepartmentExists = await _dbContext.Departments
             .AnyAsync(p => p.Name == name, cancellationToken);

@@ -21,7 +21,7 @@ public interface IDepartmentsRepository
 
     Task<Result<Department, Error>> GetWithLocationsAndPositionsBy(Expression<Func<Department, bool>> predicate, CancellationToken cancellationToken = default);
 
-    Task<bool> IsNameUniqueAsync(DepartmentName name, CancellationToken cancellationToken);
+    Task<bool> IsNameExistsAsync(DepartmentName name, CancellationToken cancellationToken);
 
     Task<bool> IsIdentifierUniqueAsync(Identifier identifier, CancellationToken cancellationToken);
 

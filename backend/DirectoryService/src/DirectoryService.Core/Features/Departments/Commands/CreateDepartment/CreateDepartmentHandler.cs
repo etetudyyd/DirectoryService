@@ -52,7 +52,7 @@ public class CreateDepartmentHandler : ICommandHandler<Guid, CreateDepartmentCom
         return nameResult.Error.ToErrors();
     }
 
-    bool isNameExists = await _departmentsRepository.IsNameUniqueAsync(nameResult.Value, cancellationToken);
+    bool isNameExists = await _departmentsRepository.IsNameExistsAsync(nameResult.Value, cancellationToken);
 
     if (isNameExists)
     {

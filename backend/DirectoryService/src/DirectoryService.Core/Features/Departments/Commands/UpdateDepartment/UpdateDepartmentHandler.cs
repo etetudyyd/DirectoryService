@@ -125,7 +125,7 @@ public class UpdateDepartmentHandler : ICommandHandler<Guid, UpdateDepartmentCom
 
          await _cache.RemoveByTagAsync(Constants.DEPARTMENT_CACHE_PREFIX, cancellationToken);
 
-         _logger.LogInformation($"Department was deactivated with id{department.Id}");
+         _logger.LogInformation($"Department was updated with id{department.Id}");
 
          return department.Id.Value;
     }

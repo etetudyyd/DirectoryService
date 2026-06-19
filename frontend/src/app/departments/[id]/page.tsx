@@ -15,7 +15,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/sha
 import { UpdateDepartmentDialog } from "@/features/departments/update-department-dialog";
 import { DeleteConfirmationDialog } from "@/features/delete-confirmation-dialog";
 import { Badge } from "@/shared/components/ui/badge";
-import { useDepartmentChildren } from "@/features/departments/model/use-department-children";
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/shared/components/ui/breadcrumb";
 import { buildBreadcrumbs } from "@/shared/lib/breadcrumbs/buildBreadcrumbs";
 import React from "react";
@@ -24,6 +23,7 @@ import { useUpdateDepartmentLocations } from "@/features/departments/model/use-d
 import LocationItemSelector from "@/widgets/locations/locations-item-selector";
 import { Separator } from "@/shared/components/ui/separator";
 import { useActivateDepartment } from "@/features/departments/model/use-activate-department";
+import { useDepartmentChildrenList } from "@/features/departments/model/use-department-children-list";
 
 export default function DepartmentDetailsPage() {
 
@@ -31,7 +31,7 @@ export default function DepartmentDetailsPage() {
     const router = useRouter();
     const [updateOpen, setUpdateOpen] = useState(false);
     const [isUpdateLocs, setIsUpdateLocs] = useState(false);
-    const [selectedLocIds, setSelectedLocIds] = useState<string[]>([]);
+    const [selectedLocIds, setSelectedLocIds] = useState<string[] | null>(null);
 
     const { deleteDepartment, isPending: isDeletePending } = useDeleteDepartment();
     const { activateDepartment, isPending: isActivatePending } = useActivateDepartment();
@@ -52,7 +52,7 @@ export default function DepartmentDetailsPage() {
         cursorRef: childCursorRef,
         isFetchingNextPage: isChildFetchingNextPage
     } =
-        useDepartmentChildren(departmentId);
+        useDepartmentChildrenList(departmentId);
 
 
     const {
@@ -66,6 +66,8 @@ export default function DepartmentDetailsPage() {
         setLoading(true);
         try {
             await deleteDepartment(department!.id);
+            router.push("/departments");
+        } catch {
         } finally {
             setLoading(false);
             setDeleteOpen(false);
@@ -116,10 +118,7 @@ export default function DepartmentDetailsPage() {
     }
 
     const currentLocIds = department.locations?.map((location) => location.id) || [];
-
-    if (selectedLocIds.length === 0 && currentLocIds.length > 0) {
-        setSelectedLocIds(currentLocIds);
-    }
+    const selectedLocationIds = selectedLocIds ?? currentLocIds;
 
     const handleEditClick = () => {
         setSelectedLocIds(currentLocIds);
@@ -130,17 +129,18 @@ export default function DepartmentDetailsPage() {
         try {
             await updateDepartmentLocations({
                 departmentId: department!.id,
-                locationsIds: selectedLocIds,
+                locationsIds: selectedLocationIds,
             });
 
             setIsUpdateLocs(false);
+            setSelectedLocIds(null);
             refetch();
         } catch (error) {
         }
     };
 
     const handleCancel = () => {
-        setSelectedLocIds(currentLocIds);
+        setSelectedLocIds(null);
         setIsUpdateLocs(false);
     };
 
@@ -261,13 +261,13 @@ export default function DepartmentDetailsPage() {
                 </div>
             </div>
 
-            {/* Alert if department is deleted */}
+            {/* Alert if department is deactivated */}
             {department.deletedAt && (
                 <Alert variant="destructive">
                     <AlertCircle className="h-4 w-4" />
-                    <AlertTitle>Department Deleted</AlertTitle>
+                    <AlertTitle>Department Deactivated</AlertTitle>
                     <AlertDescription>
-                        This department was deleted on {formatDate(department.deletedAt)}. It
+                        This department was deactivated on {formatDate(department.deletedAt)}. It
                         may not be available for all operations.
                     </AlertDescription>
                 </Alert>
@@ -492,7 +492,7 @@ export default function DepartmentDetailsPage() {
                             {isUpdateLocs ? (
                                 <>
                                     <LocationItemSelector
-                                        selectedItemsIds={selectedLocIds}
+                                        selectedItemsIds={selectedLocationIds}
                                         onLocationChange={handleLocationChange}
                                     />
                                 </>
@@ -632,8 +632,10 @@ export default function DepartmentDetailsPage() {
                 onOpenChange={setDeleteOpen}
                 onConfirm={handleDelete}
                 loading={loading}
-                title={`Delete "${department.name}"?`}
-                description="Are you sure you want to delete this department? This action cannot be undone."
+                title={`Deactivate "${department.name}"?`}
+                description="Are you sure you want to deactivate this department? You can activate it again later."
+                confirmLabel="Deactivate"
+                loadingLabel="Deactivating..."
             />
         </main>
     );
