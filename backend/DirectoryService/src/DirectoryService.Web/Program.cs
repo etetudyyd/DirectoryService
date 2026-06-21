@@ -2,28 +2,18 @@ using DirectoryService;
 using DirectoryService.Database;
 using Framework.Middlewares;
 using Microsoft.EntityFrameworkCore;
+using Scalar.AspNetCore;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
-{
-    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
-    {
-        Title = "DirectoryService",
-        Version = "v1",
-    });
-});
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.Console()
     .WriteTo.Debug()
-    .WriteTo.Seq(builder.Configuration.GetConnectionString("Seq")
-                        ?? throw new ArgumentNullException("Seq NULL!"))
+    .WriteTo.Seq(builder.Configuration.GetConnectionString("Seq")!)
     .CreateLogger();
-
-Log.Information("Test message to Seq");
 
 builder.Services.AddWeb();
 builder.Services.AddApplication();
@@ -57,9 +47,7 @@ app.UseSerilogRequestLogging();
 
 app.MapOpenApi();
 
-app.UseSwagger();
-app.UseSwaggerUI(options => options.SwaggerEndpoint(
-    "/openapi/v1.json", "DirectoryService"));
+app.MapScalarApiReference();
 
 app.MapControllers();
 

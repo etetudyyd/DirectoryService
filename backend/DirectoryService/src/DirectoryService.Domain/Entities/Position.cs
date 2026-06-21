@@ -101,6 +101,7 @@ public sealed class Position : ISoftDeletable
         if(IsActive)
             return Error.Failure("position.error.delete", "position is already active");
         IsActive = true;
+        DeletedAt = null;
 
         return UnitResult.Success<Error>();
     }

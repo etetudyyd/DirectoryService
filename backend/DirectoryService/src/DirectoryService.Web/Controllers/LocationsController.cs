@@ -1,9 +1,10 @@
 ﻿using Core.Abstractions;
-using DirectoryService.Entities;
+using DirectoryService.Features.Locations.Commands.ActivateLocation;
 using DirectoryService.Features.Locations.Commands.CreateLocation;
 using DirectoryService.Features.Locations.Commands.DeactivateLocation;
 using DirectoryService.Features.Locations.Commands.UpdateLocation;
 using DirectoryService.Features.Locations.Queries.GetLocationById;
+using DirectoryService.Features.Locations.Queries.GetLocationDictionary;
 using DirectoryService.Features.Locations.Queries.GetLocations;
 using DirectoryService.Locations;
 using DirectoryService.Locations.Requests;
@@ -49,7 +50,7 @@ public class LocationsController : ControllerBase
         return await handler.Handle(query, cancellationToken);
     }
 
-    [HttpPatch("{locationId}")]
+    [HttpPatch("{locationId}/update")]
     public async Task<EndpointResult<Guid>> Update(
         [FromServices] ICommandHandler<Guid, UpdateLocationCommand> handler,
         [FromRoute] Guid locationId,
@@ -58,6 +59,28 @@ public class LocationsController : ControllerBase
     {
         var command = new UpdateLocationCommand(locationId, request);
 
+        return await handler.Handle(command, cancellationToken);
+    }
+
+    [HttpGet("dictionary")]
+    public async Task<EndpointResult<PaginationResponse<LocationItemDto>>> GetLocationsDictionary(
+        [FromServices] IQueryHandler<PaginationResponse<LocationItemDto>,
+            GetLocationDictionaryQuery> handler,
+        [FromQuery] GetLocationDictionaryRequest request,
+        CancellationToken cancellationToken)
+    {
+        var query = new GetLocationDictionaryQuery(request);
+        return await handler.Handle(query, cancellationToken);
+    }
+
+    [Route("{locationId:Guid}")]
+    [HttpPatch]
+    public async Task<EndpointResult<Guid>> Activate(
+        [FromServices] ICommandHandler<Guid, ActivateLocationCommand> handler,
+        [FromRoute] Guid locationId,
+        CancellationToken cancellationToken)
+    {
+        var command = new ActivateLocationCommand(locationId);
         return await handler.Handle(command, cancellationToken);
     }
 

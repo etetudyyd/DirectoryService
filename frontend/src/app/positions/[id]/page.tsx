@@ -35,11 +35,12 @@ import { useGetPosition } from "@/features/positions/model/use-get-position";
 import { DetailsLoadingSkeleton } from "@/widgets/details-loading-skeleton";
 import { UpdatePositionDialog } from "@/features/positions/update-position-dialog";
 import { toast } from "sonner";
-import DepartmentsSelectItem from "@/features/departments/departments-select-filter";
+import DepartmentItemSelector from "@/widgets/departments/department-item-selector";
 import { setFilterPositionsDepartmentIds } from "@/features/positions/model/position-filters-store";
 import { useUpdatePositionDepartments } from "@/features/positions/model/update-position-departments";
 import { DeleteConfirmationDialog } from "@/features/delete-confirmation-dialog";
 import { useDeletePosition } from "@/features/positions/model/use-delete-position";
+import { useActivatePosition } from "@/features/positions/model/use-activate-position";
 
 // Main component
 export default function PositionDetailsPage() {
@@ -50,6 +51,8 @@ export default function PositionDetailsPage() {
   const [selectedDeptIds, setSelectedDeptIds] = useState<string[]>([]);
 
   const { deletePosition, isPending: isDeletePending } = useDeletePosition();
+  const { activatePosition, isPending: isActivatePending } = useActivatePosition();
+
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [loading, setLoading] = useState(false);
 
@@ -69,6 +72,16 @@ export default function PositionDetailsPage() {
     setLoading(true);
     try {
       await deletePosition(position!.id);
+    } finally {
+      setLoading(false);
+      setDeleteOpen(false);
+    }
+  };
+
+  const handleActivate = async () => {
+    setLoading(true);
+    try {
+      await activatePosition(position!.id);
     } finally {
       setLoading(false);
       setDeleteOpen(false);
@@ -402,8 +415,8 @@ export default function PositionDetailsPage() {
             <CardContent className="space-y-4">
               {isUpdateDepts ? (
                 <>
-                  <DepartmentsSelectItem
-                    selectedDepartmentIds={selectedDeptIds}
+                  <DepartmentItemSelector
+                    selectedItemsIds={selectedDeptIds}
                     onDepartmentChange={handleDepartmentChange}
                   />
                 </>
@@ -475,7 +488,8 @@ export default function PositionDetailsPage() {
               ) : (
                 <Button
                   className="w-full justify-start bg-green-600 hover:bg-green-700 text-white transition-colors"
-                  onClick={() => {}}
+                  onClick={handleActivate}
+                  disabled={isActivatePending}
                 >
                   <CheckCircle className="h-4 w-4 mr-2" />
                   Activate

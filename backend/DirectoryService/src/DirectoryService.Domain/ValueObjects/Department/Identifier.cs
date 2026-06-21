@@ -47,7 +47,7 @@ public record Identifier
     {
         return new Identifier(
             identifier.Value.Replace(
-            $"{Constants.SOFT_DELETED_LABEL}{identifier.Value}",
-            identifier.Value));
+            $"{Constants.SOFT_DELETED_LABEL}",
+            string.Empty));
     }
 }

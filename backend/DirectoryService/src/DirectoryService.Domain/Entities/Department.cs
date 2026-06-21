@@ -225,6 +225,17 @@ public sealed class Department : ISoftDeletable
             departmentLocationsList);
     }
 
+    public UnitResult<Error> Update(DepartmentName name, Identifier oldIdentifier, Identifier newIdentifier)
+    {
+        Name = name;
+        Identifier = newIdentifier;
+        Path = Path.CreateUpdated(oldIdentifier.Value, Identifier.Value, Path);
+
+        UpdatedAt = DateTime.UtcNow;
+
+        return UnitResult.Success<Error>();
+    }
+
     public UnitResult<Error> Deactivate()
     {
         if(!IsActive)

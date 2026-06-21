@@ -20,7 +20,7 @@ import {
   SelectValue,
 } from "@/shared/components/ui/select";
 import { Badge } from "@/shared/components/ui/badge";
-import DepartmentsSelectItem from "../departments/departments-select-filter";
+import DepartmentItemSelector from "../../widgets/departments/department-item-selector";
 import {
   setFilterIsActive,
   setFilterPositionsDepartmentIds,
@@ -30,7 +30,7 @@ import { UpdatePositionDialog } from "./update-position-dialog";
 
 export default function PositionsList() {
   const { departmentsIds, search, isActive, pageSize } =
-    useGetPositionsFilter();
+    useGetPositionsFilter(); 
   const globalSearch = useGetGlobalSearch();
 
   const [createOpen, setCreateOpen] = useState(false);
@@ -99,8 +99,8 @@ export default function PositionsList() {
             <div className="flex flex-col sm:flex-row gap-3 sm:items-center shrink-0">
               {/* Departments Filter */}
               <div className="sm:w-68">
-                <DepartmentsSelectItem
-                  selectedDepartmentIds={departmentsIds}
+                <DepartmentItemSelector
+                  selectedItemsIds={departmentsIds}
                   onDepartmentChange={setFilterPositionsDepartmentIds}
                 />
               </div>
@@ -229,12 +229,12 @@ export default function PositionsList() {
         {isPending ? (
           <div className="flex flex-col justify-center items-center min-h-100">
             <Spinner className="h-12 w-12 text-blue-900 mb-4" />
-            <p className="text-gray-400">Loading positions...</p>
+            <p className="text-gray-400">Loading...</p>
           </div>
         ) : positions.length === 0 && !isError ? (
           <div className="flex flex-col items-center justify-center py-16 px-4 border-2 border-dashed border-gray-700 rounded-2xl bg-gray-900/50">
-            <MapPinIcon className="h-20 w-20 text-gray-600 mb-6" />
-            <h3 className="text-2xl font-semibold text-white mb-3">
+            <MapPinIcon className="h-16 w-16 text-gray-600 mx-auto mb-4" />
+            <h3 className="text-xl font-semibold text-white mb-2">
               No positions found
             </h3>
             <p className="text-gray-400 mb-6 text-center max-w-md">

@@ -16,6 +16,6 @@ export type Address = {
   street: string;
   house: string;
   postalCode: string;
-  apartment: string;
+  apartment?: string | null;
 }
 

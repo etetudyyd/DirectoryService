@@ -1,0 +1,3 @@
+﻿namespace DirectoryService.Departments.Responses;
+
+public record GetDepartmentByIdResponse(DepartmentDetailsDto Department);

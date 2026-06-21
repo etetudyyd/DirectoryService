@@ -16,7 +16,5 @@ public class UpdateLocationCommandValidator : AbstractValidator<UpdateLocationCo
         RuleFor(x => x.LocationRequest.Address).SetValidator(new AddressValidator());
         RuleFor(x => x.LocationRequest.Timezone)
             .MustBeValueObject(Timezone.Create);
-        RuleForEach(x => x.LocationRequest.DepartmentsIds)
-            .NotEmpty().WithError(GeneralErrors.General.ValueIsRequired());
     }
 }

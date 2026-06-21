@@ -1,7 +1,7 @@
 import { apiClient } from "@/shared/api/axios-instance";
 import { Position, PositionDetails } from "./types";
 import { Envelope } from "@/shared/api/envelope";
-import { PaginationResponse } from "@/shared/api/types";
+import { normalizePaginationResponse, PaginationResponse } from "@/shared/api/types";
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { PositionsFilterState } from "@/features/positions/model/position-filters-store";
 import routes from "@/shared/routes";
@@ -26,6 +26,7 @@ export type CreatePositionRequest = {
 export type GetPositionsRequest = {
   search?: string;
   ids?: string[];
+  departmentsIds?: string[];
   isActive?: boolean;
   page?: number;
   pageSize?: number;
@@ -37,7 +38,9 @@ export const positionsApi = {
       Envelope<PaginationResponse<Position>>
     >(routes.positions, { params: request });
 
-    return response.data.result;
+    return response.data.result
+      ? normalizePaginationResponse(response.data.result)
+      : response.data.result;
   },
 
   getPositionById: async (positionId: string) => {
@@ -61,7 +64,7 @@ export const positionsApi = {
     description,
   }: UpdatePositionRequest): Promise<Envelope<Position>> => {
     const response = await apiClient.patch<Envelope<Position>>(
-      `${routes.positions}/${positionId}`,
+      `${routes.positions}/${positionId}/update`,
       { name, description },
     );
     return response.data;
@@ -73,6 +76,12 @@ export const positionsApi = {
     const response = await apiClient.put<Envelope<Position>>(
       `${routes.positions}/${request.positionId}${routes.departments}`,
       request,
+    );
+    return response.data;
+  },
+   activatePosition: async (positionId: string) => {
+    const response = await apiClient.patch<Envelope<Position>>(
+      `${routes.positions}/${positionId}`,
     );
     return response.data;
   },
@@ -108,6 +117,7 @@ export const positionsQueryOptions = {
         positionsApi.getPositions({ page: page, pageSize: pageSize }),
     });
   },
+  
   getPositionsInfinityOptions: (filter: PositionsFilterState) => {
     return infiniteQueryOptions({
       queryKey: [positionsQueryOptions.baseKey, filter],
@@ -123,12 +133,23 @@ export const positionsQueryOptions = {
         return response.page + 1;
       },
       select: (data): PaginationResponse<Position> => {
+        const positionsById = new Map<string, Position>();
+
+        for (const page of data.pages) {
+          for (const position of page?.items ?? []) {
+            positionsById.set(position.id, position);
+          }
+        }
+
         return {
-          items: data.pages.flatMap((page) => page?.items ?? []),
+          items: Array.from(positionsById.values()),
           totalItems: data.pages[0]?.totalItems ?? 0,
           page: data.pages[0]?.page ?? 1,
           pageSize: data.pages[0]?.pageSize ?? filter.pageSize,
           totalPages: data.pages[0]?.totalPages ?? 0,
+          parentId: data.pages[0]?.parentId ?? "",
+          sortBy: data.pages[0]?.sortBy ?? "",
+          sortDirection: data.pages[0]?.sortDirection ?? "",
         };
       },
     });

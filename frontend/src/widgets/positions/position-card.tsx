@@ -6,13 +6,14 @@ import {
   CardFooter,
   CardHeader,
 } from "@/shared/components/ui/card";
-import { Calendar, Edit2Icon, LetterText, Trash, Users } from "lucide-react";
+import { Calendar, Check, Edit2Icon, LetterText, Trash, Users } from "lucide-react";
 import { Separator } from "@/shared/components/ui/separator";
 import { Button } from "@/shared/components/ui/button";
 import routes from "@/shared/routes";
 import Link from "next/link";
 import { DeleteConfirmationDialog } from "@/features/delete-confirmation-dialog";
 import { useState } from "react";
+import { useActivatePosition } from "@/features/positions/model/use-activate-position";
 
 type Props = {
   position: Position;
@@ -43,6 +44,7 @@ const formatDateTime = (date: Date | string | null) => {
 
 export default function PositionCard({ position, onEdit }: Props) {
   const { deletePosition, isPending } = useDeletePosition();
+  const { activatePosition, isPending: isActivatePending } = useActivatePosition();
 
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -57,86 +59,94 @@ export default function PositionCard({ position, onEdit }: Props) {
     }
   };
 
-  const handleDeleteClick = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    setDeleteOpen(true);
+  const handleActivate = async () => {
+    setLoading(true);
+    try {
+      await activatePosition(position.id);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleEdit = (e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-    onEdit();
-  };
+    const handleDeleteClick = (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setDeleteOpen(true);
+    };
 
-  const formattedCreatedAt = formatDateTime(position.createdAt);
-  const formattedUpdatedAt = formatDateTime(position.updatedAt);
-  const formattedDeletedAt = formatDateTime(position.deletedAt);
+    const handleEdit = (e: React.MouseEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      onEdit();
+    };
 
-  return (
-    <Link href={`${routes.positions}/${position.id}`}>
-      <Card className="group relative overflow-hidden border-slate-700/50 bg-linear-to-br from-slate-900/50 to-slate-800/30 hover:shadow-xl transition-all duration-300 hover:border-slate-600/70 hover:scale-[1.02]">
-        {/* Active location glow effect */}
-        {position.isActive && (
-          <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-10 transition-opacity duration-300 bg-linear-to-br from-emerald-500/30 to-transparent" />
-        )}
+    const formattedCreatedAt = formatDateTime(position.createdAt);
+    const formattedUpdatedAt = formatDateTime(position.updatedAt);
+    const formattedDeletedAt = formatDateTime(position.deletedAt);
 
-        {/* Вместо бейджа в CardHeader */}
-        <CardHeader className="pb-3">
-          <div className="flex items-start justify-between">
-            <div className="flex-1 min-w-0 pr-3">
-              {" "}
-              {/* Добавили padding-right */}
-              <h3 className="text-lg font-semibold text-white truncate">
-                {position.name}
-              </h3>
-            </div>
+    return (
+      <Link href={`${routes.positions}/${position.id}`}>
+        <Card className="group relative overflow-hidden border-slate-700/50 bg-linear-to-br from-slate-900/50 to-slate-800/30 hover:shadow-xl transition-all duration-300 hover:border-slate-600/70 hover:scale-[1.02]">
+          {/* Active location glow effect */}
+          {position.isActive && (
+            <div className="absolute inset-0 pointer-events-none opacity-0 group-hover:opacity-10 transition-opacity duration-300 bg-linear-to-br from-emerald-500/30 to-transparent" />
+          )}
 
-            <div className="shrink-0">
-              <div className="flex flex-col items-end">
-                <div
-                  className={`h-2.5 w-2.5 rounded-full mb-1 ${
-                    position.isActive ? "bg-emerald-500" : "bg-red-400"
-                  }`}
-                />
+          {/* Вместо бейджа в CardHeader */}
+          <CardHeader className="pb-3">
+            <div className="flex items-start justify-between">
+              <div className="flex-1 min-w-0 pr-3">
+                {" "}
+                {/* Добавили padding-right */}
+                <h3 className="text-lg font-semibold text-white truncate">
+                  {position.name}
+                </h3>
               </div>
-            </div>
-          </div>
-        </CardHeader>
 
-        <CardContent className="pb-3">
-          <div className="space-y-3">
-            {/* Address */}
-            <div className="flex items-start gap-2">
-              <LetterText className="h-4 w-4 text-slate-400 mt-0.5 shrink-0" />
-              <p className="text-sm text-slate-300">{position.description}</p>
-            </div>
-
-            <Separator className="bg-slate-800/50" />
-
-            {/* Info grid */}
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex items-center gap-2">
-                <Users className="h-4 w-4 text-slate-400 shrink-0" />
-                <div className="min-w-0">
-                  <p className="text-xs text-slate-500">Departments</p>
-                  <p className="text-sm text-slate-300">
-                    {position.departmentCount} {position.departmentCount === 1 ? "dept" : "depts"}
-                  </p>
+              <div className="shrink-0">
+                <div className="flex flex-col items-end">
+                  <div
+                    className={`h-2.5 w-2.5 rounded-full mb-1 ${position.isActive ? "bg-emerald-500" : "bg-red-400"
+                      }`}
+                  />
                 </div>
               </div>
+            </div>
+          </CardHeader>
 
-              <div className="flex items-center gap-2 col-span-2">
-                <Calendar className="h-4 w-4 text-slate-400 shrink-0" />
-                <div className="min-w-0">
-                  <p className="text-xs text-slate-500">Created</p>
-                  <p className="text-sm text-slate-300">{formattedCreatedAt}</p>
-                </div>
+          <CardContent className="pb-3">
+            <div className="space-y-3">
+              {/* Address */}
+              <div className="flex items-start gap-2">
+                <LetterText className="h-4 w-4 text-slate-400 mt-0.5 shrink-0" />
+                <p className="text-sm text-slate-300">{position.description}</p>
               </div>
 
-              {/* Updated or Deleted */}
-              {position.isActive
-                ? position.updatedAt && (
+              <Separator className="bg-slate-800/50" />
+
+              {/* Info grid */}
+              <div className="grid grid-cols-2 gap-3">
+                <div className="flex items-center gap-2">
+                  <Users className="h-4 w-4 text-slate-400 shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-xs text-slate-500">Departments</p>
+                    <p className="text-sm text-slate-300">
+                      {position.departmentCount} {position.departmentCount === 1 ? "dept" : "depts"}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2 col-span-2">
+                  <Calendar className="h-4 w-4 text-slate-400 shrink-0" />
+                  <div className="min-w-0">
+                    <p className="text-xs text-slate-500">Created</p>
+                    <p className="text-sm text-slate-300">{formattedCreatedAt}</p>
+                  </div>
+                </div>
+
+                {/* Updated or Deleted */}
+                {position.isActive
+                  ? position.updatedAt && (
                     <div className="flex items-center gap-2 col-span-2">
                       <Calendar className="h-4 w-4 text-blue-400 shrink-0" />
                       <div className="min-w-0">
@@ -147,7 +157,7 @@ export default function PositionCard({ position, onEdit }: Props) {
                       </div>
                     </div>
                   )
-                : position.deletedAt && (
+                  : position.deletedAt && (
                     <div className="flex items-center gap-2 col-span-2">
                       <Calendar className="h-4 w-4 text-amber-400 shrink-0" />
                       <div className="min-w-0">
@@ -158,45 +168,60 @@ export default function PositionCard({ position, onEdit }: Props) {
                       </div>
                     </div>
                   )}
+              </div>
             </div>
-          </div>
-        </CardContent>
+          </CardContent>
 
-        <CardFooter className="pt-3 border-t border-slate-800/50 bg-slate-900/20">
-          <div className="flex w-full justify-end gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleEdit}
-              disabled={isPending}
-              className="gap-2 border-slate-700/50 text-slate-400 hover:text-blue-400 hover:border-blue-700/50 hover:bg-blue-900/20 transition-all duration-200"
-            >
-              <Edit2Icon className="h-4 w-4" />
-              Edit
-            </Button>
+          <CardFooter className="pt-3 border-t border-slate-800/50 bg-slate-900/20">
+            <div className="flex w-full justify-end gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleEdit}
+                disabled={isPending}
+                className="gap-2 border-slate-700/50 text-slate-400 hover:text-blue-400 hover:border-blue-700/50 hover:bg-blue-900/20 transition-all duration-200"
+              >
+                <Edit2Icon className="h-4 w-4" />
+                Edit
+              </Button>
 
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleDeleteClick}
-              disabled={isPending}
-              className="gap-2 border-slate-700/50 text-slate-400 hover:text-red-400 hover:border-red-700/50 hover:bg-red-900/20 transition-all duration-200"
-            >
-              <Trash className="h-4 w-4" />
-              Delete
-            </Button>
+              {position.isActive ? (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDeleteClick}
+                  disabled={isPending}
+                  className="gap-2 border-slate-700/50 text-slate-400 hover:text-red-400 hover:border-red-700/50 hover:bg-red-900/20 transition-all duration-200"
+                >
+                  <Trash className="h-4 w-4" />
+                  Delete
+                </Button>
+                
+              ) : (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleActivate}
+                  disabled={isActivatePending}
+                  className="gap-2 border-slate-700/50 text-slate-400 hover:text-green-400 hover:border-green-700/50 hover:bg-green-900/20 transition-all duration-200"
+                >
+                  <Check className="h-4 w-4" />
+                  Activate
+                </Button>
+              )}
 
-            <DeleteConfirmationDialog
-              open={deleteOpen}
-              onOpenChange={setDeleteOpen}
-              onConfirm={handleDelete}
-              loading={loading}
-              title={`Delete "${position.name}"?`}
-              description="Are you sure you want to delete this position? This action cannot be undone."
-            />
-          </div>
-        </CardFooter>
-      </Card>
-    </Link>
-  );
-}
+
+              <DeleteConfirmationDialog
+                open={deleteOpen}
+                onOpenChange={setDeleteOpen}
+                onConfirm={handleDelete}
+                loading={loading}
+                title={`Delete "${position.name}"?`}
+                description="Are you sure you want to delete this position? This action cannot be undone."
+              />
+            </div>
+          </CardFooter>
+        </Card>
+      </Link>
+    );
+};

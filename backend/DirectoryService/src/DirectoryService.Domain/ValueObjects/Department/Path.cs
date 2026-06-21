@@ -36,6 +36,7 @@ public sealed record Path
     {
         return new Path(identifier.Value);
     }
+
     public static Path CreateForDb(string value)
     {
         return new Path(value);
@@ -54,19 +55,32 @@ public sealed record Path
         return new Path(value.ToLower());
     }
 
+    public static Path CreateUpdated(string oldIdentifier, string newIdentifier, Path path)
+    {
+        string newPath = path.Value.Replace(
+            oldIdentifier,
+            newIdentifier);
+        return new Path(newPath);
+    }
+
     public static Path CreateDeleted(string oldIdentifier, Path path)
     {
-        var newPath = path.Value.Replace(
+        string newPath = path.Value.Replace(
             oldIdentifier,
             $"{Constants.SOFT_DELETED_LABEL}{oldIdentifier}");
         return new Path(newPath);
     }
 
-    public static Path CreateRestored(string oldIdentifier, Path path)
+    public static Path CreateRestored(
+        string deletedIdentifier,
+        Path path)
     {
-        var newPath = path.Value.Replace(
-            $"{Constants.SOFT_DELETED_LABEL}{oldIdentifier}",
-            oldIdentifier);
+        string newPath = path.Value.Replace(
+            deletedIdentifier,
+            deletedIdentifier.Replace(
+                Constants.SOFT_DELETED_LABEL,
+                string.Empty));
+
         return new Path(newPath);
     }
 }

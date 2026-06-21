@@ -50,6 +50,7 @@ public class GetChildrenDepartmentsHandler : IQueryHandler<PaginationResponse<De
                                     d.identifier,
                                     d.path,
                                     d.parent_id AS ParentId,
+                                    d.depth,
                                     d.is_active AS IsActive,
                                     d.created_at AS CreatedAt,
                                     d.updated_at AS UpdatedAt
@@ -64,6 +65,7 @@ public class GetChildrenDepartmentsHandler : IQueryHandler<PaginationResponse<De
                                 identifier,
                                 path,
                                 ParentId,
+                                depth,
                                 IsActive,
                                 CreatedAt,
                                 UpdatedAt,

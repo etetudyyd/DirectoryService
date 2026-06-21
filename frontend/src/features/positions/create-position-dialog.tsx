@@ -19,7 +19,7 @@ import {
 import { Label } from "@/shared/components/ui/label";
 import { Input } from "@/shared/components/ui/input";
 import { Button } from "@/shared/components/ui/button";
-import DepartmentsSelectItem from "../departments/departments-select-filter";
+import DepartmentItemSelector from "../../widgets/departments/department-item-selector";
 
 type Props = {
   open: boolean;
@@ -128,18 +128,11 @@ export function CreatePositionDialog({ open, onOpenChange }: Props) {
           )}
 
           {/* Basic Information */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <BuildingIcon className="h-5 w-5 text-blue-400" />
-              <h3 className="text-lg font-semibold text-white">
-                Basic Information
-              </h3>
-            </div>
-
+          <div className="space-y-4">       
             <div className="grid gap-4">
               <div className="space-y-2">
                 <Label htmlFor="name" className="text-gray-300">
-                  Position Name *
+                  Name *
                 </Label>
                 <Input
                   id="name"
@@ -198,8 +191,8 @@ export function CreatePositionDialog({ open, onOpenChange }: Props) {
                     <Building className="h-4 w-4 text-gray-400 group-hover:text-gray-300 transition-colors" />
                   </div>
                   <div className="pl-10">
-                    <DepartmentsSelectItem
-                      selectedDepartmentIds={departmentsIds}
+                    <DepartmentItemSelector
+                      selectedItemsIds={departmentsIds}
                       onDepartmentChange={handleDepartmentsChange}
                     />
                   </div>

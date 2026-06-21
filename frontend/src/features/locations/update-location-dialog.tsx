@@ -37,9 +37,7 @@ const updateLocationSchema = z.object({
     apartment: z.string().nonempty("Apartment has to be not empty"),
   }),
   timeZone: z.string().nonempty("Timezone has to be not empty"),
-  departmentsIds: z.array(
-    z.string().nonempty("Department has to be not empty"),
-  ),
+  
 });
 
 type Props = {
@@ -60,7 +58,6 @@ export function UpdateLocationDialog({ location, open, onOpenChange }: Props) {
       name: location.name,
       address: location.address,
       timeZone: location.timeZone,
-      departmentsIds: location.departmentsIds,
     },
     resolver: zodResolver(updateLocationSchema),
   });
@@ -121,13 +118,7 @@ export function UpdateLocationDialog({ location, open, onOpenChange }: Props) {
           )}
 
           {/* Basic Information */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <BuildingIcon className="h-5 w-5 text-blue-400" />
-              <h3 className="text-lg font-semibold text-white">
-                Basic Information
-              </h3>
-            </div>
+          <div className="space-y-4">       
 
             <div className="grid gap-4">
               <div className="space-y-2">
@@ -183,14 +174,7 @@ export function UpdateLocationDialog({ location, open, onOpenChange }: Props) {
           </div>
 
           {/* Address Information */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <MapPinIcon className="h-5 w-5 text-green-400" />
-              <h3 className="text-lg font-semibold text-white">
-                Address Details
-              </h3>
-            </div>
-
+          <div className="space-y-4">          
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="region" className="text-gray-300 text-sm">
@@ -338,49 +322,7 @@ export function UpdateLocationDialog({ location, open, onOpenChange }: Props) {
                 </div>
               </div>
             )}
-          </div>
-
-          {/* Departments */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2">
-              <UsersIcon className="h-5 w-5 text-purple-400" />
-              <h3 className="text-lg font-semibold text-white">Departments</h3>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="departmentsIds" className="text-gray-300">
-                Department IDs (comma-separated)
-              </Label>
-              <Input
-                id="departmentsIds"
-                type="text"
-                placeholder="e.g., dept-001, dept-002, dept-003"
-                className={`bg-gray-900 border-gray-700 text-white placeholder-gray-500 focus:border-blue-500 focus:ring-blue-500/20 ${
-                  errors.departmentsIds
-                    ? "border-red-500 focus:border-red-500 focus:ring-red-500/20"
-                    : ""
-                }`}
-                {...register("departmentsIds", {
-                  setValueAs: (value) => {
-                    if (typeof value !== "string") return [];
-                    return value
-                      .split(",")
-                      .map((id) => id.trim())
-                      .filter(Boolean);
-                  },
-                })}
-              />
-              <p className="text-gray-500 text-sm">
-                Enter department IDs separated by commas
-              </p>
-              {errors.departmentsIds && (
-                <p className="text-red-400 text-sm flex items-center gap-1">
-                  <AlertCircleIcon className="h-4 w-4" />
-                  {errors.departmentsIds.message}
-                </p>
-              )}
-            </div>
-          </div>
+          </div>        
 
           {/* Footer */}
           <DialogFooter className="pt-6 border-t border-gray-800">
