@@ -15,6 +15,13 @@ public static class FileServiceExtensions
 
             config.BaseAddress = new Uri(fileServiceOptions.Url);
             config.Timeout = TimeSpan.FromSeconds(fileServiceOptions.TimeoutSeconds);
+        }).AddStandardResilienceHandler(options =>
+        {
+            options.Retry.MaxRetryAttempts = 3;
+            options.Retry.Delay = TimeSpan.FromMilliseconds(500);
+
+            options.AttemptTimeout.Timeout = TimeSpan.FromSeconds(10);
+            options.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(30);
         });
 
         return services;

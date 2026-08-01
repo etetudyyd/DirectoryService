@@ -2,7 +2,7 @@
 
     <PropertyGroup>
       <PackageId>etetudyyd.FileService.Contracts</PackageId>
-      <Version>0.0.1</Version>
+      <Version>0.0.2</Version>
       <Authors>etetudyyd</Authors>
       <Company>etetudyyd</Company>
       <PackageDescription>FileService.Contracts</PackageDescription>
@@ -13,6 +13,7 @@
       <PackageReference Include="etetudyyd.Core" />
       <PackageReference Include="Microsoft.AspNetCore.Http.Features" />
       <PackageReference Include="Microsoft.Extensions.Http" />
+      <PackageReference Include="Microsoft.Extensions.Http.Resilience" />
     </ItemGroup>
 
 </Project>

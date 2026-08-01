@@ -24,7 +24,7 @@ internal sealed class FileHttpClient : IFileCommunicationService
     {
         try
         {
-            HttpResponseMessage response = await _httpClient.PostAsJsonAsync($"/files/batch", cancellationToken);
+            HttpResponseMessage response = await _httpClient.PostAsJsonAsync($"/files/batch", request, cancellationToken);
 
             return await response.HandleResponseAsync<GetMediaAssetsInfoResponse>(cancellationToken);
         }
