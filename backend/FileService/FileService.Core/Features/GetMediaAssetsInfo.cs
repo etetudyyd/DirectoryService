@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Extensions;
 using Shared.SharedKernel;
 
-namespace DirectoryService.Features.Queries.GetMediaAssetsInfo;
+namespace DirectoryService.Features;
 
 public class GetMediaAssetInfoEndpoint : IEndpoint
 {
@@ -31,6 +31,8 @@ public class GetMediaAssetInfoEndpoint : IEndpoint
         }).DisableAntiforgery();
     }
 }
+
+public record GetMediaAssetsInfoHandlerQuery(GetMediaAssetsInfoRequest Request) : IQuery;
 
 public class GetMediaAssetsInfoHandler : IQueryHandler<GetMediaAssetsInfoResponse, GetMediaAssetsInfoHandlerQuery>
 {

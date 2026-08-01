@@ -1,14 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net9.0</TargetFramework>
-        <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
+      <PackageId>etetudyyd.FileService.Contracts</PackageId>
+      <Version>0.0.1</Version>
+      <Authors>etetudyyd</Authors>
+      <Company>etetudyyd</Company>
+      <PackageDescription>FileService.Contracts</PackageDescription>
+      <RepositoryUrl>https://github.com/etetudyyd/DirectoryService</RepositoryUrl>
     </PropertyGroup>
 
     <ItemGroup>
-      <PackageReference Include="etetudyyd.Core" Version="0.0.3" />
-      <PackageReference Include="Microsoft.AspNetCore.Http.Features" Version="5.0.17" />
+      <PackageReference Include="etetudyyd.Core" />
+      <PackageReference Include="Microsoft.AspNetCore.Http.Features" />
+      <PackageReference Include="Microsoft.Extensions.Http" />
     </ItemGroup>
 
 </Project>
