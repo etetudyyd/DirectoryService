@@ -1,5 +1,5 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <ItemGroup>
-    <PackageReference Include="etetudyyd.SharedKernel" Version="0.0.2" />
+    <PackageReference Include="etetudyyd.SharedKernel" />
   </ItemGroup>
 </Project>

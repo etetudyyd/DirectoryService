@@ -34,7 +34,7 @@ public class LocationConfiguration : IEntityTypeConfiguration<Location>
 
         builder.HasIndex(l => l.Name).IsUnique();
 
-        builder.ComplexProperty(p => p.Address, a => {
+        builder.ComplexProperty(l => l.Address, a => {
             a.Property(address => address.PostalCode)
                 .HasMaxLength(Constants.Address.MAX_LENGTH_ADDRESS_POSTAL_CODE)
                 .HasColumnName("postal_code");
@@ -64,11 +64,15 @@ public class LocationConfiguration : IEntityTypeConfiguration<Location>
                 .HasColumnName("apartment");
         });
 
-        builder.Property(p => p.Timezone)
+        builder.Property(l => l.Timezone)
             .HasColumnName("timezone")
             .HasConversion(
                 name => name.Value,
                 value => Timezone.Create(value).Value);
+
+        builder.Property(l => l.PreviewId)
+            .HasColumnName("previewId")
+            .IsRequired(false);
 
         builder.Property(p => p.IsActive)
             .HasColumnName("is_active")
