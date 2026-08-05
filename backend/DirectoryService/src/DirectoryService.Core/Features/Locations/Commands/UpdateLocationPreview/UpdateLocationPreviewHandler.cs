@@ -61,13 +61,8 @@ public class UpdateLocationPreviewHandler : ICommandHandler<Guid, UpdateLocation
         if (locationResult.IsFailure)
             return locationResult.Error.ToErrors();
 
-        if (command.Request.PreviewId == null)
-        {
-            return Error.NotFound("invalid.data", "preview Id is null").ToErrors();
-        }
-
         var result = await _fileCommunicationService
-            .CheckMediaAssetExists(command.Request.PreviewId.Value, cancellationToken);
+            .CheckMediaAssetExists(command.Request.PreviewId!.Value, cancellationToken);
 
         if (result.IsFailure)
         {

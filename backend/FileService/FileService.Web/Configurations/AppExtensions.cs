@@ -24,7 +24,6 @@ public static class AppExtensions
 
         RouteGroupBuilder apiGroup = app.MapGroup("/api").WithOpenApi();
         app.MapEndpoints(apiGroup);
-        app.MapEndpoints();
 
         app.UseAutoMigrate();
 
