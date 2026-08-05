@@ -8,6 +8,8 @@
     <PackageReference Include="etetudyyd.framework"/>
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions"/>
     <PackageReference Include="Microsoft.EntityFrameworkCore"  />
+    <PackageReference Include="Microsoft.Extensions.Caching.Hybrid" />
+    <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" />
     <PackageReference Include="Scrutor" />
   </ItemGroup>
 </Project>

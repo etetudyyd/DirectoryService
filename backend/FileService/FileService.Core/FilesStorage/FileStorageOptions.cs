@@ -1,6 +1,6 @@
-﻿namespace DirectoryService;
+﻿namespace DirectoryService.FilesStorage;
 
-public record S3Options
+public record FileStorageOptions
 {
     public string Endpoint { get; init; } = string.Empty;
 

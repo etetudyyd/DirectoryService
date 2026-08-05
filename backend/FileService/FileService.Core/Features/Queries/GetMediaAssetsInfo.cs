@@ -3,6 +3,7 @@ using CSharpFunctionalExtensions;
 using DirectoryService.Assets;
 using DirectoryService.Dtos;
 using DirectoryService.FilesStorage;
+using DirectoryService.HttpCommunication;
 using DirectoryService.Models;
 using DirectoryService.Requests;
 using DirectoryService.Responses;
@@ -12,6 +13,8 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Hybrid;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Extensions;
 using Shared.SharedKernel;
 
@@ -38,13 +41,19 @@ public class GetMediaAssetsInfoHandler : IQueryHandler<GetMediaAssetsInfoRespons
 {
     private readonly IS3Provider _s3Provider;
     private readonly IReadDbContext _readDbContext;
+    private readonly HybridCache _cache;
+    private readonly FileStorageOptions _fileStorageOptions;
 
     public GetMediaAssetsInfoHandler(
         IS3Provider s3Provider,
-        IReadDbContext readDbContext)
+        IReadDbContext readDbContext,
+        HybridCache cache,
+        IOptions<FileStorageOptions> fileStorageOptions)
     {
         _s3Provider = s3Provider;
         _readDbContext = readDbContext;
+        _cache = cache;
+        _fileStorageOptions = fileStorageOptions.Value;
     }
 
     public async Task<Result<GetMediaAssetsInfoResponse, Errors>> Handle(
@@ -62,13 +71,7 @@ public class GetMediaAssetsInfoHandler : IQueryHandler<GetMediaAssetsInfoRespons
         var readyMediaAssets = mediaAssets.Where(m => m.Status == MediaStatus.READY).ToList();
         List<StorageKey> storageKeys = readyMediaAssets.Select(s => s.RawKey).ToList();
 
-        (_, bool isFailure, IReadOnlyList<MediaUrl>? mediaUrls, Errors? error) = await _s3Provider
-            .GetDownloadUrlsAsync(storageKeys);
-
-        if (isFailure)
-            return error;
-
-        Dictionary<StorageKey, string> urlsDict = mediaUrls.ToDictionary(url => url.StorageKey, url => url.PresignedUrl);
+        Dictionary<StorageKey, string> presignedUrls = await GetPresignedUrlsFromCacheAsync(storageKeys, cancellationToken);
 
         var results = new List<MediaAssetsInfoDto>();
 
@@ -76,7 +79,7 @@ public class GetMediaAssetsInfoHandler : IQueryHandler<GetMediaAssetsInfoRespons
         {
             string? downloadUrl = null;
 
-            if(urlsDict.TryGetValue(mediaAsset.RawKey, out string? url))
+            if(presignedUrls.TryGetValue(mediaAsset.RawKey, out string? url))
                 downloadUrl = url;
 
             var mediaAssetDto = new MediaAssetsInfoDto(
@@ -89,4 +92,73 @@ public class GetMediaAssetsInfoHandler : IQueryHandler<GetMediaAssetsInfoRespons
 
         return new GetMediaAssetsInfoResponse(results);
     }
+
+    private async Task<Dictionary<StorageKey, string>> GetPresignedUrlsFromCacheAsync(
+        IEnumerable<StorageKey> storageKeys,
+        CancellationToken cancellationToken)
+    {
+        IEnumerable<StorageKey> keys = storageKeys.ToList();
+
+        if (!keys.Any())
+            return [];
+
+        IEnumerable<Task<(StorageKey storageKey, string? url)>> cachedUrlsTasks = keys.Select(async key =>
+        {
+            string? url = await _cache.GetOrCreateAsync<string?>(
+                key.Value,
+                factory: _ => ValueTask.FromResult<string?>(null),
+                new HybridCacheEntryOptions
+                {
+                    Expiration = TimeSpan.FromHours(_fileStorageOptions.DownloadUrlExpirationHours)
+                        .Subtract(TimeSpan.FromHours(1)),
+                },
+                cancellationToken: cancellationToken);
+
+            return (key, url);
+        });
+
+        (StorageKey storageKey, string? url)[] cachedUrls = await Task.WhenAll(cachedUrlsTasks);
+        var result = new Dictionary<StorageKey, string>();
+        var keysToGenerate = new List<StorageKey>();
+
+        foreach ((StorageKey key, string? url) in cachedUrls)
+        {
+            if (!string.IsNullOrWhiteSpace(url))
+            {
+                result[key] = url;
+            }
+            else
+            {
+                keysToGenerate.Add(key);
+            }
+        }
+
+        if (!keysToGenerate.Any())
+            return result;
+
+        Result<IReadOnlyList<MediaUrl>, Errors> mediaUrls = await _s3Provider.GetDownloadUrlsAsync(keysToGenerate);
+
+        if(mediaUrls.IsFailure)
+            return result;
+
+        IEnumerable<Task> setTasks = mediaUrls.Value.Select(async mediaUrl =>
+        {
+            result[mediaUrl.StorageKey] = mediaUrl.PresignedUrl;
+
+            await _cache.SetAsync(
+                key: mediaUrl.StorageKey.Value,
+                value: mediaUrl.PresignedUrl,
+                new HybridCacheEntryOptions
+                {
+                    Expiration = TimeSpan.FromHours(_fileStorageOptions.DownloadUrlExpirationHours)
+                        .Subtract(TimeSpan.FromHours(1)),
+                },
+                cancellationToken: cancellationToken);
+        });
+
+        await Task.WhenAll(setTasks);
+
+        return result;
+    }
 }
+
