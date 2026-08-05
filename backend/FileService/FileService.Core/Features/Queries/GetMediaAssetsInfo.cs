@@ -97,9 +97,9 @@ public class GetMediaAssetsInfoHandler : IQueryHandler<GetMediaAssetsInfoRespons
         IEnumerable<StorageKey> storageKeys,
         CancellationToken cancellationToken)
     {
-        IEnumerable<StorageKey> keys = storageKeys.ToList();
+        List<StorageKey> keys = storageKeys.ToList();
 
-        if (!keys.Any())
+        if (keys.Count == 0)
             return [];
 
         IEnumerable<Task<(StorageKey storageKey, string? url)>> cachedUrlsTasks = keys.Select(async key =>
@@ -107,11 +107,7 @@ public class GetMediaAssetsInfoHandler : IQueryHandler<GetMediaAssetsInfoRespons
             string? url = await _cache.GetOrCreateAsync<string?>(
                 key.Value,
                 factory: _ => ValueTask.FromResult<string?>(null),
-                new HybridCacheEntryOptions
-                {
-                    Expiration = TimeSpan.FromHours(_fileStorageOptions.DownloadUrlExpirationHours)
-                        .Subtract(TimeSpan.FromHours(1)),
-                },
+                new HybridCacheEntryOptions { Expiration = TimeSpan.FromHours(_fileStorageOptions.DownloadUrlExpirationHours * 0.5) },
                 cancellationToken: cancellationToken);
 
             return (key, url);
@@ -148,11 +144,7 @@ public class GetMediaAssetsInfoHandler : IQueryHandler<GetMediaAssetsInfoRespons
             await _cache.SetAsync(
                 key: mediaUrl.StorageKey.Value,
                 value: mediaUrl.PresignedUrl,
-                new HybridCacheEntryOptions
-                {
-                    Expiration = TimeSpan.FromHours(_fileStorageOptions.DownloadUrlExpirationHours)
-                        .Subtract(TimeSpan.FromHours(1)),
-                },
+                new HybridCacheEntryOptions { Expiration = TimeSpan.FromHours(_fileStorageOptions.DownloadUrlExpirationHours * 0.5) },
                 cancellationToken: cancellationToken);
         });
 
