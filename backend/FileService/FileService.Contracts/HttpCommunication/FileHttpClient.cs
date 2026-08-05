@@ -32,7 +32,25 @@ internal sealed class FileHttpClient : IFileCommunicationService
         {
             _logger.LogError(ex, "Error occurred when getting media assets by ids {Ids}",
                 string.Join(", ", request.MediaAssetIds));
-            return Error.Failure("internal.error", "Failed to get media assets info").ToErrors();
+            return Error.Failure("server.error", "Failed to get media assets info").ToErrors();
+        }
+    }
+
+    public async Task<Result<CheckMediaAssetExistsResponse, Errors>> CheckMediaAssetExists(
+        Guid mediaAssetId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            HttpResponseMessage response = await _httpClient.GetAsync($"/files/{mediaAssetId}/exists", cancellationToken);
+
+            return await response.HandleResponseAsync<CheckMediaAssetExistsResponse>(cancellationToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error checking media asset with id {Id}", mediaAssetId);
+
+            return Error.Failure("server.error", "Failed to check media assets exists").ToErrors();
         }
     }
 }

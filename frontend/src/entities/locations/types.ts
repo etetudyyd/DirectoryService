@@ -8,6 +8,7 @@ export type Location = {
   updatedAt: Date;
   deletedAt: Date | null;
   departmentsIds: string[];
+  previewId?: string | null;
 }
 
 export type Address = {

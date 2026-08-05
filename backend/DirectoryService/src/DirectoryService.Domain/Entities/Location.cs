@@ -19,6 +19,8 @@ public sealed class Location : ISoftDeletable
 
     public Timezone Timezone { get; private set; }
 
+    public Guid? PreviewId { get; private set; }
+
     public bool IsActive { get; private set; }
 
     public DateTime CreatedAt { get; private set; }
@@ -81,6 +83,13 @@ public sealed class Location : ISoftDeletable
 
         UpdatedAt = DateTime.UtcNow;
 
+        return UnitResult.Success<Error>();
+    }
+
+    public UnitResult<Error> UpdatePreviewId(Guid? previewId)
+    {
+        PreviewId = previewId;
+        UpdatedAt = DateTime.UtcNow;
         return UnitResult.Success<Error>();
     }
 

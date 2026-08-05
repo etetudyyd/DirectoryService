@@ -49,6 +49,7 @@ public class GetLocationByIdHandler : IQueryHandler<GetLocationByIdResponse, Get
             new LocationDto
         {
             Id = location.Id.Value,
+            PreviewId = location.PreviewId,
             Name = location.Name.Value,
             Address = new AddressDto
             {

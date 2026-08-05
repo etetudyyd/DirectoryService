@@ -1,5 +1,6 @@
 ﻿using Core.Abstractions;
 using FluentValidation;
+using Framework.Endpoints;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DirectoryService;
@@ -14,6 +15,8 @@ public static class DependencyInjection
         serviceCollection.AddValidatorsFromAssembly(typeof(DependencyInjection).Assembly);
 
         var assembly = typeof(DependencyInjection).Assembly;
+
+        serviceCollection.AddEndpoints(assembly);
 
         serviceCollection.Scan(scan => scan.FromAssemblies(assembly)
             .AddClasses(classes => classes

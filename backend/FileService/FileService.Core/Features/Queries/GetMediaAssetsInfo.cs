@@ -15,7 +15,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Extensions;
 using Shared.SharedKernel;
 
-namespace DirectoryService.Features;
+namespace DirectoryService.Features.Queries;
 
 public class GetMediaAssetInfoEndpoint : IEndpoint
 {
