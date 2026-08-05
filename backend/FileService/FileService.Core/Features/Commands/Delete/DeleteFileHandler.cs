@@ -5,6 +5,7 @@ using Framework.Endpoints;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Logging;
 using Shared.SharedKernel;
 
@@ -29,15 +30,18 @@ public class DeleteFileHandler : ICommandHandler<Guid, DeleteFileCommand>
 {
     private readonly IMediaAssetsRepository _mediaAssetRepository;
     private readonly IS3Provider _s3Provider;
+    private readonly HybridCache _cache;
     private readonly ILogger<DeleteFileHandler> _logger;
 
     public DeleteFileHandler(
         IMediaAssetsRepository mediaAssetRepository,
         IS3Provider s3Provider,
+        HybridCache cache,
         ILogger<DeleteFileHandler> logger)
     {
         _mediaAssetRepository = mediaAssetRepository;
         _s3Provider = s3Provider;
+        _cache = cache;
         _logger = logger;
     }
 
@@ -68,6 +72,7 @@ public class DeleteFileHandler : ICommandHandler<Guid, DeleteFileCommand>
         mediaAsset.MarkDeleted(DateTime.UtcNow);
 
         await _mediaAssetRepository.SaveChangesAsync(cancellationToken);
+        await _cache.RemoveAsync(mediaAsset.RawKey.Value, cancellationToken);
 
         _logger.LogInformation($"Deleted file {command.FileId}");
 

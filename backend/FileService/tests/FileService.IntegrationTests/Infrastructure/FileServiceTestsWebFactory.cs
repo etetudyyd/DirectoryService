@@ -1,5 +1,6 @@
 using System.Data.Common;
 using Amazon.S3;
+using DirectoryService.FilesStorage;
 using FileService;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -122,7 +123,7 @@ public static class ConfiguratorS3
 
         services.AddSingleton<IAmazonS3>(sp =>
         {
-            S3Options s3Options = sp.GetRequiredService<IOptions<S3Options>>().Value;
+            FileStorageOptions fileStorageOptions = sp.GetRequiredService<IOptions<FileStorageOptions>>().Value;
 
             var config = new AmazonS3Config
             {
@@ -131,7 +132,7 @@ public static class ConfiguratorS3
                 ForcePathStyle = true,
             };
 
-            return new AmazonS3Client(s3Options.AccessKey, s3Options.SecretKey, config);
+            return new AmazonS3Client(fileStorageOptions.AccessKey, fileStorageOptions.SecretKey, config);
         });
     }
 }

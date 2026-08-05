@@ -1,5 +1,6 @@
 ﻿using Core.Abstractions;
 using FluentValidation;
+using Microsoft.Extensions.Caching.Hybrid;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -23,6 +24,23 @@ public static class DependencyInjectionCoreExtensions
                         typeof(IQueryHandler<,>)))
                 .AsSelfWithInterfaces()
                 .WithScopedLifetime());
+
+        services.AddStackExchangeRedisCache(options =>
+        {
+            string connection = configuration.GetConnectionString("Redis")
+                                ?? throw new ArgumentNullException(nameof(connection));
+
+            options.Configuration = connection;
+        });
+
+        services.AddHybridCache(options =>
+        {
+            options.DefaultEntryOptions = new HybridCacheEntryOptions
+            {
+                LocalCacheExpiration = TimeSpan.FromMinutes(5),
+                Expiration = TimeSpan.FromMinutes(30),
+            };
+        });
 
         return services;
     }
