@@ -76,6 +76,7 @@ public class GetLocationsHandler : IQueryHandler<PaginationResponse<LocationDto>
                  l.id,
                  l.name,
                  l.timezone,
+                 l."previewId" AS PreviewId,
                  l.is_active as IsActive,
                  l.created_at as CreatedAt,
                  l.updated_at as UpdatedAt,

@@ -2,7 +2,7 @@
 
     <PropertyGroup>
       <PackageId>etetudyyd.FileService.Contracts</PackageId>
-      <Version>0.0.2</Version>
+      <Version>0.0.6</Version>
       <Authors>etetudyyd</Authors>
       <Company>etetudyyd</Company>
       <PackageDescription>FileService.Contracts</PackageDescription>

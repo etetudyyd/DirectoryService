@@ -10,8 +10,12 @@ import { Edit2Icon, Trash, Clock, Users, Calendar, Globe, Check } from "lucide-r
 import { Separator } from "@/shared/components/ui/separator";
 import { useDeleteLocation } from "@/features/locations/model/use-delete-location";
 import { DeleteConfirmationDialog } from "@/features/delete-confirmation-dialog";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { useActivateLocation } from "@/features/locations/model/use-activate-location";
+import { useUpdateLocationPreview } from "@/features/locations/model/use-update-location-preview";
+import { locationsApi } from "@/entities/locations/api";
+import { toast } from "sonner";
+import { ImageIcon } from "lucide-react";
 
 type Props = {
   location: Location;
@@ -43,8 +47,12 @@ const formatDateTime = (date: Date | string | null) => {
 export default function LocationCard({ location, onEdit }: Props) {
   const { deleteLocation, isPending } = useDeleteLocation();
   const { activateLocation, isPending: isActivatePending } = useActivateLocation();
+  const { updateLocationPreviewAsync, isPending: isUpdatePreviewPending } = useUpdateLocationPreview(location.id);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isUploadingPreview, setIsUploadingPreview] = useState(false);
+  const previewInputRef = useRef<HTMLInputElement>(null);
 
   const handleDelete = async () => {
     setLoading(true);
@@ -75,6 +83,46 @@ export default function LocationCard({ location, onEdit }: Props) {
     e.preventDefault();
     e.stopPropagation();
     onEdit();
+  };
+
+  const handleUpdatePreview = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    previewInputRef.current?.click();
+  };
+
+  const handlePreviewSelected = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+
+    if (!file) return;
+    if (!file.type.startsWith("image/")) {
+      toast.error("Please select an image file.");
+      return;
+    }
+
+    setIsUploadingPreview(true);
+    const localPreviewUrl = URL.createObjectURL(file);
+    setPreviewUrl(localPreviewUrl);
+
+    try {
+      const previewId = await locationsApi.uploadPreview(location.id, file);
+      if (!previewId) throw new Error("File Service did not return an asset id.");
+
+      await updateLocationPreviewAsync(previewId);
+
+      const preview = await locationsApi.getPreviewInfo(previewId);
+      if (preview?.downloadUrl) {
+        URL.revokeObjectURL(localPreviewUrl);
+        setPreviewUrl(preview.downloadUrl);
+      }
+    } catch {
+      URL.revokeObjectURL(localPreviewUrl);
+      setPreviewUrl(null);
+      toast.error("Preview upload failed.");
+    } finally {
+      setIsUploadingPreview(false);
+    }
   };
 
   const formattedCreatedAt = formatDateTime(location.createdAt);
@@ -116,6 +164,20 @@ export default function LocationCard({ location, onEdit }: Props) {
 
       <CardContent className="pb-3">
         <div className="space-y-3">
+          <div className="overflow-hidden rounded-lg border border-slate-700/50 bg-slate-950/40">
+            {previewUrl ? (
+              <img
+                src={previewUrl}
+                alt={`${location.name} preview`}
+                className="h-40 w-full object-cover"
+              />
+            ) : (
+              <div className="flex h-40 items-center justify-center text-slate-500">
+                <ImageIcon className="h-8 w-8" />
+              </div>
+            )}
+          </div>
+
           {/* Address */}
           <div className="flex items-start gap-2">
             <Globe className="h-4 w-4 text-slate-400 mt-0.5 shrink-0" />
@@ -190,13 +252,33 @@ export default function LocationCard({ location, onEdit }: Props) {
       </CardContent>
 
       <CardFooter className="pt-3 border-t border-slate-800/50 bg-slate-900/20">
-        <div className="flex w-full justify-end gap-2">
+        <div className="flex w-full flex-wrap justify-end gap-2">
+
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleUpdatePreview}
+            disabled={isPending || isUploadingPreview || isUpdatePreviewPending}
+            className="shrink-0 gap-2 border-slate-700/50 text-slate-400 hover:text-blue-400 hover:border-blue-700/50 hover:bg-blue-900/20 transition-all duration-200"
+          >
+            <Edit2Icon className="h-4 w-4" />
+            Update Preview
+          </Button>
+
+          <input
+            ref={previewInputRef}
+            type="file"
+            accept="image/*"
+            className="hidden"
+            onChange={handlePreviewSelected}
+          />
+
           <Button
             variant="outline"
             size="sm"
             onClick={handleEdit}
             disabled={isPending}
-            className="gap-2 border-slate-700/50 text-slate-400 hover:text-blue-400 hover:border-blue-700/50 hover:bg-blue-900/20 transition-all duration-200"
+            className="shrink-0 gap-2 border-slate-700/50 text-slate-400 hover:text-blue-400 hover:border-blue-700/50 hover:bg-blue-900/20 transition-all duration-200"
           >
             <Edit2Icon className="h-4 w-4" />
             Edit
@@ -208,7 +290,7 @@ export default function LocationCard({ location, onEdit }: Props) {
               size="sm"
               onClick={handleDeleteClick}
               disabled={isPending}
-              className="gap-2 border-slate-700/50 text-slate-400 hover:text-red-400 hover:border-red-700/50 hover:bg-red-900/20 transition-all duration-200"
+              className="shrink-0 gap-2 border-slate-700/50 text-slate-400 hover:text-red-400 hover:border-red-700/50 hover:bg-red-900/20 transition-all duration-200"
             >
               <Trash className="h-4 w-4" />
               Delete
@@ -219,7 +301,7 @@ export default function LocationCard({ location, onEdit }: Props) {
               size="sm"
               onClick={handleActivate}
               disabled={isActivatePending}
-              className="gap-2 border-slate-700/50 text-slate-400 hover:text-green-400 hover:border-green-700/50 hover:bg-green-900/20 transition-all duration-200"
+              className="shrink-0 gap-2 border-slate-700/50 text-slate-400 hover:text-green-400 hover:border-green-700/50 hover:bg-green-900/20 transition-all duration-200"
             >
               <Check className="h-4 w-4" />
               Activate

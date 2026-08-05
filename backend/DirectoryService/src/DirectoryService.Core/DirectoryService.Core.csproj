@@ -3,6 +3,7 @@
   <ItemGroup>
     <PackageReference Include="Dapper" />
     <PackageReference Include="etetudyyd.Core" />
+    <PackageReference Include="etetudyyd.fileservice.contracts" />
     <PackageReference Include="etetudyyd.Framework" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" />
     <PackageReference Include="Microsoft.EntityFrameworkCore" />

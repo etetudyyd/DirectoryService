@@ -1,10 +1,15 @@
 import { apiClient } from "@/shared/api/axios-instance";
+import axios from "axios";
 import { Address, Location } from "./types";
 import { DictionaryItemResponse, PaginationResponse } from "@/shared/api/types";
 import { infiniteQueryOptions, queryOptions } from "@tanstack/react-query";
 import { Envelope } from "@/shared/api/envelope";
 import { LocationDictionaryState, LocationsFilterState } from "@/features/locations/model/location-filters-store";
 import routes from "@/shared/routes";
+
+const fileServiceClient = axios.create({
+  baseURL: process.env.NEXT_PUBLIC_FILE_SERVICE_BASE_URL ?? "http://localhost:8091",
+});
 
 
 export type GetLocationsDictionaryRequest = {
@@ -63,6 +68,37 @@ export const locationsApi = {
       { name, address, timeZone},
     );
     return response.data;
+  },
+
+  updateLocationPreview: async ( locationId: string, previewId?: string ) => {
+    const response = await apiClient.patch<Envelope<string>>(
+      `${routes.locations}/${locationId}/preview`,
+      { previewId }
+    );
+    return response.data; 
+  },
+
+  uploadPreview: async (locationId: string, file: File) => {
+    const formData = new FormData();
+    formData.append("FormFile", file);
+    formData.append("AssetType", "preview");
+    formData.append("Context", "location");
+    formData.append("ContextId", locationId);
+
+    const response = await fileServiceClient.post<Envelope<string>>(
+      "/api/files/upload",
+      formData,
+    );
+
+    return response.data.result;
+  },
+
+  getPreviewInfo: async (previewId: string) => {
+    const response = await fileServiceClient.get<Envelope<{
+      downloadUrl: string | null;
+    }>>(`/api/files/${previewId}`);
+
+    return response.data.result;
   },
 
   getLocationsDictionary: async (

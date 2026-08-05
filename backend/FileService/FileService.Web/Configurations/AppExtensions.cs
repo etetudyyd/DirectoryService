@@ -11,6 +11,7 @@ public static class AppExtensions
     public static IApplicationBuilder Configure(this WebApplication app)
     {
         app.UseExceptionMiddleware();
+        app.UseCors("Frontend");
         app.UseRequestCorrelationId();
         app.UseSerilogRequestLogging();
 
@@ -23,6 +24,7 @@ public static class AppExtensions
 
         RouteGroupBuilder apiGroup = app.MapGroup("/api").WithOpenApi();
         app.MapEndpoints(apiGroup);
+        app.MapEndpoints();
 
         app.UseAutoMigrate();
 
