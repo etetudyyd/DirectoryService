@@ -1,6 +1,8 @@
 using Core.Abstractions;
 using CSharpFunctionalExtensions;
+using DirectoryService.Assets;
 using DirectoryService.Responses;
+using DirectoryService.Types;
 using Framework.Endpoints;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Mvc;
@@ -41,10 +43,14 @@ public class CheckMediaAssetExistsHandler : IQueryHandler<CheckMediaAssetExistsR
 
     public async Task<Result<CheckMediaAssetExistsResponse, Errors>> Handle(CheckMediaAssetExistsQuery query, CancellationToken cancellationToken)
     {
-        bool exists = await _readDbContext.MediaAssetsRead.AnyAsync(m => m.Id == query.MediaAssetId, cancellationToken);
+        bool isValid = await _readDbContext.MediaAssetsRead.AnyAsync(
+            m => m.Id == query.MediaAssetId
+                 && m.Status == MediaStatus.READY
+                 && m.AssetType == AssetType.PREVIEW,
+            cancellationToken);
 
-        _logger.LogDebug($"CheckMediaAssetExistsHandler.Handle() returns: {exists}");
+        _logger.LogDebug($"CheckMediaAssetExistsHandler.Handle() returns: {isValid}");
 
-        return new CheckMediaAssetExistsResponse(exists);
+        return new CheckMediaAssetExistsResponse(isValid);
     }
 }

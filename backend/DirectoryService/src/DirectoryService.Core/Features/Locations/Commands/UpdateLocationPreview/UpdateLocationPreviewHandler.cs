@@ -89,7 +89,7 @@ public class UpdateLocationPreviewHandler : ICommandHandler<Guid, UpdateLocation
 
         await _transactionManager.SaveChangesAsync(cancellationToken);
 
-        _logger.LogInformation("Created location preview with id: {Id}", locationResult.Value.Id);
+        _logger.LogInformation("Updated location preview with id: {Id}", locationResult.Value.Id);
 
         return locationResult.Value.Id.Value;
 
