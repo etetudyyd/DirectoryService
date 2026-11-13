@@ -54,11 +54,11 @@ public class MediaAssetConfiguration : IEntityTypeConfiguration<MediaAsset>
             .HasColumnName("raw_key")
             .HasColumnType("jsonb");
 
-        builder.Property(x => x.FinalKey)
+        builder.Property(x => x.Key)
             .HasConversion(
                 v => JsonSerializer.Serialize(v, (JsonSerializerOptions?)null),
                 v => JsonSerializer.Deserialize<StorageKey>(v, (JsonSerializerOptions?)null)!)
-            .HasColumnName("final_key")
+            .HasColumnName("key")
             .HasColumnType("jsonb");
 
         builder.OwnsOne(x => x.Owner, ob =>

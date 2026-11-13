@@ -31,6 +31,8 @@ public class VideoAsset : MediaAsset
     {
     }
 
+    protected override bool RequiresProcessing() => true;
+
     public static UnitResult<Error> ValidateForUpload(MediaData mediaData)
     {
         if(!AllowedExtensions.Contains(mediaData.FileName.Extension))
