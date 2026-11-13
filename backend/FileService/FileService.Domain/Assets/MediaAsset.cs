@@ -19,11 +19,13 @@ public abstract class MediaAsset
 
     public DateTime UpdatedAt { get; protected set; } = DateTime.UtcNow;
 
-    public StorageKey RawKey { get; protected set; } = null!;
+    public StorageKey? RawKey { get; protected set; }
 
-    public StorageKey FinalKey { get; protected set; } = null!;
+    public StorageKey? Key { get; protected set; }
 
     public MediaOwner Owner { get; protected set; } = null!;
+
+    public StorageKey UploadKey => RequiresProcessing() ? RawKey! : Key!;
 
     protected MediaAsset()
     {
@@ -45,8 +47,10 @@ public abstract class MediaAsset
         UpdatedAt = CreatedAt;
         Owner = owner;
         RawKey = rawKey;
-        FinalKey = rawKey;
+        Key = rawKey;
     }
+
+    protected virtual bool RequiresProcessing() => false;
 
     public UnitResult<Error> MarkUploaded(DateTime timestamp)
     {
@@ -68,7 +72,7 @@ public abstract class MediaAsset
 
         Status = MediaStatus.READY;
         UpdatedAt = timestamp;
-        FinalKey = finalKey;
+        Key = finalKey;
 
         return UnitResult.Success<Error>();
 
